@@ -1,0 +1,66 @@
+# SimVascular Solver Input File
+
+#SOLUTION CONTROL 
+     Equation of State: Incompressible
+     Number of Timesteps: my_number_of_time_steps
+     Time Step Size: my_initial_time_increment
+
+#MATERIAL PROPERTIES
+     Viscosity: 0.04         
+     Density: 1.06   
+
+#OUTPUT CONTROL
+     Print Error Indicators: True
+     Number of Timesteps between Restarts:25
+     Data Block Format : my_output_format
+
+#CARDIOVASCULAR MODELING PARAMETERS
+	Time Varying Boundary Conditions From File: True
+	BCT Time Scale Factor : 1.0
+	Number of Coupled Surfaces: 1
+	Pressure Coupling: Implicit	
+	Number of Resistance Surfaces: 1 	
+	List of Resistance Surfaces: 2 
+	Resistance Values : 175.5 
+	Number of Impedance Surfaces: 0 
+	List of Impedance Surfaces: NODEFAULT 
+	Impedance From File: False 
+        Deformable Wall: my_deformable_flag
+        Density of Vessel Wall: 1.0
+        Thickness of Vessel Wall: 0.1
+        Young Mod of Vessel Wall: 4144000.0
+        Poisson Ratio of Vessel Wall: 0.5
+        Shear Constant of Vessel Wall: 0.8333
+        Wall Mass Matrix for LHS: True
+        Wall Stiffness Matrix for LHS: True
+
+#LINEAR SOLVER
+     Number of Solves per Left-hand-side Formation: 1
+
+#DISCRETIZATION CONTROL
+     Solver Type: ACUSIM with P Projection
+     Basis Function Order: 1
+     Quadrature Rule on Interior: 2
+     Quadrature Rule on Boundary: 2
+     Include Viscous Correction in Stabilization: True 
+     Lumped Mass Fraction on Left-hand-side: 0.0
+     Lumped Mass Fraction on Right-hand-side: 0.0
+     Time Integration Rule: Second Order
+     Time Integration Rho Infinity: my_rho_infinity
+     Flow Advection Form: Convective
+
+     Surface ID for Integrated Mass: 0
+     Number of Force Surfaces: 1
+     Surface ID's for Force Calculation: 1 
+
+#TURBULENCE MODELING PARAMETERS
+	Dynamic Model Type : Standard
+        Filter Integration Rule: 1
+	Turbulence Wall Model Type: Effective Viscosity
+	Velocity Averaging Steps : 500.
+	Dynamic Model Averaging Steps : 500.
+	Filter Width Ratio        : 3.
+
+#STEP SEQUENCE 
+      Step Construction  : my_step_construction
+
