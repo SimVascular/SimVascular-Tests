@@ -34,25 +34,25 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   puts $fp "option volume smoothing 3"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "gsize 1 1.0"
+  puts $fp "gsize 1 2.0"
 
   #puts $fp "option O1"
 
-  #if {$pulsatile_mesh_option == 1} {
-  #  puts $fp "gsize absolute 3"
-  #} elseif {$pulsatile_mesh_option == 2} {
-  #  puts $fp "gsize absolute 3"
+  if {$pulsatile_mesh_option == 1} {
+    puts $fp "gsize absolute 1.0"
+  } elseif {$pulsatile_mesh_option == 2} {
+    puts $fp "gsize absolute 1.0"
   #  puts $fp "sphereRefinement 1 10.0 16 0 -95"
   #  puts $fp "size lt_iliac absolute 1"
   #  puts $fp "size rt_iliac absolute 1"
   #  puts $fp "sphereRefinement 2 10.0 0 0 -75"
-  #} elseif {$pulsatile_mesh_option == 3} {
-  #  puts $fp "gsize absolute 1"
+  } elseif {$pulsatile_mesh_option == 3} {
+    puts $fp "gsize absolute 1.0"
   #  puts $fp "sphereRefinement 0.5 10.0 16 0 -95"
   #  puts $fp "sphereRefinement 0.5 10.0 0 0 -75"
-  #} else {
-  #  return -code error "ERROR: invalid pulsatile_mesh_option ($pulsatile_mesh_option)"
-  #}
+  } else {
+    return -code error "ERROR: invalid pulsatile_mesh_option ($pulsatile_mesh_option)"
+  }
 
   puts $fp "quality 2.0"
   puts $fp "generateMesh"
