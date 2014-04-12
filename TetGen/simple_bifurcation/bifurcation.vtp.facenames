@@ -1,0 +1,14 @@
+# user defined face id to name mapping for model file (C:/cygwin/home/nwilson/work/2014/osmsc/2014-03-22-sv_tests/trunk/Testing/TetGen/simple_bifurcation_test/bifurcation.vtp)
+# timestamp: 1397284933  (Fri Apr 11 23:42:13 PDT 2014)
+
+global gPolyDataFaceNames
+global gPolyDataFaceNamesInfo
+
+set gPolyDataFaceNamesInfo(timestamp) {1397284933}
+set gPolyDataFaceNamesInfo(model_file_md5) {B0D85CEF910B72E8FA523AC48F415A0B}
+set gPolyDataFaceNamesInfo(model_file_name) {bifurcation.vtp}
+
+set gPolyDataFaceNames(1) {rt_iliac}
+set gPolyDataFaceNames(2) {wall}
+set gPolyDataFaceNames(3) {lt_iliac}
+set gPolyDataFaceNames(4) {inflow}
