@@ -31,7 +31,7 @@ set gOptions(meshing_kernel) TetGen
 set gOptions(meshing_solid_kernel) PolyData
 solid_setKernel -name PolyData
 
-source ../common/executable_names.tcl
+source ../../common/executable_names.tcl
 
 #
 # prompt user for number of procs
