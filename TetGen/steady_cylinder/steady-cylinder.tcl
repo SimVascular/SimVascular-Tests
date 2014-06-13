@@ -6,6 +6,11 @@
 #     solver.inp
 #  and should be sourced interactively from SimVascular
 #
+#
+global gOptions
+
+set gOptions(meshing_solid_kernel) PolyData
+set gOptions(meshing_kernel_ TetGen
 
 set use_ascii_format 0
 set timesteps 32
