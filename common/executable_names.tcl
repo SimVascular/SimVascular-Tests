@@ -22,7 +22,7 @@ set ADAPTOR       "$SVRELEASEDIR/adaptor-bin.exe"
 
 }
 
-if {1 == 1} {
+if {0 == 1} {
   set PRESOLVER     /home/danschi/Development/svDevelopment/simvascular_reorg/Code/Bin/presolver.exe
   set POSTSOLVER    /home/danschi/Development/svDevelopment/simvascular_reorg/Code/mypost
   set MPIEXEC       /usr/local/bin/mpiexec
