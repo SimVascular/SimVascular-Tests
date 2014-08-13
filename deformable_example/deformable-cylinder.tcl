@@ -9,7 +9,7 @@
 
 set use_ascii_format 0
 
-source executable_names.tcl
+source ../common/executable_names.tcl
 
 #
 # prompt user for number of procs
@@ -17,6 +17,11 @@ source executable_names.tcl
 
 set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
 incr num_procs
+
+# prompt user for linear solver
+#
+
+set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
 
 set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
 set fullrundir [file join [pwd] $rundir]
@@ -131,6 +136,11 @@ while {[gets $infp line] >= 0} {
   regsub -all my_deformable_flag $line False line
   regsub -all my_rho_infinity $line 0.5 line
   regsub -all my_step_construction $line "0 1 0 1 0 1    \# this is the standard three iteration" line
+  if {$selected_LS} {
+       regsub -all "\#leslib_linear_solver" $line {} line
+  } else {
+       regsub -all "\#memls_linear_solver" $line {} line
+  }
   puts $outfp $line
 }
 close $infp
@@ -181,22 +191,22 @@ if {$use_ascii_format != 0} {
   set aflag ""
 }
 
-for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER -dir $rigid_steady_sim_dir -sn $i $aflag -bflux -vis [file join $rigid_steady_sim_dir cylinder_res$i.vis]} msg] {
+for {set i 0} {$i <= $endstep} {incr i 25} {  
+   if [catch {exec $POSTSOLVER -indir $rigid_steady_sim_dir -outdir $rigid_steady_sim_dir  -sn $i $aflag -bflux -vis [file join $rigid_steady_sim_dir cylinder_res$i.vis]} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER -dir $rigid_steady_sim_dir -sn 0 $aflag -vismesh [file join $rigid_steady_sim_dir cylinder_mesh.vis]} msg] {
+
+if [catch {exec $POSTSOLVER -indir $rigid_steady_sim_dir -outdir $rigid_steady_sim_dir -sn 0 $aflag -vismesh [file join $rigid_steady_sim_dir cylinder_mesh.vis]} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER -dir $rigid_steady_sim_dir -sn $endstep -td -ph $aflag -newsn 0} msg] {
+if [catch {exec $POSTSOLVER -indir $rigid_steady_sim_dir -outdir $rigid_steady_sim_dir -sn $endstep -td -ph $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
-
 
 ###
 ###
@@ -288,6 +298,11 @@ while {[gets $infp line] >= 0} {
   regsub -all my_deformable_flag $line True line
   regsub -all my_rho_infinity $line 0.0 line
   regsub -all my_step_construction $line "0 1 0 1 0 1 0 1   \# this is the standard four iteration" line
+  if {$selected_LS} {
+       regsub -all "\#leslib_linear_solver" $line {} line
+  } else {
+       regsub -all "\#memls_linear_solver" $line {} line
+  }
   puts $outfp $line
 }
 close $infp
@@ -339,17 +354,17 @@ if {$use_ascii_format != 0} {
 }
 
 for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER -dir $def_steady_sim_dir -sn $i $aflag -bflux -vis [file join $def_steady_sim_dir cylinder_res$i.vis]} msg] {
+   if [catch {exec $POSTSOLVER -indir $def_steady_sim_dir -outdir $def_steady_sim_dir -sn $i $aflag -bflux -vis [file join $def_steady_sim_dir cylinder_res$i.vis]} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER -dir $def_steady_sim_dir -sn 0 $aflag -vismesh [file join $def_steady_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER -indir $def_steady_sim_dir -outdir $def_steady_sim_dir -sn 0 $aflag -vismesh [file join $def_steady_sim_dir cylinder_mesh.vis]} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER -dir $def_steady_sim_dir -sn $timesteps -td -disp -ph $aflag -newsn 0} msg] {
+if [catch {exec $POSTSOLVER -indir $def_steady_sim_dir -outdir $def_steady_sim_dir -sn $timesteps -disp -td -ph $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
@@ -406,6 +421,11 @@ while {[gets $infp line] >= 0} {
   regsub -all my_deformable_flag $line True line
   regsub -all my_rho_infinity $line 0.0 line
   regsub -all my_step_construction $line "0 1 0 1 0 1 0 1   \# this is the standard four iteration" line
+  if {$selected_LS} {
+       regsub -all "\#leslib_linear_solver" $line {} line
+  } else {
+       regsub -all "\#memls_linear_solver" $line {} line
+  }
   puts $outfp $line
 }
 close $infp
@@ -457,17 +477,17 @@ if {$use_ascii_format != 0} {
 }
 
 for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER -dir $def_pulse_sim_dir -sn $i $aflag -bflux -vis [file join $def_pulse_sim_dir cylinder_res$i.vis]} msg] {
+   if [catch {exec $POSTSOLVER -indir $def_pulse_sim_dir -outdir $def_pulse_sim_dir -sn $i $aflag -bflux -vis [file join $def_pulse_sim_dir cylinder_res$i.vis]} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER -dir $def_pulse_sim_dir -sn 0 $aflag -vismesh [file join $def_pulse_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER  -indir $def_pulse_sim_dir -outdir $def_pulse_sim_dir -sn 0 $aflag -vismesh [file join $def_pulse_sim_dir cylinder_mesh.vis]} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER -dir $def_pulse_sim_dir -sn $timesteps -td -ph $aflag -newsn 0} msg] {
+if [catch {exec $POSTSOLVER  -indir $def_pulse_sim_dir -outdir $def_pulse_sim_dir -sn $timesteps -td -ph $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
