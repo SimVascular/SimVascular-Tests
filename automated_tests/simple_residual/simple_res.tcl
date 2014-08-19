@@ -3,8 +3,11 @@ set thisDir [file dirname $thisFile]
 puts $thisFile
 puts $thisDir
 
-set data "This is some test data.\n"
-set filename "$thisDir/simple_test.txt"
+set data "0.1\n"
+set filename "$thisDir/simple_res.output"
+if { [file exists $filename] } {
+    file delete $filename
+}
 set fileId [open $filename "w"]
 puts -nonewline $fileId $data
 close $fileId
