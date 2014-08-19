@@ -1,12 +1,12 @@
 
 # central area to change name of executables
 
-set PRESOLVER     $gExternalPrograms(cvpresolver)
-set POSTSOLVER    $gExternalPrograms(cvpostsolver)
-set MPIEXEC       $gExternalPrograms(mpiexec)
-set SOLVER        $gExternalPrograms(cvflowsolver)
-set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
-set ADAPTOR       $gExternalPrograms(cvadaptor)
+#set PRESOLVER     $gExternalPrograms(cvpresolver)
+#set POSTSOLVER    $gExternalPrograms(cvpostsolver)
+#set MPIEXEC       $gExternalPrograms(mpiexec)
+#set SOLVER        $gExternalPrograms(cvflowsolver)
+#set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(pwd)] 
+#set ADAPTOR       $gExternalPrograms(cvadaptor)
 
 if {0 == 1} {
 
@@ -31,3 +31,11 @@ if {0 == 1} {
   set ADAPTOR       /home/danschi/Development/svDevelopment/simvascular_reorg/Code/myadaptor
 }
 
+if {1 == 1} {
+set PRESOLVER     /Users/jmerkow/code/SimVascular/bin/simvascular-development/Bin/presolver
+  set POSTSOLVER    /Users/jmerkow/code/SimVascular/bin/simvascular-development/mypost
+  set MPIEXEC       /usr/local/bin/mpiexec
+  set SOLVER        /Users/jmerkow/code/SimVascular/bin/simvascular-development/mysolver
+  set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
+  set ADAPTOR       /Users/jmerkow/code/SimVascular/bin/simvascular-development/myadaptor
+}
