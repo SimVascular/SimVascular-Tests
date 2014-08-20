@@ -36,21 +36,23 @@ set gOptions(meshing_kernel) TetGen
 set gOptions(meshing_solid_kernel) PolyData
 solid_setKernel -name PolyData
 
-source ../../common/executable_names.tcl
+source ../common/executable_names.tcl
 
 #
 # prompt user for number of procs
 #
 
-set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
+#set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
+set num_procs 0
 incr num_procs
 
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
-
-set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
+#set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
+set selected_LS 0
+#set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
+set rundir "test"
 set fullrundir [file join [pwd] $rundir]
 file mkdir $fullrundir
 
@@ -197,10 +199,12 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
    return -code error "ERROR running postsolver!"
 }
 
+after 1000
+mainGUIexit
 #
 #  compare results
 #
 
-source steady-compare_with_analytic.tcl
+#source steady-compare_with_analytic.tcl
 
 

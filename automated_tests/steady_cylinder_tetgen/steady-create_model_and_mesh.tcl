@@ -31,7 +31,7 @@ proc demo_create_mesh {dstdir} {
   puts $fp "newMesh"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "option a 0.05"
+  puts $fp "option a 0.5"
   puts $fp "option q 1.4"
   puts $fp "option Y"
   puts $fp "generateMesh"

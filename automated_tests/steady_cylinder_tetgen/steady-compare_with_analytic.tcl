@@ -171,24 +171,3 @@ Please use the "Current widget path:" to show/hide windows.}}
 
 }
 
-   for {set i [expr [llength $tlist] - 1]} {$i >= 0} {incr i -1} {
-     set title "[file tail [pwd]]  [lindex $tlist $i]  Velocity (cm/sec) vs. r/R"
-     set graphname [file tail [pwd]]-graph$i
-     set fp [open [file join $fullrundir "profiles_for_[lindex $tlist $i]"] r]
-     gets $fp line
-     set analytic {}
-     set feasoln {}
-     while {[gets $fp line] > 0} {
-       lappend analytic [lindex $line 1]
-       lappend analytic [expr -[lindex $line 2] / 10.0]
-       lappend feasoln [lindex $line 1]
-       if {[llength $line] > 3} {
-         lappend feasoln [expr -[lindex $line 3] / 10.0]
-       } else {
-         lappend feasoln 0
-       }
-     }
-    close $fp 
-    demoCreateGraph $graphname $title $analytic $feasoln [expr 100+50*$i] [expr 100+50*$i]
-  }
-

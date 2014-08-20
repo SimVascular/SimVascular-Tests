@@ -1,0 +1,6 @@
+  set PRESOLVER     @@PRESOLVER_EXE@@
+  set POSTSOLVER    /Users/jmerkow/code/SimVascular/bin/simvascular-master/mypost
+  set MPIEXEC       /opt/local/bin/mpiexec
+  set SOLVER        /Users/jmerkow/code/SimVascular/bin/simvascular-master/mysolver
+  set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
+  set ADAPTOR       /Users/jmerkow/code/SimVascular/bin/simvascular-master/myadaptor

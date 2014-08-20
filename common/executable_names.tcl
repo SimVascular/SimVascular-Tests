@@ -31,16 +31,16 @@ if {0 == 1} {
   set ADAPTOR       /home/danschi/Development/svDevelopment/simvascular_reorg/Code/myadaptor
 }
 
-if {0 == 1} {
-  set PRESOLVER     /Users/jmerkow/code/SimVascular/bin/simvascular-development/Bin/presolver
-  set POSTSOLVER    /Users/jmerkow/code/SimVascular/bin/simvascular-development/mypost
-  set MPIEXEC       /usr/local/bin/mpiexec
-  set SOLVER        /Users/jmerkow/code/SimVascular/bin/simvascular-development/mysolver
+if {1 == 1} {
+  set PRESOLVER     /Users/jmerkow/code/SimVascular/bin/simvascular-master/Bin/presolver
+  set POSTSOLVER    /Users/jmerkow/code/SimVascular/bin/simvascular-master/mypost
+  set MPIEXEC       /opt/local/bin/mpiexec
+  set SOLVER        /Users/jmerkow/code/SimVascular/bin/simvascular-master/mysolver
   set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
-  set ADAPTOR       /Users/jmerkow/code/SimVascular/bin/simvascular-development/myadaptor
+  set ADAPTOR       /Users/jmerkow/code/SimVascular/bin/simvascular-master/myadaptor
 }
 
-if {1 == 1} {
+if {0 == 1} {
   set PRESOLVER     /home/jameson/Code/SimVascular/bin/simvascular-dev/Bin/presolver
   set POSTSOLVER    /home/jameson/Code/SimVascular/bin/simvascular-dev/mypost
   set MPIEXEC       /usr/bin/mpiexec
