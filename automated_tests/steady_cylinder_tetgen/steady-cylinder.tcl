@@ -20,6 +20,11 @@ set timesteps 32
 #set guiABC(create_vtp_file) 0
 
 # sometimes we have to invert the normal to the inflow surface
+set thisFile [dict get [ info frame [ info frame ] ] file ]
+set thisDir [file dirname $thisFile]
+puts $thisFile
+puts $thisDir
+
 global guiABC
 set guiABC(invert_face_normal) 1
 
@@ -28,7 +33,7 @@ set guiABC(invert_face_normal) 1
 
 # having lots of problems with the line intersection with
 # the edge boundary to calcuate the ratio map, so hack it here
-source geom_createRatioMap.tcl
+source $thisDir/geom_createRatioMap.tcl
 
 # let's use tetgen and polydata solids!
 global gOptions 
@@ -36,12 +41,13 @@ set gOptions(meshing_kernel) TetGen
 set gOptions(meshing_solid_kernel) PolyData
 solid_setKernel -name PolyData
 
-source ../common/executable_names.tcl
+
+
+source $thisDir/../common/executable_names.tcl
 
 #
 # prompt user for number of procs
 #
-
 #set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
 set num_procs 0
 incr num_procs
@@ -52,8 +58,9 @@ incr num_procs
 #set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
 set selected_LS 0
 #set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
-set rundir "test"
+set rundir "$thisDir/test"
 set fullrundir [file join [pwd] $rundir]
+file delete -force $fullrundir 
 file mkdir $fullrundir
 
 if {$num_procs == 1} {
@@ -63,8 +70,9 @@ if {$num_procs == 1} {
 }
 
 # create model, mesh, and bc files
-source steady-create_model_and_mesh.tcl
-demo_create_model $fullrundir
+source $thisDir/steady-create_model_and_mesh.tcl
+
+demo_create_model $thisDir $fullrundir
 demo_create_mesh  $fullrundir
 demo_create_bc_files $fullrundir
 
@@ -121,7 +129,7 @@ fconfigure $fp -translation lf
 puts $fp "0"
 close $fp
 
-set infp [open solver.inp r]
+set infp [open $thisDir/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
@@ -205,6 +213,6 @@ mainGUIexit
 #  compare results
 #
 
-#source steady-compare_with_analytic.tcl
+source $thisDir/steady-compare_with_analytic.tcl
 
 

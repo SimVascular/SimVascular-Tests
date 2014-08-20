@@ -1,12 +1,12 @@
 
-proc demo_create_model {dstdir} {
+proc demo_create_model {srcdir dstdir} {
 
   # just copy the model for now
 
-  solid_readNative -file cylinder.vtp -obj cyl
-
-  file copy cylinder.vtp $dstdir
-  file copy cylinder.vtp.facenames $dstdir
+  solid_readNative -file $srcdir/cylinder.vtp -obj cyl
+  file delete $dstdir/cylinder.vtp $dstdir/cylinder.vtp.facenames
+  file copy $srcdir/cylinder.vtp $dstdir
+  file copy $srcdir/cylinder.vtp.facenames $dstdir
   
   return
 
