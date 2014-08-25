@@ -1,6 +1,6 @@
   set PRESOLVER     @OUTBIN_DIR@/@PRESOLVER_EXE@
   set POSTSOLVER    @SCRIPT_DIR@/@SIMVASCULAR_SCRIPT_NAME_postsolver@
-  set MPIEXEC       @MPIEXEC@
+  set MPIEXEC       "@MPIEXEC@"
   set SOLVER         @SCRIPT_DIR@/@SIMVASCULAR_SCRIPT_NAME_flowsolver@
   set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
   set ADAPTOR        @SCRIPT_DIR@/@SIMVASCULAR_SCRIPT_NAME_adaptor@
