@@ -223,28 +223,42 @@ cancelTail [file join $fullrundir solver.log]
 # use gui function to convert to vtu, write flows
 #
 
-global guiPOSTvars
-global gFilenames
-global gOptions
-
-set guiPOSTvars(look_for_vtp) 1
-set gOptions(exclude_walls_from_flows) 1
-set guiPOSTvars(sim_units) mm
-set guiPOSTvars(write_vtu_results) 1
-set guiPOSTvars(combine_results) 1
-
-set gFilenames(complete_mesh_dir) [file join $fullrundir mesh-complete]
-set guiPOSTvars(restartFilesDir) $fullsimdir
-set guiPOSTvars(vtkFlowFile) [file join $fullrundir bif_results]
-# set outdir $guiPOSTvars(vtkFlowFile)
-
-set guiPOSTvars(start) [expr $endstep - $timesteps + 1]
-set guiPOSTvars(stop) $endstep
-set guiPOSTvars(increment) 1
-
-guiPOSTconvertFilesToVTK
-guiPOSTcalcFlowsFromVTK
+#global guiPOSTvars
+#global gFilenames
+#global gOptions
+#
+#set guiPOSTvars(look_for_vtp) 1
+#set gOptions(exclude_walls_from_flows) 1
+#set guiPOSTvars(sim_units) mm
+#set guiPOSTvars(write_vtu_results) 1
+#set guiPOSTvars(combine_results) 1
+#
+#set gFilenames(complete_mesh_dir) [file join $fullrundir mesh-complete]
+#set guiPOSTvars(restartFilesDir) $fullsimdir
+#set guiPOSTvars(vtkFlowFile) [file join $fullrundir bif_results]
+## set outdir $guiPOSTvars(vtkFlowFile)
+#
+#set guiPOSTvars(start) [expr $endstep - $timesteps + 1]
+#set guiPOSTvars(stop) $endstep
+#set guiPOSTvars(increment) 1
+#
+#guiPOSTconvertFilesToVTK
+#guiPOSTcalcFlowsFromVTK
 
 #puts "lt iliac avg: $avg_lt_iliac"
 #puts "rt iliac avg: $avg_rt_iliac"
 #puts "inflow   avg: $avg_inflow"
+#
+puts "Reduce restart files."
+if {$use_ascii_format != 0} {
+  set aflag "-nonbinary"
+} else {
+  set aflag ""
+}
+
+puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu bifurcation_results.vtu -vtp bifurcation_results.vtp"
+
+if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu bifurcation_results.vtu -vtp bifurcation_results.vtp} msg] {
+   puts $msg
+   return -code error "ERROR running postsolver!"
+}

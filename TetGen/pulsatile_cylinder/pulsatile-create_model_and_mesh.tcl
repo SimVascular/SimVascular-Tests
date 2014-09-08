@@ -27,15 +27,22 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   fconfigure $fp -translation lf
   puts $fp "msinit"
   puts $fp "logon [file join $dstdir cylinder.logfile]"
-  puts $fp "loadModel [file join $dstdir cylinder.vtp] 50.0"
+  puts $fp "loadModel [file join $dstdir cylinder.vtp]"
   puts $fp "setSolidModel"
   puts $fp "newMesh"
-#  puts $fp "option surface 0"
-#  puts $fp "option volume 1"
-  puts $fp "option a 0.05"
-  puts $fp "option  q 2.0"
-  puts $fp "option  V"
+  puts $fp "option surface 1"
+  puts $fp "option volume 1"
+  if {$pulsatile_mesh_option == 2} {
+    puts $fp "boundaryLayer 4 0.4"
+    puts $fp "option b 0.5"
+  }
+  puts $fp "option a 0.5"
+  puts $fp "option q 1.4"
+  puts $fp "option Y"
   puts $fp "generateMesh"
+  if {$pulsatile_mesh_option == 2} {
+    puts $fp "getBoundaries"
+  }
   puts $fp "writeMesh [file join $dstdir cylinder.sms] vtu 0"
   puts $fp "deleteMesh"
   puts $fp "deleteModel"

@@ -12,7 +12,7 @@ proc demo_create_model {dstdir} {
 }
 
 
-proc demo_create_mesh {dstdir pulsatile_mesh_option} {
+proc demo_create_mesh {dstdir bifurcation_mesh_option} {
 
   #
   #  Mesh the solid
@@ -25,42 +25,29 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   fconfigure $fp -translation lf
   puts $fp "msinit"
   puts $fp "logon [file join $dstdir bifurcation.logfile]"
-  puts $fp "loadModel [file join $dstdir bifurcation.vtp] 50.0"
-  puts $fp "extractBoundaries 50.0"
+  puts $fp "loadModel [file join $dstdir bifurcation.vtp]"
+  puts $fp "setSolidModel"
   puts $fp "newMesh"
-  puts $fp "option surface optimization 1"
-  puts $fp "option surface smoothing 3"
-  puts $fp "option volume optimization 1"
-  puts $fp "option volume smoothing 3"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "gsize 1 2.0"
-
-  #puts $fp "option O1"
-
-  if {$pulsatile_mesh_option == 1} {
-    puts $fp "gsize absolute 1.0"
-  } elseif {$pulsatile_mesh_option == 2} {
-    puts $fp "gsize absolute 1.0"
-  #  puts $fp "sphereRefinement 1 10.0 16 0 -95"
-  #  puts $fp "size lt_iliac absolute 1"
-  #  puts $fp "size rt_iliac absolute 1"
-  #  puts $fp "sphereRefinement 2 10.0 0 0 -75"
-  } elseif {$pulsatile_mesh_option == 3} {
-    puts $fp "gsize absolute 1.0"
-  #  puts $fp "sphereRefinement 0.5 10.0 16 0 -95"
-  #  puts $fp "sphereRefinement 0.5 10.0 0 0 -75"
-  } else {
-    return -code error "ERROR: invalid pulsatile_mesh_option ($pulsatile_mesh_option)"
+  if {$bifurcation_mesh_option == 1} {
+    puts $fp "option a 1.0"
+  } elseif {$bifurcation_mesh_option == 2} {
+    puts $fp "option a 1.0"
+    puts $fp "sphereRefinement 0.5 10.0 16.0 0.0 -95.0"
+  } elseif {$bifurcation_mesh_option == 3} {
+    puts $fp "option a 0.5"
   }
-
-  puts $fp "quality 2.0"
+  puts $fp "option q 1.4"
+  puts $fp "option Y"
   puts $fp "generateMesh"
-  puts $fp "writeMesh [file join $dstdir bifurcation.vtu] vtu 0"
+  puts $fp "writeMesh [file join $dstdir bifurcation.sms] vtu 0"
   puts $fp "deleteMesh"
   puts $fp "deleteModel"
   puts $fp "logoff"
   close $fp
+
+  #puts $fp "option O1"
 
   catch {repos_delete -obj mymesh}
   mesh_readTGS [file join $dstdir bifurcation.tgs] mymesh
