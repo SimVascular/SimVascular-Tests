@@ -33,10 +33,10 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   puts $fp "option surface 1"
   puts $fp "option volume 1"
   if {$pulsatile_mesh_option == 2} {
-    puts $fp "boundaryLayer 4 0.4"
+    puts $fp "boundaryLayer 3 0.7"
     puts $fp "option b 0.5"
   }
-  puts $fp "option a 0.5"
+  puts $fp "option a 0.8"
   puts $fp "option q 1.4"
   puts $fp "option Y"
   puts $fp "generateMesh"
@@ -118,6 +118,7 @@ proc demo_create_bc_files {dstdir} {
 
   set guiABC(mesh_face_file) ""
   set guiABC(flow_rate_file) ""
+  set guiABC(bct_dat_file)   ""
   set guiABC(bct_dat_file)   ""
   set guiABC(face_name) {inflow}
   set guiABC(mesh_face_file) [file join $dstdir mesh-complete mesh-surfaces inflow.vtp]
