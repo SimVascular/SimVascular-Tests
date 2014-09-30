@@ -211,153 +211,30 @@ while {$endstep < [expr $num_periods*$timesteps]} {
 cancelTail [file join $fullrundir solver.log]
 
 #
-#  Create vis files
-#
-puts "Reduce restart files."
-if {$use_ascii_format != 0} {
-  set aflag "-nonbinary"
-} else {
-  set aflag ""
-}
-
-for {set i [expr $endstep - $timesteps + 1]} {$i <= $endstep} {incr i} {
-   if [catch {exec $POSTSOLVER -dir $fullsimdir -sn $i $aflag -bflux -vis [file join $fullsimdir bifurcation_res$i.vis]} msg] {
-     puts $msg
-     return -code error "ERROR running cvpostsolver!"
-   }
-}
-if [catch {exec $POSTSOLVER -dir $fullsimdir -sn 1 $aflag -vismesh [file join $fullsimdir bifurcation_mesh.vis]} msg] {
-  puts $msg
-  return -code error "ERROR running cvpostsolver!"
-}
-
-#
-#  Create ParaView files (and calc vol flow through outlets)
+# use gui function to convert to vtu, write flows
 #
 
-source bifurcation-calc_flow.tcl
+global guiPOSTvars
+global gFilenames
+global gOptions
 
-catch {repos_deleteList [repos_subList myrespara*]}
-catch {repos_deleteList [repos_subList mytractpara*]}
+set guiPOSTvars(look_for_vtp) 1
+set gOptions(exclude_walls_from_flows) 1
+set guiPOSTvars(sim_units) mm
+set guiPOSTvars(write_vtu_results) 1
+set guiPOSTvars(combine_results) 1
 
-catch {repos_delete -obj mymeshpara}
-catch {xwrite Delete}
+set gFilenames(complete_mesh_dir) [file join $fullrundir mesh-complete]
+set guiPOSTvars(restartFilesDir) $fullsimdir
+set guiPOSTvars(vtkFlowFile) [file join $fullrundir bif_results]
+# set outdir $guiPOSTvars(vtkFlowFile)
 
-post_readVisMesh -file [file join $fullsimdir bifurcation_mesh.vis.gz] -obj mymeshpara
+set guiPOSTvars(start) [expr $endstep - $timesteps + 1]
+set guiPOSTvars(stop) $endstep
+set guiPOSTvars(increment) 1
 
-puts "Convert to ParaView."
-
-# flow rate stuff
-catch {unset lookup}
-foreach i [bifurcation GetFaceIds] {
-set lookup([bifurcation GetFaceAttr -faceId $i -attr gdscName]) \
-    [bifurcation GetFaceNormal -face $i -u 0 -v 0]
-}
-catch {repos_delete -obj lt_iliac}
-catch {repos_delete -obj rt_iliac}
-catch {repos_delete -obj inflow}
-repos_readXMLPolyData [file join $fullrundir mesh-complete mesh-surfaces lt_iliac.vtp] lt_iliac
-repos_readXMLPolyData [file join $fullrundir mesh-complete mesh-surfaces rt_iliac.vtp] rt_iliac
-repos_readXMLPolyData [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp] inflow
-set flow_lt_iliac 0
-set flow_rt_iliac 0
-set flow_inflow 0
-set total_flow_lt_iliac 0
-set total_flow_rt_iliac 0
-set total_flow_inflow 0
-catch {unset flows_lt_iliac}
-catch {unset flows_rt_iliac}
-catch {unset flows_inflow}
-
-for {set i [expr $endstep - $timesteps + 1]} {$i <= $endstep} {incr i} {
-  catch {repos_delete -obj myrespara$i}
-  catch {repos_delete -obj mytractpara$i}
-    post_readVisRes -file [file join $fullsimdir bifurcation_res$i.vis.gz] -grid mymeshpara -result myrespara$i -traction mytractpara$i
-  set theMesh [repos_exportToVtk -src mymeshpara]
-  set pressure [[[repos_exportToVtk -src myrespara$i] GetPointData] GetScalars]
-  set velocity [[[repos_exportToVtk -src myrespara$i] GetPointData] GetVectors]
-  set traction [[[repos_exportToVtk -src mytractpara$i] GetPointData] GetVectors]
-  $pressure SetName pressure
-  $velocity SetName velocity
-  $traction SetName traction
-  [$theMesh GetPointData] SetScalars $pressure
-  [$theMesh GetPointData] SetVectors $velocity
-  [$theMesh GetPointData] AddArray $traction
-  
-
-  vtkXMLDataSetWriter xwrite
-  xwrite SetInputDataObject $theMesh
-  xwrite SetFileName [file join $fullsimdir bifurcation-[format "%03i" $i].vtu]
-  xwrite Write
-
-  # flow rate stuff
-  demoFlowThruFace $theMesh lt_iliac $lookup(lt_iliac) flow flow_lt_iliac
-  demoFlowThruFace $theMesh rt_iliac $lookup(rt_iliac) flow flow_rt_iliac
-  demoFlowThruFace $theMesh inflow $lookup(inflow) flow flow_inflow
-  lappend flows_lt_iliac $flow_lt_iliac
-  lappend flows_rt_iliac $flow_rt_iliac
-  lappend flows_inflow $flow_inflow
-  set total_flow_lt_iliac [expr $total_flow_lt_iliac + $flow_lt_iliac]
-  set total_flow_rt_iliac [expr $total_flow_rt_iliac + $flow_rt_iliac]
-  set total_flow_inflow   [expr $total_flow_inflow + $flow_inflow]
-
-  [$theMesh GetPointData] RemoveArray pressure
-  [$theMesh GetPointData] RemoveArray velocity
-  [$theMesh GetPointData] RemoveArray traction
-
-  xwrite Delete
-}
-
-# calculate flow rate
-set avg_lt_iliac [expr $total_flow_lt_iliac/double([llength [repos_subList myrespara*]])]
-set avg_rt_iliac [expr $total_flow_rt_iliac/double([llength [repos_subList myrespara*]])]
-set avg_inflow   [expr $total_flow_inflow/double([llength [repos_subList myrespara*]])]
-printList $flows_lt_iliac
-printList $flows_rt_iliac
-printList $flows_inflow
-puts "lt iliac avg: $avg_lt_iliac"
-puts "rt iliac avg: $avg_rt_iliac"
-puts "inflow   avg: $avg_inflow"
-
-# create mean pressure / velcoity object
-catch {repos_delete -obj avgpointdata}
-catch {repos_delete -obj avgtract}
-post_calcAvgPointData -inputPdList [repos_subList myrespara*] -result avgpointdata
-#post_calcAvgPointData -inputPdList [repos_subList mytractpara*] -result avgtractdata
-set theMesh [repos_exportToVtk -src mymeshpara]
-set pressure [[[repos_exportToVtk -src avgpointdata] GetPointData] GetScalars]
-set velocity [[[repos_exportToVtk -src avgpointdata] GetPointData] GetVectors]
-#set traction [[[repos_exportToVtk -src avgtract] GetPointData] GetVectors]
-$pressure SetName mean_pressure
-$velocity SetName mean_velocity
-#$traction SetName mean_traction
-[$theMesh GetPointData] SetScalars $pressure
-[$theMesh GetPointData] SetVectors $velocity
-[$theMesh GetPointData] RemoveArray $traction
-
-vtkXMLDataSetWriter xwrite
-xwrite SetInputDataObject $theMesh
-xwrite SetFileName [file join $fullsimdir mean-bifurcation.vtu]
-xwrite Write
-xwrite Delete
-if {$use_resistance == 2} {
-    set pfp [open [file join $fullrundir "mean.pressures"] w]
-  fconfigure $pfp -translation lf
-  set numPvals [$pressure GetNumberOfTuples]
-  puts $pfp $numPvals
-    for {set i 0} {$i < $numPvals} {incr i} {
-     puts $pfp [$pressure GetTuple1 $i]
-    }
-  close $pfp
-}
-[$theMesh GetPointData] RemoveArray mean_pressure
-[$theMesh GetPointData] RemoveArray mean_velocity
-
-catch {repos_delete -obj avgpointdata}
-catch {repos_delete -obj avgtract}
-
-repos_deleteList [repos_subList myrespara*]
-repos_deleteList [repos_subList mytractpara*]
+guiPOSTconvertFilesToVTK
+guiPOSTcalcFlowsFromVTK
 
 #
 #  only do second pass if we are doing impedance
