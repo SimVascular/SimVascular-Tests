@@ -137,6 +137,9 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
 
   puts "Creating mesh."
 
+  global gOptions
+  set gOptions(meshing_solid_kernel) Discrete
+
   # create meshsim style script file
   set fp [open [file join $dstdir cylinder.mss] w]
   fconfigure $fp -translation lf
