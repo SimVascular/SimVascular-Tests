@@ -42,7 +42,7 @@ incr num_procs
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
+set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
 
 #
 # prompt user for mesh type
@@ -172,7 +172,7 @@ while {[gets $infp line] >= 0} {
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
-       regsub -all "\#memls_linear_solver" $line {} line
+       regsub -all "\#svls_linear_solver" $line {} line
   }
   regsub -all my_output_format $line $file_format line
   puts $outfp $line
