@@ -40,7 +40,7 @@ incr num_procs
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
+set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
 
 set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
 set fullrundir [file join [pwd] $rundir]
@@ -152,7 +152,7 @@ while {[gets $infp line] >= 0} {
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
-       regsub -all "\#memls_linear_solver" $line {} line
+       regsub -all "\#svls_linear_solver" $line {} line
   }
   puts $outfp $line
 }

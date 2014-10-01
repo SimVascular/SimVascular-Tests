@@ -6,10 +6,10 @@
         <DataArray type="Int32" Name="GlobalNodeID" format="appended" RangeMin="1"                    RangeMax="10383"                offset="0"                   />
         <DataArray type="Int32" Name="PointMarkers" format="appended" RangeMin="0"                    RangeMax="10382"                offset="29856"               />
       </PointData>
-      <CellData Scalars="Regions">
+      <CellData Scalars="ModelFaceID">
         <DataArray type="Int32" Name="ModelRegionID" format="appended" RangeMin="34"                   RangeMax="34"                   offset="49128"               />
         <DataArray type="Int32" Name="GlobalElementID" format="appended" RangeMin="60759"                RangeMax="159053"               offset="49372"               />
-        <DataArray type="Int32" Name="Regions" format="appended" RangeMin="1"                    RangeMax="4"                    offset="88512"               />
+        <DataArray type="Int32" Name="ModelFaceID" format="appended" RangeMin="1"                    RangeMax="4"                    offset="88512"               />
       </CellData>
       <Points>
         <DataArray type="Float32" Name="Points" NumberOfComponents="3" format="appended" RangeMin="0.32598400785"        RangeMax="157.98968897"         offset="89260"               />

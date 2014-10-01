@@ -106,7 +106,7 @@ proc demo_create_bc_files {dstdir} {
   global gFilenames
 
   # load in the solid used for meshing
-  set gFilenames(atdb_solid_file) [file join $dstdir cylinder.vtp]
+  set gFilenames(polydata_solid_file) [file join $dstdir cylinder.vtp]
   wormGUIloadSolidModel
 
   # set params
@@ -124,7 +124,9 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
 
+  puts "Done Again Bef"
   wormGUIwritePHASTA
+  puts "Done Again"
 
 }
 
