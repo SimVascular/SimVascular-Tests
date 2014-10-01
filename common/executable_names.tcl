@@ -1,12 +1,12 @@
 
 # central area to change name of executables
 
-#set PRESOLVER     $gExternalPrograms(cvpresolver)
-#set POSTSOLVER    $gExternalPrograms(cvpostsolver)
-#set MPIEXEC       $gExternalPrograms(mpiexec)
-#set SOLVER        $gExternalPrograms(cvflowsolver)
-#set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(pwd)] 
-#set ADAPTOR       $gExternalPrograms(cvadaptor)
+set PRESOLVER     $gExternalPrograms(cvpresolver)
+set POSTSOLVER    $gExternalPrograms(cvpostsolver)
+set MPIEXEC       $gExternalPrograms(mpiexec)
+set SOLVER        $gExternalPrograms(cvflowsolver)
+set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
+set ADAPTOR       $gExternalPrograms(cvadaptor)
 
 if {0 == 1} {
 
@@ -59,7 +59,7 @@ set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)]
 set ADAPTOR       "$SIMVASCULAR_HOME/Code/Build/myadaptor"
 }
 
-if {1 == 1} {
+if {0 == 1} {
 set SIMVASCULAR_HOME "/home/adamupdegrove/Software/Trunk"
 set PRESOLVER     "$SIMVASCULAR_HOME/Code/Build/Bin/presolver"
 set POSTSOLVER    "$SIMVASCULAR_HOME/Code/Build/mypost"
