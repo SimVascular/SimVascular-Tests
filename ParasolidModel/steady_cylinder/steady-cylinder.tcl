@@ -10,7 +10,7 @@
 set use_ascii_format 0
 set timesteps 32
 
-source ../common/executable_names.tcl
+source ../../common/executable_names.tcl
 
 #
 # prompt user for number of procs
