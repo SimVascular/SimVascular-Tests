@@ -88,7 +88,7 @@ proc demo_create_bc_files {dstdir} {
   global gFilenames
 
   # load in the solid used for meshing
-  set gFilenames(atdb_solid_file) [file join $dstdir cylinder.vtp]
+  set gFilenames(polydata_solid_file) [file join $dstdir cylinder.vtp]
   wormGUIloadSolidModel
 
   # set params
