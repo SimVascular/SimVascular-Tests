@@ -15,7 +15,7 @@ set use_ascii_format 0
 
 # sometimes we have to invert the normal to the inflow surface
 global guiABC
-set guiABC(invert_face_normal) 1
+set guiABC(invert_face_normal) 0
 
 # sometimes scaling the flow can cause problems
 #set guiABC(preserve_flow_by_scaling) 0
@@ -115,13 +115,11 @@ puts $fp "adjacency [file join $fullrundir mesh-complete bifurcation.xadj.gz]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete walls_combined.vtp]"
 puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces lt_iliac.vtp]"
+puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces rt_iliac.vtp]"
 puts $fp "set_surface_id_vtp [file join $fullrundir mesh-complete bifurcation.exterior.vtp] 1"
 if {$use_resistance >= 1} {
   puts $fp "set_surface_id_vtp [file join $fullrundir mesh-complete mesh-surfaces lt_iliac.vtp] 2"
-}
-puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces rt_iliac.vtp]"
-if {$use_resistance >= 1} {
-    puts $fp "set_surface_id_vtp [file join $fullrundir mesh-complete mesh-surfaces rt_iliac.vtp] 3"
+  puts $fp "set_surface_id_vtp [file join $fullrundir mesh-complete mesh-surfaces rt_iliac.vtp] 3"
 }
 puts $fp "write_geombc [file join $fullrundir geombc.dat.1]"
 puts $fp "write_restart [file join $fullrundir restart.0.1]"

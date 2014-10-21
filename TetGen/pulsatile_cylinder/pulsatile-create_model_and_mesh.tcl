@@ -124,9 +124,7 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
 
-  puts "Done Again Bef"
   wormGUIwritePHASTA
-  puts "Done Again"
 
 }
 
