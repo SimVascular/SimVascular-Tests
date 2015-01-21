@@ -72,7 +72,8 @@ demo_create_bc_files $fullrundir
 #}
 
 puts "Create script file for presolver."
-set fp [open [file join $fullrundir cylinder.svpre] w]
+set SVPRE [file join $fullrundir cylinder.svpre]
+set fp [open $SVPRE w]
 if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
@@ -91,7 +92,8 @@ close $fp
 #  Call pre-processor
 #
 puts "Run cvpresolver."
-catch {exec $PRESOLVER [file join $fullrundir cylinder.svpre]} msg
+puts "exec $PRESOLVER [file join $fullrundir cylinder.svpre]"
+catch {exec $PRESOLVER $SVPRE} msg
 puts $msg
 
 #
@@ -158,7 +160,7 @@ puts $fp "Start running solver..."
 close $fp
 
 set ::tail_solverlog {}
-tail [file join $fullrundir solver.log] .+ 1000 ::tail_solverlog
+tail [file join \"$fullrundir"\ solver.log] .+ 1000 ::tail_solverlog
 trace variable ::tail_solverlog w handle
 
 eval exec \"$MPIEXEC\" -wdir \"$fullrundir\" $npflag $num_procs -env FLOWSOLVER_CONFIG \"$FLOWSOLVER_CONFIG\" \"$SOLVER\" >>& [file join $rundir solver.log] &
@@ -175,7 +177,7 @@ while {$endstep < $timesteps} {
   set endstep [string trim $endstep]
 }
 
-cancelTail [file join $fullrundir solver.log]
+cancelTail [file join \"$fullrundir"\ solver.log]
 
 #
 #  Create ParaView files
