@@ -106,7 +106,7 @@ proc demo_create_bc_files {dstdir} {
   global gFilenames
 
   # load in the solid used for meshing
-  set gFilenames(atdb_solid_file) [file join $dstdir cylinder.vtp]
+  set gFilenames(polydata_solid_file) [file join $dstdir cylinder.vtp]
   wormGUIloadSolidModel
 
   # set params
@@ -118,12 +118,12 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(mesh_face_file) ""
   set guiABC(flow_rate_file) ""
   set guiABC(bct_dat_file)   ""
-  set guiABC(face_name) {$facename}
-  set guiABC(mesh_face_file) [file join $dstdir mesh-complete mesh-surfaces \$facename.vtp]
-  set guiABC(flow_rate_file) [file join $dstdir flow-files \$facename.flow]
-  set guiABC(bct_dat_file)   [file join $dstdir bct.dat.\$facename]
+  set guiABC(face_name) {inflow}
+  set guiABC(mesh_face_file) [file join $dstdir mesh-complete mesh-surfaces inflow.vtp]
+  set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
+  set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
 
   # write files
-  wormGUIwriteMultipleFaces
+  wormGUIwritePHASTA
 }
 

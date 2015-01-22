@@ -165,7 +165,7 @@ while {[gets $infp line] >= 0} {
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
-       regsub -all "\#memls_linear_solver" $line {} line
+       regsub -all "\#svls_linear_solver" $line {} line
   }
   puts $outfp $line
 }
@@ -277,8 +277,8 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
 #  Run the adaptor
 #
 #  Parameter Setup
-set out_mesh_file   [file join $adaptdir adapted-cylinder.vtp]
-set out_surface_mesh_file   [file join $adaptdir adapted-cylinder.vtp]
+set out_mesh_file [file join $adaptdir adapted-cylinder.vtu]
+set out_surface_mesh_file [file join $adaptdir adapted-cylinder.vtp]
 set mesh_file  [file join $fullrundir cylinder.exterior.vtp]
 set surface_mesh_file  [file join $fullrundir cylinder.sms]
 set discreteFlag 0
@@ -297,7 +297,7 @@ puts $fp "Start running adaptor..."
 close $fp
 
 #  Call the Adaptor
-catch {exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor &; } msg 
+catch {exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor &; } msg 
 puts $msg
 
 after 5000
@@ -319,9 +319,9 @@ file mkdir [file join $adaptdir mesh-complete mesh-surfaces]
 #
 mesh_newObject -result $adaptmesh
 $adaptmesh SetSolidKernel -name $gOptions(meshing_solid_kernel)
-$adaptmesh LoadModel -file [file join $adaptdir cylinder.xmt_txt]
+$adaptmesh LoadModel -file [file join $adaptdir adapted-cylinder.vtp]
 $adaptmesh NewMesh  
-$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.sms]
+$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.vtu]
 
 #
 # Create boundary condition and complete mesh files for solver
