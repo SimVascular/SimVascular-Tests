@@ -7,6 +7,11 @@
 #  and should be sourced interactively from simvascular
 #
 
+solid_setKernel -name Parasolid
+mesh_setKernel -name MeshSim
+set gOptions(meshing_kernel) MeshSim
+set gOptions(meshing_solid_kernel) Parasolid
+
 set use_ascii_format 0
 
 source ../../common/executable_names.tcl
@@ -21,7 +26,7 @@ incr num_procs
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
+set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
 
 #
 # prompt user for mesh type

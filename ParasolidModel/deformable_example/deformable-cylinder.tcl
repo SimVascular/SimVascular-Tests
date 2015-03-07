@@ -7,6 +7,11 @@
 #  and should be sourced interactively from SimVascular
 #
 
+solid_setKernel -name Parasolid
+mesh_setKernel -name MeshSim
+set gOptions(meshing_kernel) MeshSim
+set gOptions(meshing_solid_kernel) Parasolid
+
 set use_ascii_format 0
 
 source ../../common/executable_names.tcl
