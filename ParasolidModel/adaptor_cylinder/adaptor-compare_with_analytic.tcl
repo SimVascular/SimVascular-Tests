@@ -261,7 +261,7 @@ Please use the "Current widget path:" to show/hide windows.}}
     set adaptfp [open [file join $adaptdir "profiles_for_[lindex $tlist $i]"] r]
     gets $adaptfp line
     set adaptsoln {}
-     while {[gets $fp line] > 0} {
+     while {[gets $adaptfp line] > 0} {
        lappend adaptsoln [lindex $line 1]
        if {[llength $line] > 3} {
 	 lappend adaptsoln [expr -[lindex $line 3] / 10.0]
