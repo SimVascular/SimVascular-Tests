@@ -197,21 +197,25 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(mesh_face_file) ""
   set guiABC(flow_rate_file) ""
   set guiABC(bct_dat_file)   ""
+  set guiABC(bct_vtp_file)   ""
   set guiABC(face_name) {$facename}
   set guiABC(mesh_face_file) [file join $dstdir mesh-complete mesh-surfaces \$facename.vtp]
   set guiABC(flow_rate_file) [file join $dstdir flow-files \$facename.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.\$facename]
+  set guiABC(bct_vtp_file)   [file join $dstdir bct.vtp.\$facename]
 
   # write files
   wormGUIwriteMultipleFaces
 
   set guiABC(flow_rate_file) [file join $dstdir flow-files \$facename.flow.steady]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.\$facename.steady]
+  set guiABC(bct_vtp_file)   [file join $dstdir bct.vtp.\$facename.steady]
 
   # write files
   wormGUIwriteMultipleFaces
   set guiABC(flow_rate_file) [file join $dstdir flow-files \$facename.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.\$facename]
+  set guiABC(bct_vtp_file)   [file join $dstdir bct.vtp.\$facename]
 
 }
 
