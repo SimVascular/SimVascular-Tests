@@ -284,6 +284,7 @@ set stepNumber $adapt_step
 file delete [file join $fullrundir adaptor_done_running]
 set fp [open [file join $fullrundir run_adaptor.log] w]
 puts $fp "Start running adaptor..."
+puts $fp "exec $ADAPTOR -model_file $model_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor -discrete_model_flag $discreteFlag -sphere_refinement [lindex $adaptorsphere 0] [lindex $adaptorsphere 1] [lindex $adaptorsphere 2] [lindex $adaptorsphere 3] [lindex $adaptorsphere 4]"
 close $fp
 
 #catch {unset ::tail_adaptorlog}
@@ -292,6 +293,7 @@ close $fp
 #trace variable ::tail_adaptorlog w guiMMadaptMesh_handle
 
 #  Call the Adaptor
+
 if [catch {exec $ADAPTOR -model_file $model_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor -discrete_model_flag $discreteFlag -sphere_refinement [lindex $adaptorsphere 0] [lindex $adaptorsphere 1] [lindex $adaptorsphere 2] [lindex $adaptorsphere 3] [lindex $adaptorsphere 4]} msg] {
   puts $msg
   return -code error "ERROR running adaptor!"
