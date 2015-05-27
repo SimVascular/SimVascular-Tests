@@ -15,7 +15,6 @@ source ../../common/executable_names.tcl
 #global guiABC
 #set guiABC(create_vtp_file) 0
 
-
 # sometimes scaling the flow can cause problems
 #set guiABC(preserve_flow_by_scaling) 0
 
@@ -62,7 +61,7 @@ incr pulsatile_mesh_option
 # sometimes we have to invert the normal to the inflow surface
 global guiABC
 if {$pulsatile_mesh_option == 1} {
-  set guiABC(invert_face_normal) 1
+  set guiABC(invert_face_normal) 0
 } else {
   set guiABC(invert_face_normal) 0
 }

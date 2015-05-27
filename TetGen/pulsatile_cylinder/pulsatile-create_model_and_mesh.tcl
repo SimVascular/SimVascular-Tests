@@ -2,7 +2,7 @@
 proc demo_create_model {dstdir} {
 
   # just copy the model for now
-
+  catch {repos_delete -obj cyl}
   solid_readNative -file cylinder.vtp -obj cyl
 
   file copy cylinder.vtp $dstdir
@@ -35,7 +35,8 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   if {$pulsatile_mesh_option == 2} {
     puts $fp "boundaryLayer 3 0.5 0.7 wall"
   }
-  puts $fp "option a 0.8"
+  puts $fp "option a 0.75"
+  puts $fp "wallFaces wall"
   puts $fp "option q 1.4"
   puts $fp "option Y"
   puts $fp "generateMesh"
@@ -124,7 +125,7 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
 
-  wormGUIwritePHASTA
+  wormGUIwritePHASTA 0
 
 }
 
