@@ -18,7 +18,7 @@ set timesteps 32
 
 # sometimes we have to invert the normal to the inflow surface
 global guiABC
-set guiABC(invert_face_normal) 1
+set guiABC(invert_face_normal) 0
 
 # sometimes scaling the flow can cause problems
 #set guiABC(preserve_flow_by_scaling) 0
