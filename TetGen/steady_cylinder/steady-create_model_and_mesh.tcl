@@ -106,6 +106,7 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(mesh_face_file) [file join $dstdir mesh-complete mesh-surfaces inflow.vtp]
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
+  set guiABC(invert_face_normal) 0
 
   wormGUIwritePHASTA 0
 

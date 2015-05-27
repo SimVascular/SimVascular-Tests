@@ -96,13 +96,13 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(bct_dat_vtp_file) [file join $dstdir bct.dat.vtp]
 
   # write files
-  wormGUIwritePHASTA
+  wormGUIwritePHASTA 0
 
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow.steady]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow.steady]
 
   # write files
-  wormGUIwritePHASTA
+  wormGUIwritePHASTA 0
 
   set guiABC(flow_rate_file) [file join $dstdir flow-files inflow.flow]
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
