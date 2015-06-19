@@ -76,8 +76,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
-puts $fp "adjacency [file join $fullrundir mesh-complete cylinder.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete mesh-surfaces wall.vtp]"
 puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces outlet.vtp]"
@@ -92,8 +91,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $adaptdir mesh-complete cylinder.mesh.vtu]"
-puts $fp "adjacency [file join $adaptdir mesh-complete cylinder.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $adaptdir mesh-complete cylinder.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $adaptdir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $adaptdir mesh-complete mesh-surfaces wall.vtp]"
 puts $fp "zero_pressure_vtp [file join $adaptdir mesh-complete mesh-surfaces outlet.vtp]"
@@ -132,7 +130,7 @@ puts "Run Solver."
 #  more files needed by solver
 #
 
-file copy [file join $fullrundir bct.dat.inflow] [file join $fullrundir bct.dat]
+file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
 set fp [open [file join $fullrundir numstart.dat] w]
 fconfigure $fp -translation lf
 puts $fp "0"
@@ -328,7 +326,7 @@ $adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.sms]
 #
 demo_write_mesh_related_files $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
 demo_create_bc_files $adaptdir
-file copy [file join $adaptdir bct.dat.inflow] [file join $adaptdir bct.dat]
+file copy [file join $adaptdir bct.vtp.inflow] [file join $adaptdir bct.vtp]
 set fp [open [file join $adaptdir numstart.dat] w]
 fconfigure $fp -translation lf
 puts $fp "$adapt_step"

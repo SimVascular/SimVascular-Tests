@@ -36,6 +36,8 @@ Residual Control: True
 Residual Criteria: 0.1
 Minimum Required Iterations: 3
 
+BCT File Type: VTP
+
 ###  Options we will use sometimes
 
 #Deformable Wall: False

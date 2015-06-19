@@ -90,7 +90,7 @@ puts "Run Solver."
 #  more files needed by solver
 #
 
-file copy [file join $fullrundir bct.dat.inflow] [file join $fullrundir bct.dat]
+file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
 set fp [open [file join $fullrundir numstart.dat] w]
 fconfigure $fp -translation lf
 puts $fp "0"
