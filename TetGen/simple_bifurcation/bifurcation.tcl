@@ -110,8 +110,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $fullrundir mesh-complete bifurcation.mesh.vtu]"
-puts $fp "adjacency [file join $fullrundir mesh-complete bifurcation.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete bifurcation.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete walls_combined.vtp]"
 puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces lt_iliac.vtp]"
