@@ -17,7 +17,6 @@ source ../../common/executable_names.tcl
 #
 # sometimes we have to invert the normal to the inflow surface
 global guiABC
-set guiABC(invert_face_normal) 1
 
 #set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
 #incr num_procs
@@ -37,7 +36,7 @@ solid_setKernel -name PolyData
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  memLS  " " leslib "]
+set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
 
 set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
 set fullrundir [file join [pwd] $rundir]
@@ -85,8 +84,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
-puts $fp "adjacency [file join $fullrundir mesh-complete cylinder.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete mesh-surfaces wall.vtp]"
 puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces outlet.vtp]"
@@ -101,8 +99,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $adaptdir mesh-complete cylinder.mesh.vtu]"
-puts $fp "adjacency [file join $adaptdir mesh-complete cylinder.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $adaptdir mesh-complete cylinder.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $adaptdir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $adaptdir mesh-complete mesh-surfaces wall.vtp]"
 puts $fp "zero_pressure_vtp [file join $adaptdir mesh-complete mesh-surfaces outlet.vtp]"
@@ -272,33 +269,34 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
    return -code error "ERROR running postsolver!"
 }
 
-
 #
 #  Run the adaptor
 #
 #  Parameter Setup
-set out_mesh_file [file join $adaptdir adapted-cylinder.vtu]
-set out_surface_mesh_file [file join $adaptdir adapted-cylinder.vtp]
-set mesh_file  [file join $fullrundir cylinder.exterior.vtp]
-set surface_mesh_file  [file join $fullrundir cylinder.sms]
+set out_mesh_file [file join $fullsimdir adaptor/adapted-cylinder.vtu]
+set out_surface_mesh_file [file join $fullsimdir adaptor/adapted-cylinder.vtp]
+set mesh_file [file join $fullsimdir mesh-complete/cylinder.mesh.vtu]
+set surface_mesh_file [file join $fullsimdir mesh-complete/cylinder.exterior.vtp]
 set discreteFlag 0
 set adaptorsphere {-1 0 0 0 0}
-set maxRefineFactor 0.1
-set maxCoarseFactor 0.5
-set reductionRatio 0.6
-set solution   [file join $fullsimdir "restart.$adapt_step.$num_procs"]
+set maxRefineFactor 0.01
+set maxCoarseFactor 1.0
+set reductionRatio 0.2
+set solution [file join $fullsimdir "restart.$adapt_step.$num_procs"]
 set error_file [file join $fullsimdir "ybar.$adapt_step.0"]
-set out_solution [file join $adaptdir "restart.$adapt_step.$num_procs"]
+set out_solution [file join $fullsimdir "adaptor/restart.$adapt_step.$num_procs"]
 set stepNumber $adapt_step
 
 file delete [file join $fullrundir adaptor_done_running]
 set fp [open [file join $fullrundir run_adaptor.log] w]
 puts $fp "Start running adaptor..."
-close $fp
 
 #  Call the Adaptor
-catch {exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor &; } msg 
-puts $msg
+puts $fp "exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -out_mesh_file $out_mesh_file -out_surface_mesh_file $out_surface_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor"
+
+catch {exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -out_mesh_file $out_mesh_file -out_surface_mesh_file $out_surface_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor &; } msg 
+puts $fp $msg
+close $fp
 
 after 5000
 
@@ -319,14 +317,15 @@ file mkdir [file join $adaptdir mesh-complete mesh-surfaces]
 #
 mesh_newObject -result $adaptmesh
 $adaptmesh SetSolidKernel -name $gOptions(meshing_solid_kernel)
-$adaptmesh LoadModel -file [file join $adaptdir adapted-cylinder.vtp]
+$adaptmesh LoadModel -file [file join $fullsimdir cylinder.vtp]
 $adaptmesh NewMesh  
-$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.vtu]
+$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.vtu] -surfile [file join $adaptdir adapted-cylinder.vtp]
 
 #
 # Create boundary condition and complete mesh files for solver
 #
-demo_write_mesh_related_files $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
+mesh_writeCompleteMesh $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
+set guiABC(invert_face_normal) 1
 demo_create_bc_files $adaptdir
 file copy [file join $adaptdir bct.dat.inflow] [file join $adaptdir bct.dat]
 set fp [open [file join $adaptdir numstart.dat] w]

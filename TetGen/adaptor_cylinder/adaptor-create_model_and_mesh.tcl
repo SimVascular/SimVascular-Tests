@@ -31,11 +31,11 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   puts $fp "newMesh"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
+  puts $fp "option a 1.0"
+  puts $fp "wallFaces wall"
   if {$pulsatile_mesh_option == 2} {
-    puts $fp "boundaryLayer 4 0.4"
-    puts $fp "option b 0.5"
+    puts $fp "boundaryLayer 4 0.4 0.5"
   }
-  puts $fp "option a 0.5"
   puts $fp "option q 1.4"
   puts $fp "option Y"
   puts $fp "generateMesh"
@@ -55,7 +55,7 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   file mkdir [file join $dstdir mesh-complete]
   file mkdir [file join $dstdir mesh-complete mesh-surfaces]
 
-   mesh_writeCompleteMesh mymesh cyl cylinder [file join $dstdir mesh-complete]
+  mesh_writeCompleteMesh mymesh cyl cylinder [file join $dstdir mesh-complete]
 
 }
 
@@ -124,6 +124,6 @@ proc demo_create_bc_files {dstdir} {
   set guiABC(bct_dat_file)   [file join $dstdir bct.dat.inflow]
 
   # write files
-  wormGUIwritePHASTA
+  wormGUIwritePHASTA 0
 }
 
