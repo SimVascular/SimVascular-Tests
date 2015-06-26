@@ -32,11 +32,11 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   puts $fp "newMesh"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  if {$pulsatile_mesh_option == 2} {
-    puts $fp "boundaryLayer 3 0.5 0.7 wall"
-  }
   puts $fp "option a 0.75"
   puts $fp "wallFaces wall"
+  if {$pulsatile_mesh_option == 2} {
+    puts $fp "boundaryLayer 3 0.5 0.7"
+  }
   puts $fp "option q 1.4"
   puts $fp "option Y"
   puts $fp "generateMesh"

@@ -86,8 +86,7 @@ if {$use_ascii_format > 0} {
   puts $fp "ascii_format"
 }
 puts $fp "verbose"
-puts $fp "mesh_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
-puts $fp "adjacency [file join $fullrundir mesh-complete cylinder.xadj.gz]"
+puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete mesh-surfaces wall.vtp]"
 puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces outlet.vtp]"
@@ -175,7 +174,7 @@ puts $fp "Start running solver..."
 close $fp
 
 set ::tail_solverlog {}
-tail [file join $fullrundir solver.log] .+ 1000 ::tail_solverlog
+tail [file join \"$fullrundir"\ solver.log] .+ 1000 ::tail_solverlog
 trace variable ::tail_solverlog w handle
 
 eval exec \"$MPIEXEC\" -wdir \"$fullrundir\" $npflag $num_procs -env FLOWSOLVER_CONFIG \"$FLOWSOLVER_CONFIG\" \"$SOLVER\" >>& [file join $rundir solver.log] &
@@ -192,7 +191,7 @@ while {$endstep < $total_timesteps} {
   set endstep [string trim $endstep]
 }
 
-cancelTail [file join $fullrundir solver.log]
+cancelTail [file join \"$fullrundir"\ solver.log]
 
 #
 #  Create ParaView files
