@@ -98,7 +98,6 @@ puts $msg
 #
 # set number of timesteps
 #
-
 puts "Number of timesteps ($timesteps)"
 
 #
@@ -130,7 +129,7 @@ if {$use_ascii_format == 0} {
 
 while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line [expr 0.2/$timesteps] line
-  regsub -all my_number_of_time_steps $line [expr $timesteps] line
+  regsub -all my_number_of_time_steps $line $timesteps line
   regsub -all my_output_format $line $file_format line
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
