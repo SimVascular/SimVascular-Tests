@@ -159,7 +159,7 @@ close $outfp
 
 global tcl_platform
 if {$tcl_platform(platform) == "windows"} {
-  set npflag "-noprompt -localroot -localonly -user 1 -n"
+  set npflag "-np"
 } else {
   set npflag "-np"
 }
