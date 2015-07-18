@@ -94,7 +94,7 @@ puts "Number of periods: $num_periods"
 source bifurcation-create_model_and_mesh.tcl
 demo_create_model $fullrundir
 demo_create_mesh $fullrundir $bifurcation_mesh_option
-demo_create_bc_files $fullrundir 
+demo_create_bc_files $fullrundir
 
 #
 #  Create script file for cvpresolver
@@ -143,8 +143,10 @@ puts "Run Solver."
 
 if {$use_resistance != 2 || $use_init_flow_type == 1} {
   file copy [file join $fullrundir bct.dat.inflow] [file join $fullrundir bct.dat]
+  file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
 } else {
   file copy [file join $fullrundir bct.dat.inflow.steady] [file join $fullrundir bct.dat]
+  file copy [file join $fullrundir bct.vtp.inflow.steady] [file join $fullrundir bct.vtp]
 }
 set fp [open [file join $fullrundir numstart.dat] w]
 fconfigure $fp -translation lf
