@@ -247,6 +247,9 @@ if [catch {exec $POSTSOLVER -none -sn $adapt_step -indir $fullsimdir -outdir $fu
 }
 puts $msg
 
+# new naming scheme is confusing for ybar...
+file copy [file join $fullsimdir "restart.0.0"] [file join $fullsimdir "ybar.$adapt_step.0"]
+
 puts "Reduce restart files."
 if {$use_ascii_format != 0} {
   set aflag "-nonbinary"
