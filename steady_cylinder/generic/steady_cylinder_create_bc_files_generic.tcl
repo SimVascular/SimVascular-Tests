@@ -29,7 +29,9 @@ proc steady_cylinder_create_bc_files_generic {solidfn dstdir} {
   global gFilenames
 
   # load in the solid used for meshing
-  set gFilenames(atdb_solid_file) [file join $dstdir $solidfn]
+  # set both vars to handle any type of model
+  set gFilenames(atdb_solid_file) $solidfn
+  set gFilenames(polydata_solid_file) $solidfn
   wormGUIloadSolidModel
 
   # set params

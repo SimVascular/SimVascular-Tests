@@ -1,5 +1,5 @@
 
-proc cylinder_create_model_parasolid {dstdir} {
+proc cylinder_create_model_Parasolid {dstdir} {
   #
   #  Create a solid model of a cylinder:  radius 0.2 cm
   #                                       length 6.0 cm
