@@ -1,0 +1,13 @@
+# user defined face id to name mapping for model file (C:/cygwin/home/nwilson/work/2014/2014-08-01-solver_tests/trunk/Testing/DiscreteModel/cylinder.dsm)
+# timestamp: 1412154034  (Wed Oct 01 02:00:34 PDT 2014)
+
+global gDiscreteModelFaceNames
+global gDiscreteModelFaceNamesInfo
+
+set gDiscreteModelFaceNamesInfo(timestamp) {1412154034}
+set gDiscreteModelFaceNamesInfo(model_file_md5) {8A0EDB61BEBAD25C88FFCA55850CA692}
+set gDiscreteModelFaceNamesInfo(model_file_name) {cylinder.dsm}
+
+set gDiscreteModelFaceNames(1) {inflow}
+set gDiscreteModelFaceNames(2) {wall}
+set gDiscreteModelFaceNames(3) {outlet}
