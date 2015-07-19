@@ -1,33 +1,30 @@
-#
-#   Copyright (c) 2009-2012 Open Source Medical Software Corporation
-#   All rights reserved.  
-#
-#  This script requires the following files:
-#     solver.inp
-#  and should be sourced interactively from SimVascular
-#
+# create model, mesh, and bc files
+source cylinder_create_model_parasolid.tcl
+source steady_cylinder_create_mesh_parsolid.tcl
+source steady_cylinder_write_mesh_related_files_parasolid.tcl
+source steady_cylinder_create_bc_files_parasolid.tcl
 
-solid_setKernel -name Parasolid
-mesh_setKernel -name MeshSim
-set gOptions(meshing_kernel) MeshSim
-set gOptions(meshing_solid_kernel) Parasolid
+source ../../common/executable_names.tcl
+
 
 set use_ascii_format 0
 set timesteps 32
-
-source ../../common/executable_names.tcl
 
 #
 # prompt user for number of procs
 #
 
-set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
-incr num_procs
+if {$num_procs == ""} {
+  set num_procs [tk_dialog .askthem "Select Number of Processors" "Number of Processors \n to use?" question 0 1 2 3 4]
+  incr num_procs
+}
 
 # prompt user for linear solver
 #
 
-set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
+if {$selected_LS == ""} {
+  set selected_LS [tk_dialog .askthem "Select Linear Solver" "Use which linear solver?" question 0 "  svLS  " " leslib "]
+}
 
 set rundir [clock format [clock seconds] -format "%m-%d-%Y-%H%M%S"]
 set fullrundir [file join [pwd] $rundir]
@@ -39,18 +36,13 @@ if {$num_procs == 1} {
   set fullsimdir [file join $fullrundir $num_procs-procs_case]
 }
 
-# create model, mesh, and bc files
-source steady-create_model_and_mesh.tcl
-demo_create_model $fullrundir
-demo_create_mesh  $fullrundir
-demo_create_bc_files $fullrundir
+cylinder_create_model_parasolid $fullrundir
+steady_cylinder_create_mesh_parasolid  $fullrundir
+steady_cylinder_create_bc_files_parasolid $fullrundir
 
 #
 #  Create script file for presolver
 #
-foreach i [mymesh Print] {
-  set [lindex $i 0] [lindex $i 1]
-}
 
 puts "Create script file for presolver."
 set fp [open [file join $fullrundir cylinder.svpre] w]
@@ -114,7 +106,7 @@ while {[gets $infp line] >= 0} {
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
-       regsub -all "\#memls_linear_solver" $line {} line
+       regsub -all "\#svls_linear_solver" $line {} line
   }
   puts $outfp $line
 }
@@ -178,6 +170,6 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
 #  compare results
 #
 
-source steady-compare_with_analytic.tcl
+source steady_cylinder_compare_with_analytic_generic.tcl
 
 

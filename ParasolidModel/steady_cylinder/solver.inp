@@ -58,10 +58,10 @@ Surface ID's for Force Calculation: 1
 #leslib_linear_solver	Number of Velocity Projection Vectors: 20
 #leslib_linear_solver	Number of Pressure Projection Vectors: 20
 
-#memls_linear_solver	Solver Type: svLS
-#memls_linear_solver	Tolerance on svLS NS Solver: 0.4
-#memls_linear_solver	Tolerance on Momentum Equations: 0.05
-#memls_linear_solver	Tolerance on Continuity Equations: 0.4
-#memls_linear_solver	Maximum Number of Iterations for svLS NS Solver : 1
-#memls_linear_solver	Maximum Number of Iterations for svLS Momentum Loop: 1
-#memls_linear_solver	Maximum Number of Iterations for svLS Continuity Loop: 400
+#svls_linear_solver	Solver Type: svLS
+#svls_linear_solver	Tolerance on svLS NS Solver: 0.4
+#svls_linear_solver	Tolerance on Momentum Equations: 0.05
+#svls_linear_solver	Tolerance on Continuity Equations: 0.4
+#svls_linear_solver	Maximum Number of Iterations for svLS NS Solver : 1
+#svls_linear_solver	Maximum Number of Iterations for svLS Momentum Loop: 1
+#svls_linear_solver	Maximum Number of Iterations for svLS Continuity Loop: 400
