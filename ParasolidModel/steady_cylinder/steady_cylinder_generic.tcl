@@ -1,7 +1,6 @@
 # create model, mesh, and bc files
 source cylinder_create_model_parasolid.tcl
 source steady_cylinder_create_mesh_parsolid.tcl
-source steady_cylinder_write_mesh_related_files_parasolid.tcl
 source steady_cylinder_create_bc_files_parasolid.tcl
 
 source ../../common/executable_names.tcl

@@ -33,6 +33,6 @@ proc steady_cylinder_create_mesh_parasolid {dstdir} {
   file mkdir [file join $dstdir mesh-complete]
   file mkdir [file join $dstdir mesh-complete mesh-surfaces]
 
-  steady_cylinder_write_mesh_related_files_parasolid mymesh cyl cylinder [file join $dstdir mesh-complete]
+  mesh_writeCompleteMesh mymesh cyl cylinder [file join $dstdir mesh-complete]
 
 }
