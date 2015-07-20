@@ -136,7 +136,7 @@ fconfigure $fp -translation lf
 puts $fp "0"
 close $fp
 
-set infp [open solver.inp r]
+set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
@@ -393,5 +393,5 @@ if [catch {exec $POSTSOLVER -indir $adaptdir -outdir $adaptsimdir -start $adapt_
 #  compare the two solutions
 #
 
-source adaptor-compare_with_analytic.tcl
+source ../generic/adaptor-compare_with_analytic.tcl
 

@@ -138,13 +138,14 @@ puts "Run Solver."
 #  more files needed by solver
 #
 
-file copy [file join $fullrundir bct.dat.inflow] [file join $fullrundir bct.dat]
+file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
+
 set fp [open [file join $fullrundir numstart.dat] w]
 fconfigure $fp -translation lf
 puts $fp "0"
 close $fp
 
-set infp [open solver.inp r]
+set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
@@ -327,7 +328,7 @@ $adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.vtu] -surfile [f
 mesh_writeCompleteMesh $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
 set guiABC(invert_face_normal) 1
 demo_create_bc_files $adaptdir
-file copy [file join $adaptdir bct.dat.inflow] [file join $adaptdir bct.dat]
+file copy [file join $adaptdir bct.vtp.inflow] [file join $adaptdir bct.vtp]
 set fp [open [file join $adaptdir numstart.dat] w]
 fconfigure $fp -translation lf
 puts $fp "$adapt_step"
@@ -391,5 +392,5 @@ if [catch {exec $POSTSOLVER -indir $adaptdir -outdir $adaptdir -start $adapt_sta
 #  compare the two solutions
 #
 
-source adaptor-compare_with_analytic.tcl
+source ../generic/adaptor-compare_with_analytic.tcl
 
