@@ -1,0 +1,14 @@
+# user defined face id to name mapping for model file (bifurcation.vtp)
+# timestamp: 1412171386  (Mon Jul 20 00:39:59 PDT 2015)
+
+global gPolyDataFaceNames
+global gPolyDataFaceNamesInfo
+
+set gPolyDataFaceNamesInfo(timestamp) {1437377999}
+set gPolyDataFaceNamesInfo(model_file_md5) {A92CD60035631DB38299CC1E5A4DA485}
+set gPolyDataFaceNamesInfo(model_file_name) {bifurcation.vtp}
+
+set gPolyDataFaceNames(1) {rt_iliac}
+set gPolyDataFaceNames(2) {wall}
+set gPolyDataFaceNames(3) {lt_iliac}
+set gPolyDataFaceNames(4) {inflow}
