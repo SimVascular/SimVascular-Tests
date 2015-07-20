@@ -7,14 +7,13 @@ set MPIEXEC       $gExternalPrograms(mpiexec)
 set SOLVER        $gExternalPrograms(cvflowsolver)
 set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
 set ADAPTOR       $gExternalPrograms(cvadaptor)
+set TETADAPTOR    $gExternalPrograms(cvtetadaptor)
 
 if {0 == 1} {
 
-  set SVRELEASEDIR  "C:/Program Files (x86)/SimVascular/sv/1362614537"
-  set SVRELEASEDIR  "C:/Program Files (x86)/SimVascular/sv/1365232876"
-  #set PRESOLVER     [glob $env(SIMVASCULAR_HOME)/Code/Bin/presolver*.exe]
+  set SVRELEASEDIR  "C:/Program Files (x86)/SimVascular/sv/1437247112"
   set PRESOLVER     "$SVRELEASEDIR/presolver-bin.exe"
-  set MPIEXEC       "$SVRELEASEDIR/mpiexec.exe"
+#  set MPIEXEC       "$SVRELEASEDIR/mpiexec.exe"
   set SOLVER        "$SVRELEASEDIR/flowsolver-bin.exe"
   set FLOWSOLVER_CONFIG [file dirname $SOLVER] 
   set POSTSOLVER    "$SVRELEASEDIR/postsolver-bin.exe"
