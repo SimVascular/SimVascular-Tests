@@ -1,0 +1,14 @@
+# user defined face id to name mapping for model file (C:/cygwin64/home/nwilson/work/2015/2015-07-17-solver_tests/testing/simple_bifurcation/discrete/bifurcation.dsm)
+# timestamp: 1437378503  (Mon Jul 20 00:48:23 PDT 2015)
+
+global gDiscreteModelFaceNames
+global gDiscreteModelFaceNamesInfo
+
+set gDiscreteModelFaceNamesInfo(timestamp) {1437378503}
+set gDiscreteModelFaceNamesInfo(model_file_md5) {3F3ED70FCDDDA6D7EC53DEFA082E9988}
+set gDiscreteModelFaceNamesInfo(model_file_name) {bifurcation.dsm}
+
+set gDiscreteModelFaceNames(1) {rt_iliac}
+set gDiscreteModelFaceNames(2) {wall}
+set gDiscreteModelFaceNames(3) {lt_iliac}
+set gDiscreteModelFaceNames(4) {inflow}
