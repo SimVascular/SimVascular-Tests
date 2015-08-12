@@ -216,13 +216,13 @@ if {$use_ascii_format != 0} {
 
 
 for {set i 0} {$i <= $endstep} {incr i 25} {  
-   if [catch {exec $POSTSOLVER  -sn $i $aflag -vis [file join $rigid_steady_sim_dir cylinder]} msg] {
+   if [catch {exec $POSTSOLVER  -sn $i $aflag -vis  cylinder} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
 
-if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh [file join $rigid_steady_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh cylinder_mesh.vis} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
@@ -239,6 +239,8 @@ if [catch {exec $POSTSOLVER  -sn $endstep -td -ph -sol $aflag -newsn 0} msg] {
 file copy [file join $rigid_steady_sim_dir restart.0.0]    [file join $def_steady_dir restart.0.1]
 
 cd $fullrundir 
+
+
 
 ###
 ###
@@ -384,12 +386,12 @@ if {$use_ascii_format != 0} {
 }
 
 for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER  -sn $i $aflag -bflux -vis [file join $def_steady_sim_dir cylinder_res$i.vis]} msg] {
+   if [catch {exec $POSTSOLVER  -sn $i $aflag  -vis cylinder} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh [file join $def_steady_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh  cylinder_mesh.vis} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
@@ -564,12 +566,12 @@ if {$use_ascii_format != 0} {
 }
 
 for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER -sn $i $aflag -vis [file join $def_varwall_sim_dir cylinder]} msg] {
+   if [catch {exec $POSTSOLVER -sn $i $aflag -vis cylinder} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh [file join $def_varwall_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh  cylinder_mesh.vis} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
@@ -605,7 +607,7 @@ file copy [file join $def_steady_dir geombc.dat.1] [file join $def_pulse_dir geo
 # set number of timesteps
 #
 
-set timesteps 2750
+set timesteps 250
 
 puts "Number of timesteps ($timesteps)"
 
@@ -699,12 +701,12 @@ if {$use_ascii_format != 0} {
 }
 
 for {set i 0} {$i <= $endstep} {incr i 25} {
-   if [catch {exec $POSTSOLVER  -sn $i $aflag  -vis [file join $def_pulse_sim_dir cylinder]} msg] {
+   if [catch {exec $POSTSOLVER  -sn $i $aflag  -vis cylinder} msg] {
      puts $msg
      return -code error "ERROR running cvpostsolver!"
    }
 }
-if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh [file join $def_pulse_sim_dir cylinder_mesh.vis]} msg] {
+if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh  cylinder_mesh.vis} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
