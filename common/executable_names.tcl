@@ -69,10 +69,3 @@ set ADAPTOR       "$SIMVASCULAR_HOME/Code/Build/myadaptor"
 }
 
 
-if {1 == 1} {
-
-set PRESOLVER     "/home/jeff/Downloads/simvascular_reorg.git/BuildWithMake/mypre"
-set POSTSOLVER    "/home/jeff/Downloads/simvascular_reorg.git/BuildWithMake/mypost"
-set SOLVER "/home/jeff/Downloads/simvascular_reorg.git/BuildWithMake/mysolver"
-}
-
