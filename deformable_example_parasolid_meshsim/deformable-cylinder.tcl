@@ -227,18 +227,14 @@ if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh [file join $rigid_steady_sim
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER  -sn $endstep -td -ph $aflag -newsn 0} msg] {
+
+
+if [catch {exec $POSTSOLVER  -sn $endstep -td -ph -sol $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
 
 
-
-#for old postsolver
-#if [catch {exec $POSTSOLVEROLD -dir $rigid_steady_sim_dir -sn $endstep -td -ph $aflag -newsn 0} msg] {
-#  puts $msg
-#  return -code error "ERROR running postsolverold!"
-#}
 
 file copy [file join $rigid_steady_sim_dir restart.0.0]    [file join $def_steady_dir restart.0.1]
 
@@ -273,19 +269,13 @@ puts $fp "pressure [file join $fullrundir mesh-surfaces outlet.ebc.gz] 116490.0"
 puts $fp "set_surface_id [file join $fullrundir all.ebc.gz] 1"
 puts $fp "set_surface_id [file join $fullrundir mesh-surfaces outlet.ebc.gz] 2"
 puts $fp "deformable_create_mesh [file join $fullrundir mesh-surfaces wall.ebc.gz]"
-#puts $fp "deformable_write_vtk_mesh [file join $def_steady_dir wall-mesh.vtk]"
-#puts $fp "deformable_write_feap [file join $def_steady_dir matlab.dat]"
-puts $fp "deformable_Evw 4144000.0"
-puts $fp "deformable_nuvw 0.5"
+puts $fp "deformable_E 4144000.0"
+puts $fp "deformable_nu 0.5"
 puts $fp "deformable_thickness 0.1"
 puts $fp "deformable_pressure 120000.0"
 puts $fp "deformable_kcons 0.833333"
-puts $fp "deformable_solve"
-#puts $fp "read_restart_solution [file join $rigid_steady_sim_dir restart.0.0]"
-#puts $fp "read_restart_accelerations [file join $rigid_steady_sim_dir restart.0.0]"
+puts $fp "deformable_solve_displacements"
 puts $fp "write_geombc [file join $def_steady_dir geombc.dat.1]"
-puts $fp "write_geombc [file join $def_pulse_dir geombc.dat.1]"
-#puts $fp "write_restart [file join $def_steady_dir restart.0.1]"
 puts $fp "append_displacements [file join $def_steady_dir restart.0.1]"
 close $fp
 
@@ -404,10 +394,12 @@ if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh [file join $def_steady_sim_di
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER  -sn $timesteps -disp -td -ph $aflag -newsn 0} msg] {
+
+if [catch {exec $POSTSOLVER  -sn $timesteps -disp -td -ph -sol $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
+
 
 
 cd $fullrundir
@@ -446,25 +438,20 @@ puts $fp "fix_free_edge_nodes [file join $fullrundir mesh-surfaces wall.ebc.gz]"
 puts $fp "pressure [file join $fullrundir mesh-surfaces outlet.ebc.gz] 116490.0"
 puts $fp "set_surface_id [file join $fullrundir all.ebc.gz] 1"
 puts $fp "set_surface_id [file join $fullrundir mesh-surfaces outlet.ebc.gz] 2"
-
 puts $fp "set_surface_thickness [file join $fullrundir mesh-surfaces inflow.nbc.gz] 0.15"
 puts $fp "set_surface_thickness [file join $fullrundir mesh-surfaces outlet.nbc.gz] 0.05"
-puts $fp "Laplace_Thickness"
-
-
+puts $fp "solve_varwall_thickness"
 puts $fp "set_surface_Evw [file join $fullrundir mesh-surfaces inflow.nbc.gz] 5180000"
 puts $fp "set_surface_Evw [file join $fullrundir mesh-surfaces outlet.nbc.gz] 3108000"
-puts $fp "Laplace_Evw"
-puts $fp "varthickness_write_vtk_mesh varwall_cylinder.vtk"
-
+puts $fp "solve_varwall_E"
+puts $fp "varwallprop_write_vtk varwall_cylinder.vtk"
 puts $fp "deformable_create_mesh [file join $fullrundir mesh-surfaces wall.ebc.gz]"
-puts $fp "deformable_Evw 4144000.0"
-puts $fp "deformable_nuvw 0.5"
+puts $fp "deformable_E 4144000.0"
+puts $fp "deformable_nu 0.5"
 puts $fp "deformable_thickness 0.1"
 puts $fp "deformable_pressure 120000.0"
 puts $fp "deformable_kcons 0.833333"
-puts $fp "deformable_solve"
-
+puts $fp "deformable_solve_displacements"
 puts $fp "write_geombc [file join $def_varwall_dir geombc.dat.1]"
 puts $fp "append_displacements [file join $def_varwall_dir restart.0.1]"
 puts $fp "append_varwallprop [file join $def_varwall_dir restart.0.1]"
@@ -587,17 +574,12 @@ if [catch {exec $POSTSOLVER  -sn 0 $aflag -vismesh [file join $def_varwall_sim_d
   return -code error "ERROR running cvpostsolver!"
 }
 
-if [catch {exec $POSTSOLVER  -sn $timesteps -disp -td -ph $aflag -newsn 0} msg] {
+
+if [catch {exec $POSTSOLVER  -sn $timesteps -disp -td -ph -sol $aflag -newsn 0} msg] {
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
 
-
-#for old postsolver
-#if [catch {exec $POSTSOLVEROLD -dir $def_varwall_sim_dir -sn $endstep -td -ph -disp $aflag -newsn 0} msg] {
-#  puts $msg
-#  return -code error "ERROR running cvpostsolver!"
-#}
 
 
 
@@ -617,6 +599,7 @@ cd $fullrundir
 ###
 
 file copy [file join $def_steady_sim_dir restart.0.0] [file join $def_pulse_dir restart.0.1]
+file copy [file join $def_steady_dir geombc.dat.1] [file join $def_pulse_dir geombc.dat.1]
 
 #
 # set number of timesteps
@@ -725,7 +708,6 @@ if [catch {exec $POSTSOLVER   -sn 0 $aflag -vismesh [file join $def_pulse_sim_di
   puts $msg
   return -code error "ERROR running cvpostsolver!"
 }
-
 
 
 
