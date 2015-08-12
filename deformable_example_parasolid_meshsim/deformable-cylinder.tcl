@@ -607,7 +607,7 @@ file copy [file join $def_steady_dir geombc.dat.1] [file join $def_pulse_dir geo
 # set number of timesteps
 #
 
-set timesteps 250
+set timesteps 2750
 
 puts "Number of timesteps ($timesteps)"
 
