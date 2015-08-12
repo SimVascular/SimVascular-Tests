@@ -16,7 +16,7 @@ proc steady_cylinder_create_mesh_MeshSim {solidfn dstdir} {
   puts $fp "option volume smoothing 3"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "gsize absolute 2"
+  puts $fp "gsize absolute 1"
   puts $fp "generateMesh"
   puts $fp "writeMesh [file join $dstdir cylinder.sms] sms 0"
   puts $fp "writeStats [file join $dstdir cylinder.sts]"
