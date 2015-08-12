@@ -14,11 +14,12 @@ set tlist [list step_2 \
                 step_10 \
                 step_16 \
                 step_32 \
+                step_64 \
           ]
 
 set vturesultsfn [file join $fullrundir cylinder_results.vtu]
 
-set rlist [list 2 4 6 8 10 16 32]
+set rlist [list 2 4 6 8 10 16 32 64]
 
 set Q 1570.795327
 set radius 2.0
