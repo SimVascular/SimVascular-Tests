@@ -30,7 +30,7 @@ if {$pulsatile_mesh_option == ""} {
 #
 
 if {$timesteps == ""} {
-  set timesteps [tk_dialog .askthem "Select the Number of Time Steps" "Select the Number of Time Steps" question 0 "  16  " "  32  " "  64  " " 128  " " 256  " " 512  "]
+  set timesteps [tk_dialog .askthem "Select the Number of Time Steps" "Select the Number of Time Steps" question 0 "  32  " "  64  " " 128  " " 256  " " 512  "]
   set timesteps [expr pow(2,$timesteps) * 16]
 }
 
