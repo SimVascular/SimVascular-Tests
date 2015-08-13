@@ -17,7 +17,7 @@ proc steady_cylinder_create_mesh_TetGen {solidfn dstdir} {
   puts $fp "newMesh"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "option a 0.75"
+  puts $fp "option a 0.5"
   puts $fp "wallFaces wall"
   puts $fp "option q 1.4"
   puts $fp "option Y"

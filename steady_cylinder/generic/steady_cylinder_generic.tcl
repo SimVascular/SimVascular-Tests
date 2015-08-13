@@ -1,6 +1,6 @@
 
 set use_ascii_format 0
-set timesteps 32
+set timesteps 64
 
 #
 # prompt user for number of procs
@@ -92,7 +92,7 @@ if {$use_ascii_format == 0} {
 }
 
 while {[gets $infp line] >= 0} {
-  regsub -all my_initial_time_increment $line [expr 0.2/$timesteps] line
+  regsub -all my_initial_time_increment $line [expr 0.128/$timesteps] line
   regsub -all my_number_of_time_steps $line [expr $timesteps] line
   regsub -all my_output_format $line $file_format line
   if {$selected_LS} {
@@ -151,9 +151,9 @@ if {$use_ascii_format != 0} {
   set aflag ""
 }
 
-puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop 32 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
+puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
-if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop 32 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
+if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
    puts $msg
    return -code error "ERROR running postsolver!"
 }

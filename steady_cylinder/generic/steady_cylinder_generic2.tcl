@@ -1,4 +1,18 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Execute this file in SimVascular Console:
+#   source steady-cylinder.tcl
 
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#   All rights reserved.  
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
+#
 set timesteps 64
 
 #
