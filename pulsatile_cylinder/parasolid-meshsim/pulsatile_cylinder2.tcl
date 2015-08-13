@@ -7,10 +7,10 @@
 #  and should be sourced interactively from SimVascular
 #
 
-solid_setKernel -name Discrete
+solid_setKernel -name Parasolid
 mesh_setKernel -name MeshSim
 set gOptions(meshing_kernel) MeshSim
-set gOptions(meshing_solid_kernel) Discrete
+set gOptions(meshing_solid_kernel) Parasolid
 
 set num_procs ""
 set selected_LS ""
@@ -19,11 +19,10 @@ set timesteps ""
 
 # shared functions
 source ../../common/executable_names.tcl
-source ../generic/pulsatile_cylinder_create_bc_files_generic.tcl
 
 # custom functions
-source cylinder_create_model_discrete.tcl
+source cylinder_create_model_parasolid.tcl
 source pulsatile_cylinder_create_mesh_meshsim.tcl
 
 # run example
-source ../generic/pulsatile_cylinder_generic.tcl
+source ../generic/pulsatile_cylinder_generic2.tcl

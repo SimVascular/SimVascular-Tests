@@ -19,11 +19,10 @@ set timesteps ""
 
 # shared functions
 source ../../common/executable_names.tcl
-source ../generic/pulsatile_cylinder_create_bc_files_generic.tcl
 
 # custom functions
 source cylinder_create_model_discrete.tcl
 source pulsatile_cylinder_create_mesh_meshsim.tcl
 
 # run example
-source ../generic/pulsatile_cylinder_generic.tcl
+source ../generic/pulsatile_cylinder_generic2.tcl
