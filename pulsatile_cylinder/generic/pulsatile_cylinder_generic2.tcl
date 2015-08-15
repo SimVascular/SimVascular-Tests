@@ -30,7 +30,7 @@ if {$pulsatile_mesh_option == ""} {
 #
 
 if {$timesteps == ""} {
-  set timesteps [tk_dialog .askthem "Select the Number of Time Steps" "Select the Number of Time Steps" question 0 "  32  " "  64  " " 128  " " 256  " " 512  "]
+  set timesteps [tk_dialog .askthem "Select the Number of Time Steps" "Select the Number of Time Steps" question 0 "  16  " "  32  " "  64  " " 128  " " 256  " " 512  "]
   set timesteps [expr pow(2,$timesteps) * 16]
 }
 
@@ -178,11 +178,11 @@ cancelTail [file join $fullrundir solver.log]
 #  Create ParaView files
 #
 puts "Reduce restart files."
-if {$use_ascii_format != 0} {
-  set aflag "-nonbinary"
-} else {
-  set aflag ""
-}
+#if {$use_ascii_format != 0} {
+#  set aflag "-nonbinary"
+#} else {
+#  set aflag ""
+#}
 
 puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
