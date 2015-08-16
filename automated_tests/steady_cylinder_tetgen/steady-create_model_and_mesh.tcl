@@ -3,6 +3,7 @@ proc demo_create_model {srcdir dstdir} {
 
   # just copy the model for now
 
+  catch {repos_delete -obj cyl}
   solid_readNative -file $srcdir/cylinder.vtp -obj cyl
   file delete $dstdir/cylinder.vtp $dstdir/cylinder.vtp.facenames
   file copy $srcdir/cylinder.vtp $dstdir
@@ -52,6 +53,23 @@ proc demo_create_mesh {dstdir} {
 
 }
 
+proc demo_create_flow_files {dstdir} {
+
+  #
+  #  Create an analytic Inflow Waveform and create a flow file.
+  #  Also calculate the FFT of the waveform for later.
+  #
+
+  puts "Generating steady flow waveform."
+
+  # calculate FFT terms
+  file mkdir [file join $dstdir flow-files]
+  set fp [open [file join $dstdir flow-files inflow.flow] "w"]
+  puts $fp "\#  Time (sec)   Flow (mm^3/sec)"
+  puts $fp "0   -1570.796327"
+  puts $fp "0.2 -1570.796327"
+  close $fp
+}
 
 proc demo_create_bc_files {dstdir} {
 

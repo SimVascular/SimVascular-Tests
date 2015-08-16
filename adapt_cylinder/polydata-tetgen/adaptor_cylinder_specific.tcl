@@ -59,10 +59,6 @@ proc cylinder_create_mesh_TetGen {dstdir pulsatile_mesh_option} {
 
 }
 
-#proc cylinder_write_mesh_files_TetGen {mesh solid prefix outdir} {
-#  mesh_writeCompleteMesh $mesh $solid $prefix $outdir
-#}
-
 proc cylinder_run_adaptor_TetGen {adaptdir fullrundir adapt_step num_procs} {
 
   #
@@ -130,6 +126,3 @@ proc cylinder_run_adaptor_TetGen {adaptdir fullrundir adapt_step num_procs} {
   mesh_writeCompleteMesh $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
 }
 
-#proc cylinder_load_adapted_mesh_TetGen {} {
-#  
-#}

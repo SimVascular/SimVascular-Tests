@@ -124,7 +124,7 @@ fconfigure $fp -translation lf
 puts $fp "0"
 close $fp
 
-set infp [open ../generic/solver.inp.bifurcation r]
+set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
