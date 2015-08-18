@@ -70,7 +70,7 @@ if {$num_procs == 1} {
 }
 
 # create model, mesh, and bc files
-source $thisDir/steady-create_model_and_mesh.tcl
+source $thisDir/steady_create_model_and_mesh.tcl
 
 demo_create_model $thisDir $fullrundir
 demo_create_mesh  $fullrundir
@@ -212,6 +212,6 @@ mainGUIexit
 #  compare results
 #
 
-source $thisDir/steady-compare_with_analytic.tcl
+source $thisDir/steady_compare_with_analytic.tcl
 
 

@@ -13,6 +13,7 @@ Step Construction  : 0 1 0 1 0 1 0 1 0 1 0 1
 Residual Control: True
 Residual Criteria: 0.1
 
+BCT File Type: VTP
 
 ### Linear solver options
 

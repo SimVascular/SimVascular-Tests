@@ -1,5 +1,14 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
 
-#source ../../common/executable_names.tcl
 source ../generic/adaptor_cylinder_create_bc_files_generic.tcl
 #
 # prompt user for number of procs
@@ -45,49 +54,6 @@ incr adaptor_mesh_option
 cylinder_create_model_$gOptions(meshing_solid_kernel) $fullrundir
 cylinder_create_mesh_$gOptions(meshing_kernel) $fullrundir $adaptor_mesh_option
 
-#create files for adapting later
-#demo_create_model $adaptdir
-#
-#  Create script file for presolver
-#
-#foreach i [mymesh Print] {
-#  set [lindex $i 0] [lindex $i 1]
-#}
-
-#puts "Create script file for presolver."
-#set fp [open [file join $fullrundir cylinder.svpre] w]
-##if {$use_ascii_format > 0} {
-##  puts $fp "ascii_format"
-##}
-##puts $fp "verbose"
-#puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete cylinder.mesh.vtu]"
-#puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
-#puts $fp "noslip_vtp [file join $fullrundir mesh-complete mesh-surfaces wall.vtp]"
-#puts $fp "zero_pressure_vtp [file join $fullrundir mesh-complete mesh-surfaces outlet.vtp]"
-#puts $fp "set_surface_id_vtp [file join $fullrundir mesh-complete cylinder.exterior.vtp] 1"
-#
-#puts $fp "fluid_density 0.00106"
-#puts $fp "fluid_viscosity 0.004"
-#puts $fp "bct_period 0.2"
-#puts $fp "bct_analytical_shape plug"
-#puts $fp "bct_point_number 201"
-#puts $fp "bct_fourier_mode_number 10"
-#puts $fp "bct_create [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp] [file join $fullrundir flow-files inflow.flow]"
-#puts $fp "bct_write_dat [file join $fullrundir bct.dat]"
-#puts $fp "bct_write_vtp [file join $fullrundir bct.vtp]"
-#
-#puts $fp "write_numstart 0 [file join $fullrundir numstart.dat]"
-#
-#puts $fp "write_geombc [file join $fullrundir geombc.dat.1]"
-#puts $fp "write_restart [file join $fullrundir restart.0.1]"
-#close $fp
-#
-##
-##  Call pre-processor
-##
-#puts "Run cvpresolver."
-#catch {exec $PRESOLVER [file join $fullrundir cylinder.svpre]} msg
-#puts $msg
 
 adaptor_cylinder_create_bc_files_generic $fullrundir 0 0
 
@@ -115,28 +81,15 @@ puts "Run Solver."
 #  more files needed by solver
 #
 
-#file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
-#
-#set fp [open [file join $fullrundir numstart.dat] w]
-#fconfigure $fp -translation lf
-#puts $fp "0"
-#close $fp
-
 set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
 
-#if {$use_ascii_format == 0} {
-#   set file_format binary
-#} else {
-#   set file_format ascii
-#}
 
 while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line [expr 0.2/$timesteps] line
   regsub -all my_number_of_time_steps $line $timesteps line
-#  regsub -all my_output_format $line $file_format line
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
@@ -238,11 +191,6 @@ if {$num_procs > 1} {
 
 after 5000
 puts "Reduce restart files."
-#if {$use_ascii_format != 0} {
-#  set aflag "-nonbinary"
-#} else {
-#  set aflag ""
-#}
 
 puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
@@ -254,103 +202,8 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
 ##
 ##  Run the adaptor
 ##
-##  Parameter Setup
-#set out_mesh_file [file join $adaptdir adapted-cylinder.vtu]
-#set out_surface_mesh_file [file join $adaptdir adapted-cylinder.vtp]
-#set mesh_file [file join $fullrundir mesh-complete/cylinder.mesh.vtu]
-#set surface_mesh_file [file join $fullrundir mesh-complete/cylinder.exterior.vtp]
-#set discreteFlag 0
-#set adaptorsphere {-1 0 0 0 0}
-#set maxRefineFactor 0.01
-#set maxCoarseFactor 1.0
-#set reductionRatio 0.2
-#set solution [file join $fullsimdir "restart.$adapt_step.$num_procs"]
-##set error_file [file join $fullsimdir "ybar.$adapt_step.0"]
-#set out_solution [file join $fullsimdir "adaptor/restart.$adapt_step.$num_procs"]
-#set stepNumber $adapt_step
-#
-#file delete [file join $fullrundir adaptor_done_running]
-#set fp [open [file join $fullrundir run_adaptor.log] w]
-#puts $fp "Start running adaptor..."
-#
-##  Call the Adaptor
-#puts $fp "exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -out_mesh_file $out_mesh_file -out_surface_mesh_file $out_surface_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor"
-#
-#catch {exec $TETADAPTOR -surface_mesh_file $surface_mesh_file -mesh_file $mesh_file -solution_file $solution -out_mesh_file $out_mesh_file -out_surface_mesh_file $out_surface_mesh_file -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor &; } msg 
-#puts $fp $msg
-#close $fp
-#
-#after 5000
-#
-##
-## Second run through with solver 
-##
-#global gObjects
-#
-#set adaptmesh /tmp/new/mesh
-#
-#catch {repos_delete -obj $adaptmesh}
-#
-#file mkdir [file join $adaptdir mesh-complete]
-#file mkdir [file join $adaptdir mesh-complete mesh-surfaces]
-#
-##
-## Create new mesh object for adapted mesh
-##
-#mesh_newObject -result $adaptmesh
-#$adaptmesh SetSolidKernel -name $gOptions(meshing_solid_kernel)
-#$adaptmesh LoadModel -file [file join $fullsimdir cylinder.vtp]
-#$adaptmesh NewMesh  
-#$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.vtu] -surfile [file join $adaptdir adapted-cylinder.vtp]
-#
-#mesh_writeCompleteMesh $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
 
 cylinder_run_adaptor_$gOptions(meshing_kernel) $adaptdir $fullrundir $adapt_step $num_procs
-
-##
-## Create boundary condition and complete mesh files for solver
-#set guiABC(invert_face_normal) 1
-#demo_create_bc_files $adaptdir
-#file copy [file join $adaptdir bct.vtp.inflow] [file join $adaptdir bct.vtp]
-#set fp [open [file join $adaptdir numstart.dat] w]
-#fconfigure $fp -translation lf
-#puts $fp "$adapt_step"
-#close $fp
-#demo_create_flow_files $adaptdir
-
-#puts "Create script file for presolver after adaptor."
-#set fp [open [file join $adaptdir cylinder.svpre] w]
-##if {$use_ascii_format > 0} {
-##  puts $fp "ascii_format"
-##}
-##puts $fp "verbose"
-#puts $fp "mesh_and_adjncy_vtu [file join $adaptdir mesh-complete cylinder.mesh.vtu]"
-#puts $fp "prescribed_velocities_vtp [file join $adaptdir mesh-complete mesh-surfaces inflow.vtp]"
-#puts $fp "noslip_vtp [file join $adaptdir mesh-complete mesh-surfaces wall.vtp]"
-#puts $fp "zero_pressure_vtp [file join $adaptdir mesh-complete mesh-surfaces outlet.vtp]"
-#puts $fp "set_surface_id_vtp [file join $adaptdir mesh-complete cylinder.exterior.vtp] 1"
-#
-#puts $fp "fluid_density 0.00106"
-#puts $fp "fluid_viscosity 0.004"
-#puts $fp "bct_period 0.2"
-#puts $fp "bct_analytical_shape plug"
-#puts $fp "bct_point_number 201"
-#puts $fp "bct_fourier_mode_number 10"
-#puts $fp "bct_create [file join $adaptdir mesh-complete mesh-surfaces inflow.vtp] [file join $adaptdir flow-files inflow.flow]"
-#puts $fp "bct_write_dat [file join $adaptdir bct.dat]"
-#puts $fp "bct_write_vtp [file join $adaptdir bct.vtp]"
-#
-#puts $fp "write_numstart $adapt_step [file join $adaptdir numstart.dat]"
-#
-#puts $fp "write_geombc [file join $adaptdir geombc.dat.1]"
-#close $fp
-#
-##
-##  Call pre-presolver to create geombc for adapted mesh
-##
-#puts "Run cvpresolver."
-#catch {exec $PRESOLVER [file join $adaptdir cylinder.svpre]} msg
-#puts $msg
 
 adaptor_cylinder_create_bc_files_generic $adaptdir 1 $adapt_step
 
@@ -383,12 +236,7 @@ after 5000
 #
 #  Create ParaView files
 #
-#puts "Reduce restart files."
-#if {$use_ascii_format != 0} {
-#  set aflag "-nonbinary"
-#} else {
-#  set aflag ""
-#}
+
 #
 #  Run the post solver on the adapted solution
 #
@@ -403,5 +251,5 @@ if [catch {exec $POSTSOLVER -indir $adaptsimdir -outdir $adaptdir -start $adapt_
 #  compare the two solutions
 #
 
-source ../generic/adaptor-compare_with_analytic.tcl
+source ../generic/adaptor_compare_with_analytic.tcl
 

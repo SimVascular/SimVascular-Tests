@@ -1,18 +1,21 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
 
-proc pulsatile_cylinder_create_bc_files_generic {solidfn dstdir} {
+proc pulsatile_cylinder_create_flow_files_generic {dstdir} {
 
-  #
-  #  Create an analytic Inflow Waveform and create a flow file.
-  #  Also calculate the FFT of the waveform for later.
-  #
-
+  # Write sinusodial flowrate
   puts "Generating sinusodial volumetric flow waveform."
-  set viscosity 0.004
-  set density 0.00106
   set T 0.2
   set Vbar 135
   set radius 2
-  set omega [expr 2.0*[math_pi]/$T]
 
   # calculate FFT terms
   set pts {}
@@ -30,6 +33,26 @@ proc pulsatile_cylinder_create_bc_files_generic {solidfn dstdir} {
   close $fp
   puts "Calculate analytic profile for outlet. (not done!!)"
   set terms [math_FFT -pts $pts -numInterpPts 256 -nterms 2]
+
+}
+
+
+proc pulsatile_cylinder_create_bc_files_generic {solidfn dstdir} {
+
+  #
+  #  Create an analytic Inflow Waveform and create a flow file.
+  #  Also calculate the FFT of the waveform for later.
+  #
+
+  pulsatile_cylinder_create_flow_files_generic $dstdir 
+  
+  puts "Generating sinusodial volumetric flow waveform."
+  set viscosity 0.004
+  set density 0.00106
+  set T 0.2
+  set Vbar 135
+  set radius 2
+  set omega [expr 2.0*[math_pi]/$T]
 
   puts "Write bct.dat and bct.vtp files."
   global gBC

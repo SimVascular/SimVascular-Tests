@@ -9,24 +9,22 @@
 #  and should be sourced interactively from SimVascular
 #
 
-solid_setKernel -name PolyData
-mesh_setKernel -name TetGen
-set gOptions(meshing_kernel) TetGen
-set gOptions(meshing_solid_kernel) PolyData
+global gOptions
+set gOptions(meshing_solid_kernel) Parasolid
+set gOptions(meshing_kernel) MeshSim
+solid_setKernel -name Parasolid
+mesh_setKernel -name MeshSim
 
 set num_procs ""
 set selected_LS ""
-set bifurcation_mesh_option ""
-set use_resistance ""
-set timesteps ""
-set num_periods ""
+set run_varwall ""
 
 # shared functions
 source ../../common/executable_names.tcl
 
 # custom functions
-source bifurcation_create_model_polydata.tcl
-source bifurcation_create_mesh_tetgen.tcl
+source deformable_cylinder_specific.tcl
 
 # run example
-source ../generic/bifurcation_generic2.tcl
+source ../generic/deformable_cylinder_generic.tcl
+

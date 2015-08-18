@@ -1,12 +1,14 @@
 #
-#   Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#   Copyright (c) 2015 Stanford University
 #   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
 #
 #  This script requires the following files:
 #     solver.inp
 #  and should be sourced interactively from SimVascular
 #
-#
+
 global gOptions
 
 set gOptions(meshing_solid_kernel) PolyData
@@ -50,7 +52,7 @@ if {$num_procs == 1} {
 }
 
 # create model, mesh, and bc files
-source $thisDir/steady-create_model_and_mesh.tcl
+source $thisDir/steady_create_model_and_mesh.tcl
 
 demo_create_model $thisDir $fullrundir
 demo_create_mesh  $fullrundir
@@ -111,27 +113,16 @@ puts "Run Solver."
 #  more files needed by solver
 #
 
-#file copy [file join $fullrundir bct.dat.inflow] [file join $fullrundir bct.dat]
-#set fp [open [file join $fullrundir numstart.dat] w]
-#fconfigure $fp -translation lf
-#puts $fp "0"
-#close $fp
+
 
 set infp [open $thisDir/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
-#
-#if {$use_ascii_format == 0} {
-#   set file_format binary
-#} else {
-#   set file_format ascii
-#}
 
 while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line [expr 0.128/$timesteps] line
   regsub -all my_number_of_time_steps $line [expr $timesteps] line
-#  regsub -all my_output_format $line $file_format line
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
@@ -144,7 +135,6 @@ close $outfp
 
 global tcl_platform
 if {$tcl_platform(platform) == "windows"} {
-#  set npflag "-noprompt -localroot -localonly -user 1 -n"
   set npflag "-np"
 } else {
   set npflag "-np"
@@ -183,15 +173,10 @@ cancelTail [file join $fullrundir solver.log]
 #  Create ParaView files
 #
 puts "Reduce restart files."
-#if {$use_ascii_format != 0} {
-#  set aflag "-nonbinary"
-#} else {
-#  set aflag ""
-#}
 
-puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
+puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $timesteps -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
-if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
+if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $timesteps -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
    puts $msg
    return -code error "ERROR running postsolver!"
 }
@@ -202,6 +187,6 @@ if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -sto
 #  compare results
 #
 
-source $thisDir/steady-compare_with_analytic.tcl
+source $thisDir/steady_compare_with_analytic.tcl
 
 

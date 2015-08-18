@@ -1,3 +1,13 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
 
 proc adaptor_cylinder_create_bc_files_generic { dstdir adapted adapt_step} {
 

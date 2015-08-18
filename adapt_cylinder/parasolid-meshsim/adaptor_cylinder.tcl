@@ -56,7 +56,7 @@ set adaptor_mesh_option [tk_dialog .askthem "Select the Mesh to Use" "Select the
 incr adaptor_mesh_option
 
 # create model, mesh, and bc files
-source adaptor-create_model_and_mesh.tcl
+source adaptor_create_model_and_mesh.tcl
 demo_create_model $fullrundir
 demo_create_mesh $fullrundir $adaptor_mesh_option
 demo_create_bc_files $fullrundir

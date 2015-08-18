@@ -151,9 +151,9 @@ if {$use_ascii_format != 0} {
   set aflag ""
 }
 
-puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
+puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop $timesteps -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
-if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop 64 -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
+if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $timesteps -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
    puts $msg
    return -code error "ERROR running postsolver!"
 }

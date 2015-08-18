@@ -1,3 +1,13 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
 
 #
 # prompt user for number of procs
@@ -77,10 +87,6 @@ bifurcation_create_mesh_$gOptions(meshing_kernel) $solidfn $bifurcation_mesh_opt
 
 puts "Create script file for presolver."
 set fp [open [file join $fullrundir bifurcation.svpre] w]
-#if {$use_ascii_format > 0} {
-#  puts $fp "ascii_format"
-#}
-#puts $fp "verbose"
 puts $fp "mesh_and_adjncy_vtu [file join $fullrundir mesh-complete bifurcation.mesh.vtu]"
 puts $fp "prescribed_velocities_vtp [file join $fullrundir mesh-complete mesh-surfaces inflow.vtp]"
 puts $fp "noslip_vtp [file join $fullrundir mesh-complete walls_combined.vtp]"
@@ -123,27 +129,10 @@ puts $msg
 
 puts "Run Solver."
 
-#
-#  more files needed by solver
-#
-
-#file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
-
-#set fp [open [file join $fullrundir numstart.dat] w]
-#fconfigure $fp -translation lf
-#puts $fp "0"
-#close $fp
-
 set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
-
-#if {$use_ascii_format == 0} {
-#   set file_format binary
-#} else {
-#   set file_format ascii
-#}
 
 while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line [expr 1.1/$timesteps] line
@@ -154,7 +143,6 @@ while {[gets $infp line] >= 0} {
   } else {
        regsub -all "\#svls_linear_solver" $line {} line
   }
-#  regsub -all my_output_format $line $file_format line
   puts $outfp $line
 }
 close $infp
@@ -203,13 +191,6 @@ cancelTail [file join $fullrundir solver.log]
 #  Create results files
 #
 puts "Reduce restart files."
-#if {$use_ascii_format != 0} {
-#  set aflag "-nonbinary"
-#} else {
-#  set aflag ""
-#}
-
-# are sim units really mm??? -sim_units_mm
 
 set beginstep [expr $endstep - $timesteps + 1]
 

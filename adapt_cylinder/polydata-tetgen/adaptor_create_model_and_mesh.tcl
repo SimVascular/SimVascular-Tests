@@ -8,8 +8,6 @@ proc demo_create_model {dstdir} {
 
   file copy cylinder.vtp $dstdir
   file copy cylinder.vtp.facenames $dstdir
-  
-  return
 
 }
 

@@ -1,3 +1,25 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
+
+proc steady_cylinder_create_flow_files_generic {dstdir} {
+
+  # Write steady flowrate
+  file mkdir [file join $dstdir flow-files]
+  set fp [open [file join $dstdir flow-files inflow.flow] "w"]
+  puts $fp "\#  Time (sec)   Flow (mm^3/sec)"
+  puts $fp "0   -1570.796327"
+  puts $fp "0.2 -1570.796327"
+  close $fp
+
+}
 
 proc steady_cylinder_create_bc_files_generic {solidfn dstdir} {
 
@@ -6,6 +28,8 @@ proc steady_cylinder_create_bc_files_generic {solidfn dstdir} {
   #  Also calculate the FFT of the waveform for later.
   #
 
+  steady_cylinder_create_flow_files_generic $dstdir
+  
   puts "Generating sinusodial volumetric flow waveform."
   set viscosity 0.004
   set density 0.00106
@@ -13,15 +37,6 @@ proc steady_cylinder_create_bc_files_generic {solidfn dstdir} {
   set Vbar 135
   set radius 2
   set omega [expr 2.0*[math_pi]/$T]
-
-  # calculate FFT terms
-  set pts {}
-  file mkdir [file join $dstdir flow-files]
-  set fp [open [file join $dstdir flow-files inflow.flow] "w"]
-  puts $fp "\#  Time (sec)   Flow (mm^3/sec)"
-  puts $fp "0   -1570.796327"
-  puts $fp "0.2 -1570.796327"
-  close $fp
 
   puts "Write bct.dat and bct.vtp files."
   global gBC

@@ -1,3 +1,13 @@
+#
+#   Copyright (c) 2015 Stanford University
+#   All rights reserved.  
+#
+#   Portions of the code Copyright (c) 2009-2012 Open Source Medical Software Corporation
+#
+#  This script requires the following files:
+#     solver.inp
+#  and should be sourced interactively from SimVascular
+#
 
 #
 # prompt user for number of procs
@@ -52,7 +62,7 @@ if {$num_procs == 1} {
 set solidfn [cylinder_create_model_$gOptions(meshing_solid_kernel) $fullrundir]
 pulsatile_cylinder_create_mesh_$gOptions(meshing_kernel) $solidfn $fullrundir $pulsatile_mesh_option
 
-source ../generic/pulsatile_cylinder_create_flow_files_generic.tcl
+source ../generic/pulsatile_cylinder_create_bc_files_generic.tcl
 pulsatile_cylinder_create_flow_files_generic $fullrundir
 
 #
@@ -103,31 +113,14 @@ set total_timesteps [expr 2*$timesteps]
 
 puts "Run Solver."
 
-#
-#  more files needed by solver
-#
-
-#file copy [file join $fullrundir bct.vtp.inflow] [file join $fullrundir bct.vtp]
-#set fp [open [file join $fullrundir numstart.dat] w]
-#fconfigure $fp -translation lf
-#puts $fp "0"
-#close $fp
-
 set infp [open ../generic/solver.inp r]
 
 set outfp [open $fullrundir/solver.inp w]
 fconfigure $outfp -translation lf
 
-#if {$use_ascii_format == 0} {
-#   set file_format binary
-#} else {
-#   set file_format ascii
-#}
-
 while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line [expr 0.2/$timesteps] line
   regsub -all my_number_of_time_steps $line $total_timesteps line
-#  regsub -all my_output_format $line $file_format line
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
   } else {
@@ -178,11 +171,6 @@ cancelTail [file join $fullrundir solver.log]
 #  Create ParaView files
 #
 puts "Reduce restart files."
-#if {$use_ascii_format != 0} {
-#  set aflag "-nonbinary"
-#} else {
-#  set aflag ""
-#}
 
 puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
 
