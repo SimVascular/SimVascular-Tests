@@ -224,8 +224,8 @@ while {$adapt_step < $total_timesteps} {
   set waittwoseconds 0
   after 2000 set waittwoseconds 1
   vwait waittwoseconds
-  if {![file exists [file join $adaptdir "numstart.dat"]]} continue
-  set fp [open [file join $adaptdir "numstart.dat"] r]
+  if {![file exists [file join $adaptsimdir "numstart.dat"]]} continue
+  set fp [open [file join $adaptsimdir "numstart.dat"] r]
   gets $fp adapt_step
   close $fp
   set adapt_step [string trim $adapt_step]
