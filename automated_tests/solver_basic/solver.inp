@@ -1,0 +1,20 @@
+#Default Input File: default.inp
+#BCT File Type: DAT
+
+Number of Timesteps: 5   
+Time Step Size: 0.004
+
+Number of Timesteps between Restarts:10 
+
+Number of Coupled Surfaces: 2  
+Number of Resistance Surfaces: 2   
+List of Resistance Surfaces: 2 3  
+Resistance Values : 16000 16000  
+
+Viscosity: 0.04  
+Density: 1.06 
+
+#svLS Type: GMRES
+Time Integration Rho Infinity: 0.0  
+
+Step Construction : 0 1 0 1 0 1 0 1
