@@ -257,14 +257,6 @@ if {$use_ascii_format != 0} {
   set aflag ""
 }
 
-puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
-
-if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
-   puts $msg
-   return -code error "ERROR running postsolver!"
-}
-
-
 #
 #  Run the adaptor
 #
@@ -277,6 +269,7 @@ catch {repos_delete -obj $adaptobject}
 
 set out_mesh_dir [file join $fullsimdir adaptor/mesh-complete/]
 file mkdir $out_mesh_dir
+set out_mesh_file [file join $fullsimdir adaptor/mesh-complete/mesh-complete.sms]
 set solid_file [file join $fullrundir cylinder.xmt_txt]
 set sms_mesh_file  [file join $fullrundir cylinder.sms]
 set vtu_mesh_file  [file join $fullrundir cylinder_results.vtu]
@@ -312,9 +305,13 @@ $adaptobject RunAdaptor
 $adaptobject GetAdaptedMesh
 $adaptobject TransferSolution       
 $adaptobject WriteAdaptedSolution -file $out_solution
+$adaptobject WriteAdaptedMesh -file $out_mesh_file
 set mesh /adapt/internal/meshobject
 mesh_writeCompleteMesh $mesh cyl cylinder $out_mesh_dir
 
+#
+# Create boundary condition and complete mesh files for solver
+#
 #set guiABC(invert_face_normal) 1
 demo_create_bc_files $adaptdir
 puts "Created bcs!"
@@ -382,5 +379,5 @@ if [catch {exec $POSTSOLVER -indir $adaptdir -outdir $adaptsimdir -start $adapt_
 #  compare the two solutions
 #
 
-source ../generic/adaptor-compare_with_analytic.tcl
+source ../generic/adaptor_compare_with_analytic.tcl
 
