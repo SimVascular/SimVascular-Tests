@@ -57,7 +57,7 @@ set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
 set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
 }
 
-if {1 == 1} {
+if {0 == 1} {
 set MY_SIMVASCULAR_HOME "/home/adamupdegrove/Documents/Software/SimVascular/Master"
 set PRESOLVER     "$MY_SIMVASCULAR_HOME/Code/Build/mypre"
 set POSTSOLVER    "$MY_SIMVASCULAR_HOME/Code/Build/mypost"
