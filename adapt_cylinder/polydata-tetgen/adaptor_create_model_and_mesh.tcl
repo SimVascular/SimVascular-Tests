@@ -29,13 +29,13 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
   puts $fp "newMesh"
   puts $fp "option surface 1"
   puts $fp "option volume 1"
-  puts $fp "option a 1.0"
+  puts $fp "option GlobalEdgeSize 1.0"
   puts $fp "wallFaces wall"
   if {$pulsatile_mesh_option == 2} {
     puts $fp "boundaryLayer 4 0.4 0.5"
   }
-  puts $fp "option q 1.4"
-  puts $fp "option Y"
+  puts $fp "option QualityRatio 1.4"
+  puts $fp "option NoBisect"
   puts $fp "generateMesh"
   if {$pulsatile_mesh_option == 2} {
     puts $fp "getBoundaries"

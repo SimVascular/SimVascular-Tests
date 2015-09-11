@@ -257,78 +257,64 @@ if {$use_ascii_format != 0} {
   set aflag ""
 }
 
-puts "exec $POSTSOLVER -indir $fullsimdir -outdir $fullsimdir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp"
-
-if [catch {exec $POSTSOLVER -indir $fullsimdir -outdir $fullrundir -start 1 -stop $endstep -incr 1 -sim_units_mm -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
-   puts $msg
-   return -code error "ERROR running postsolver!"
-}
-
-
 #
 #  Run the adaptor
 #
 #  Parameter Setup
-set out_mesh   [file join $adaptdir adapted-cylinder.sms]
-set model_file [file join $fullrundir cylinder.xmt_txt]
-set mesh_file  [file join $fullrundir cylinder.sms]
+global gObjects
+global gFilenames
+
+set adaptobject /new/adapt/object
+catch {repos_delete -obj $adaptobject}
+
+set out_mesh_dir [file join $fullsimdir adaptor/mesh-complete/]
+file mkdir $out_mesh_dir
+set out_mesh_file [file join $fullsimdir adaptor/mesh-complete/mesh-complete.sms]
+set solid_file [file join $fullrundir cylinder.xmt_txt]
+set sms_mesh_file  [file join $fullrundir cylinder.sms]
+set vtu_mesh_file  [file join $fullrundir cylinder_results.vtu]
 set discreteFlag 0
 set adaptorsphere {-1 0 0 0 0}
-set maxRefineFactor 0.1
+set maxRefineFactor 0.01
 set maxCoarseFactor 0.5
-set reductionRatio 0.6
+set reductionRatio 0.2
 set solution   [file join $fullsimdir "restart.$adapt_step.$num_procs"]
 set error_file [file join $fullsimdir "ybar.$adapt_step.0"]
 set out_solution [file join $adaptdir "restart.$adapt_step.$num_procs"]
 set stepNumber $adapt_step
 
-file delete [file join $fullrundir adaptor_done_running]
-set fp [open [file join $fullrundir run_adaptor.log] w]
-puts $fp "Start running adaptor..."
-puts $fp "exec $ADAPTOR -model_file $model_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor -discrete_model_flag $discreteFlag -sphere_refinement [lindex $adaptorsphere 0] [lindex $adaptorsphere 1] [lindex $adaptorsphere 2] [lindex $adaptorsphere 3] [lindex $adaptorsphere 4]"
-close $fp
+set gOptions(meshing_kernel) MeshSim
+set gOptions(meshing_solid_kernel) Parasolid
+set gFilenames($solid_file) $solid_file
 
-#catch {unset ::tail_adaptorlog}
-#set ::tail_adaptorlog {}
-#tail [file join [pwd] run_adaptor.log] .+ 1000 ::tail_adaptorlog
-#trace variable ::tail_adaptorlog w guiMMadaptMesh_handle
+puts "Running the adaptor..."
 
-#  Call the Adaptor
-
-if [catch {exec $ADAPTOR -model_file $model_file -mesh_file $mesh_file -solution_file $solution -error_indicator_file $error_file -out_mesh_file $out_mesh -out_solution_file $out_solution -out_sn $stepNumber -ratio $reductionRatio -hmax $maxCoarseFactor -hmin $maxRefineFactor -discrete_model_flag $discreteFlag -sphere_refinement [lindex $adaptorsphere 0] [lindex $adaptorsphere 1] [lindex $adaptorsphere 2] [lindex $adaptorsphere 3] [lindex $adaptorsphere 4]} msg] {
-  puts $msg
-  return -code error "ERROR running adaptor!"
-}
-
-#cancelTail [file join [pwd] run_adaptor.log] ::tail_adaptorlog
-after 5000
-
-#
-# Second run through with solver 
-#
-global gObjects
-
-set adaptmesh /tmp/new/mesh
-
-catch {repos_delete -obj $adaptmesh}
-
-file mkdir [file join $adaptdir mesh-complete]
-file mkdir [file join $adaptdir mesh-complete mesh-surfaces]
-
-#
-# Create new mesh object for adapted mesh
-#
-mesh_newObject -result $adaptmesh
-$adaptmesh SetSolidKernel -name $gOptions(meshing_solid_kernel)
-$adaptmesh LoadModel -file [file join $adaptdir cylinder.xmt_txt]
-$adaptmesh NewMesh  
-$adaptmesh LoadMesh -file [file join $adaptdir adapted-cylinder.sms]
+adapt_newObject -result $adaptobject
+$adaptobject CreateInternalMeshObject -meshfile $sms_mesh_file -solidfile $solid_file
+$adaptobject LoadMesh -file $vtu_mesh_file
+$adaptobject SetAdaptOptions -flag strategy -value 2
+$adaptobject SetAdaptOptions -flag metric_option -value 2
+$adaptobject SetAdaptOptions -flag ratio -value $reductionRatio
+$adaptobject SetAdaptOptions -flag hmin -value $maxRefineFactor
+$adaptobject SetAdaptOptions -flag hmax -value $maxCoarseFactor
+$adaptobject SetAdaptOptions -flag instep -value 0
+$adaptobject SetAdaptOptions -flag outstep -value $adapt_step
+$adaptobject SetMetric -input $vtu_mesh_file
+$adaptobject SetupMesh
+$adaptobject RunAdaptor
+$adaptobject GetAdaptedMesh
+$adaptobject TransferSolution       
+$adaptobject WriteAdaptedSolution -file $out_solution
+$adaptobject WriteAdaptedMesh -file $out_mesh_file
+set mesh /adapt/internal/meshobject
+mesh_writeCompleteMesh $mesh cyl cylinder $out_mesh_dir
 
 #
 # Create boundary condition and complete mesh files for solver
 #
-demo_write_mesh_related_files $adaptmesh cyl cylinder [file join $adaptdir mesh-complete]
+#set guiABC(invert_face_normal) 1
 demo_create_bc_files $adaptdir
+puts "Created bcs!"
 file copy [file join $adaptdir bct.vtp.inflow] [file join $adaptdir bct.vtp]
 set fp [open [file join $adaptdir numstart.dat] w]
 fconfigure $fp -translation lf
@@ -393,5 +379,5 @@ if [catch {exec $POSTSOLVER -indir $adaptdir -outdir $adaptsimdir -start $adapt_
 #  compare the two solutions
 #
 
-source ../generic/adaptor-compare_with_analytic.tcl
+source ../generic/adaptor_compare_with_analytic.tcl
 

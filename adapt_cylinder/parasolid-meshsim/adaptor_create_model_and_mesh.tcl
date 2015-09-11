@@ -122,8 +122,8 @@ proc demo_write_mesh_related_files {mesh solid prefix outdir} {
   catch {repos_delete -obj $pd}
   catch {repos_delete -obj $facepd}
 
-  $mesh WriteSpectrumSolverElements -file $outdir/misc/$prefix.connectivity
-  $mesh WriteSpectrumSolverNodes    -file $outdir/misc/$prefix.coordinates
+  #$mesh WriteSpectrumSolverElements -file $outdir/misc/$prefix.connectivity
+  #$mesh WriteSpectrumSolverNodes    -file $outdir/misc/$prefix.coordinates
 
 }
 

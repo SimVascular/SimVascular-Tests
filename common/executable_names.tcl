@@ -49,23 +49,19 @@ if {0 == 1} {
 }
 
 if {0 == 1} {
-set SIMVASCULAR_HOME "/Users/adamupdegrove/Documents/SimVascular/Changes"
-set PRESOLVER     "$SIMVASCULAR_HOME/Code/Build/Bin/svpre"
-set POSTSOLVER    "$SIMVASCULAR_HOME/Code/Build/mypost"
-set MPIEXEC       /opt/local/bin/mpiexec-mpich-gcc48
-set SOLVER        "$SIMVASCULAR_HOME/Code/Build/mysolver"
+set MY_SIMVASCULAR_HOME "/Users/adamupdegrove/Documents/Software/SimVascular/Master"
+set PRESOLVER     "$MY_SIMVASCULAR_HOME/Code/Build/mypre"
+set POSTSOLVER    "$MY_SIMVASCULAR_HOME/Code/Build/mypost"
+set MPIEXEC       /opt/local/bin/mpiexec-mpich-gcc49
+set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
 set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
-set ADAPTOR       "$SIMVASCULAR_HOME/Code/Build/myadaptor"
 }
 
 if {0 == 1} {
-set SIMVASCULAR_HOME "/home/adamupdegrove/Software/SimVascular"
-set PRESOLVER     "$SIMVASCULAR_HOME/Code/Build/Bin/presolver"
-set POSTSOLVER    "$SIMVASCULAR_HOME/Code/Build/mypost"
+set MY_SIMVASCULAR_HOME "/home/adamupdegrove/Documents/Software/SimVascular/Master"
+set PRESOLVER     "$MY_SIMVASCULAR_HOME/Code/Build/mypre"
+set POSTSOLVER    "$MY_SIMVASCULAR_HOME/Code/Build/mypost"
 set MPIEXEC       /usr/bin/mpiexec
-set SOLVER        "$SIMVASCULAR_HOME/Code/Build/mysolver"
+set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
 set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
-set ADAPTOR       "$SIMVASCULAR_HOME/Code/Build/myadaptor"
 }
-
-
