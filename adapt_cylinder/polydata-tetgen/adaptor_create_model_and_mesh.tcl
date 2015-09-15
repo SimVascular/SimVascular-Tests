@@ -35,7 +35,7 @@ proc demo_create_mesh {dstdir pulsatile_mesh_option} {
     puts $fp "boundaryLayer 4 0.4 0.5"
   }
   puts $fp "option QualityRatio 1.4"
-  puts $fp "option NoBisect"
+  puts $fp "option NoBisect 1"
   puts $fp "generateMesh"
   if {$pulsatile_mesh_option == 2} {
     puts $fp "getBoundaries"
