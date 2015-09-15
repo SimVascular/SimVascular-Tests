@@ -18,18 +18,18 @@ proc bifurcation_create_mesh_TetGen {solidfn bifurcation_mesh_option dstdir} {
   puts $fp "option surface 1"
   puts $fp "option volume 1"
   if {$bifurcation_mesh_option == 1} {
-    puts $fp "option a 1.2"
+    puts $fp "option GlobalEdgeSize 1.2"
     puts $fp "wallFaces wall"
   } elseif {$bifurcation_mesh_option == 2} {
-    puts $fp "option a 1.2"
+    puts $fp "option GlobalEdgeSize 1.2"
     puts $fp "wallFaces wall"
     puts $fp "sphereRefinement 0.5 10.0 16.0 0.0 -95.0"
   } elseif {$bifurcation_mesh_option == 3} {
-    puts $fp "option a 0.75"
+    puts $fp "option GlobalEdgeSize 0.75"
     puts $fp "wallFaces wall"
   }
-  puts $fp "option q 1.4"
-  puts $fp "option Y"
+  puts $fp "option QualityRatio 1.4"
+  puts $fp "option NoBisect 1"
   puts $fp "generateMesh"
   puts $fp "writeMesh [file join $dstdir bifurcation.sms] vtu 0"
   puts $fp "deleteMesh"

@@ -20,7 +20,7 @@ proc steady_cylinder_create_mesh_TetGen {solidfn dstdir} {
   puts $fp "option GlobalEdgeSize 0.5"
   puts $fp "wallFaces wall"
   puts $fp "option QualityRatio 1.4"
-  puts $fp "option NoBisect"
+  puts $fp "option NoBisect 1"
   puts $fp "generateMesh"
   puts $fp "writeMesh [file join $dstdir cylinder.sms] vtu 0"
   puts $fp "deleteMesh"
