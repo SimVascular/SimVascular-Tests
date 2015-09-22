@@ -237,18 +237,14 @@ after 5000
 #
 #
 #  Run the post solver to get just the ybar from the solution
-#
-puts "Running Post Solver for ybar"
+puts "Running Post Solver for first run"
 set adapt_step [expr int($timesteps)]
 set adapt_start $adapt_step
-if [catch {exec $POSTSOLVER -none -sn $adapt_step -indir $fullsimdir -outdir $fullsimdir -ybar -newsn 0 -ph} msg] {
+if [catch {exec $POSTSOLVER -start 0 -stop $total_timesteps -incr 1 -indir $fullsimdir -outdir $fullsimdir -vtkcombo -vtu cylinder_results.vtu -vtp cylinder_results.vtp} msg] {
   puts $msg
-  return -code error "ERROR creating ybar file!"
+  return -code error "ERROR running postsolver!"
 }
 puts $msg
-
-# new naming scheme is confusing for ybar...
-file copy [file join $fullsimdir "restart.0.0"] [file join $fullsimdir "ybar.$adapt_step.0"]
 
 puts "Reduce restart files."
 if {$use_ascii_format != 0} {
