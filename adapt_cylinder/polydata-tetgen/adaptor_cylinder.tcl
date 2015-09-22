@@ -299,23 +299,14 @@ $adaptobject CreateInternalMeshObject
 $adaptobject LoadModel -file $solid_file
 $adaptobject LoadMesh -file $mesh_file
 $adaptobject SetAdaptOptions -flag strategy -value 1
-puts "Set strategy"
 $adaptobject SetAdaptOptions -flag metric_option -value 2
-puts "Set option"
 $adaptobject SetAdaptOptions -flag ratio -value $reductionRatio
-puts "Set ratio"
 $adaptobject SetAdaptOptions -flag hmin -value $maxRefineFactor
-puts "Set hmin"
 $adaptobject SetAdaptOptions -flag hmax -value $maxCoarseFactor
-puts "Set hmax"
 $adaptobject SetAdaptOptions -flag instep -value 0
-puts "Set instep"
 $adaptobject SetAdaptOptions -flag outstep -value $adapt_step
-puts "Set outstep"
 $adaptobject SetMetric -input $mesh_file
-puts "Set metric"
 $adaptobject SetupMesh
-puts "Set up mesh"
 $adaptobject RunAdaptor
 $adaptobject GetAdaptedMesh
 $adaptobject TransferSolution       
