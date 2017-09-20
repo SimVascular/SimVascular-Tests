@@ -1,11 +1,11 @@
 
 # central area to change name of executables
 
-set PRESOLVER     $gExternalPrograms(svpre)
-set POSTSOLVER    $gExternalPrograms(svpost)
-set MPIEXEC       $gExternalPrograms(mpiexec)
-set SOLVER        $gExternalPrograms(svsolver-mpi)
-set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)] 
+#set PRESOLVER     $gExternalPrograms(svpre)
+#set POSTSOLVER    $gExternalPrograms(svpost)
+#set MPIEXEC       $gExternalPrograms(mpiexec)
+#set SOLVER        $gExternalPrograms(svsolver-mpi)
+#set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
 
 if {0 == 1} {
 
@@ -13,7 +13,7 @@ if {0 == 1} {
   set PRESOLVER     "$SVRELEASEDIR/presolver-bin.exe"
 #  set MPIEXEC       "$SVRELEASEDIR/mpiexec.exe"
   set SOLVER        "$SVRELEASEDIR/flowsolver-bin.exe"
-  set FLOWSOLVER_CONFIG [file dirname $SOLVER] 
+  set FLOWSOLVER_CONFIG [file dirname $SOLVER]
   set POSTSOLVER    "$SVRELEASEDIR/postsolver-bin.exe"
 
 }
@@ -23,7 +23,7 @@ if {0 == 1} {
   set POSTSOLVER    /home/danschi/Development/svDevelopment/simvascular_reorg/Code/mypost
   set MPIEXEC       /usr/local/bin/mpiexec
   set SOLVER        /home/danschi/Development/svDevelopment/simvascular_reorg/Code/mysolver
-  set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)] 
+  set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
 }
 
 if {0 == 1} {
@@ -32,7 +32,7 @@ set PRESOLVER     "$MY_SIMVASCULAR_HOME/Code/Build/mypre"
 set POSTSOLVER    "$MY_SIMVASCULAR_HOME/Code/Build/mypost"
 set MPIEXEC       /opt/local/bin/mpiexec-mpich-gcc49
 set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
-set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)] 
+set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
 }
 
 if {0 == 1} {
@@ -41,5 +41,14 @@ set PRESOLVER     "$MY_SIMVASCULAR_HOME/Code/Build/mypre"
 set POSTSOLVER    "$MY_SIMVASCULAR_HOME/Code/Build/mypost"
 set MPIEXEC       /usr/bin/mpiexec
 set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
-set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)] 
+set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
+}
+
+if {0 == 1} {
+set MY_SIMVASCULAR_HOME "/usr/local/sv/bin"
+set PRESOLVER     "$MY_SIMVASCULAR_HOME/svpre"
+set POSTSOLVER    "$MY_SIMVASCULAR_HOME/svpost"
+set MPIEXEC       "$MY_SIMVASCULAR_HOME/mpiexec"
+set SOLVER        "$MY_SIMVASCULAR_HOME/svsolver"
+#set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
 }
