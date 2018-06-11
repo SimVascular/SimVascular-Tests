@@ -6,7 +6,7 @@ import pyRepository
 import pySolid2
 import pySolidPolydata
 import vtk
-import pulsatile_cylinder as pc
+import steady_cylinder as pc
 
 
 gPolyDataFaceNames={}

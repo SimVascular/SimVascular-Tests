@@ -44,11 +44,12 @@ set SOLVER        "$MY_SIMVASCULAR_HOME/Code/Build/mysolver"
 set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
 }
 
-if {0 == 1} {
-set MY_SIMVASCULAR_HOME "/usr/local/sv/bin"
+if {0 == 0} {
+set MY_SIMVASCULAR_HOME "/usr/local/sv/svsolver/2017-08-14"
 set PRESOLVER     "$MY_SIMVASCULAR_HOME/svpre"
 set POSTSOLVER    "$MY_SIMVASCULAR_HOME/svpost"
-set MPIEXEC       "$MY_SIMVASCULAR_HOME/mpiexec"
+set MPIEXEC       "$MY_SIMVASCULAR_HOME/bin/mpiexec"
 set SOLVER        "$MY_SIMVASCULAR_HOME/svsolver"
 #set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(svsolver-mpi)]
+set FLOWSOLVER_CONFIG "$MY_SIMVASCULAR_HOME/svsolver"
 }

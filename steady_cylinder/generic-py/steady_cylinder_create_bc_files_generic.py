@@ -28,34 +28,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-import math
-import pyMath
-def pulsatile_cylinder_create_flow_files_generic (dstdir):
 
-  # Write sinusodial flowrate
-  print "Generating sinusodial volumetric flow waveform."
-  T = 0.2
-  Vbar =135
-  radius = 2
+def steady_cylinder_create_flow_files_generic (dstdir):
 
-  # calculate FFT terms
-  pts =[]
   os.mkdir(dstdir+'/flow-files')
   fp= open(dstdir+'/flow-files/inflow.flow','w+')
   fp.write("#  Time (sec)   Flow (cc/sec)\n")
-  #fp.write("0   -1570.796327\n")
-  #fp.write("0.2 -1570.796327\n")
-
-  for i in range(0,256):
-      dt = T/255.0
-      t = i*dt
-      Vmean = Vbar*(1.0+math.sin(2*math.pi*t/T))
-      area = math.pi*radius*radius
-      pts.append([t, -Vmean*area])
-      fp.write("%f %f\n"% (t, -Vmean*area))
+  fp.write("0   -1570.796327")
+  fp.write("0.2 -1570.796327")
   fp.close()
-  
-  print "Calculate analytic profile for outlet. (not done!!)"
-  terms = pyMath.math_FFT(pts, 2,256)
-    
-  return terms
+

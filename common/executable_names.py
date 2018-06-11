@@ -4,7 +4,7 @@ import os
 gExternalPrograms = {}
 gExternalPrograms['cvpresolver'] = '/usr/local/sv/svsolver/2017-08-14/svpre'
 gExternalPrograms['cvpostsolver'] = '/usr/local/sv/svsolver/2017-08-14/svpost'
-gExternalPrograms['mpiexec'] = ''
+gExternalPrograms['mpiexec'] = '/usr/local/sv/svsolver/2017-08-14/bin/mpiexec'
 gExternalPrograms['cvflowsolver'] = '/usr/local/sv/svsolver/2017-08-14/svsolver'
 gExternalPrograms['cvadaptor'] = ''
 PRESOLVER = gExternalPrograms['cvpresolver']

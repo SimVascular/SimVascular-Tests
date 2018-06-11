@@ -34,9 +34,9 @@
 import os
 from sys import path
 path.append("../polydata-tetgen-py")
-import pulsatile_cylinder as pc
+import steady_cylinder as pc
 import cylinder_create_model_polydata
-import pulsatile_cylinder_create_mesh_tetgen as mesh 
+import steady_cylinder_create_mesh_tetgen as mesh 
 import string
 import executable_names
 
@@ -49,13 +49,6 @@ if pc.num_procs ==-1:
 #
 if pc.selected_LS == -1:
     selected_LS = raw_input("Use which linear solver? svLS or leslib ?")
-
-#
-# prompt user for mesh type
-#
-if pc.pulsatile_mesh_option == -1:
-    pulsatile_mesh_option = raw_input("Select the Mesh to Use: Isotropic Mesh or Boundary Layer Mesh ?")
-
 #
 # prompt user for the number of timesteps
 #
@@ -84,11 +77,11 @@ if pc.gOptions["meshing_solid_kernel"] == 'PolyData':
     solidfn = cylinder_create_model_polydata.demo_create_model(fullrundir)
 
 if pc.gOptions["meshing_kernel"] =='TetGen':
-    mesh.pulsatile_cylinder_create_mesh_TetGen(solidfn,fullrundir,pulsatile_mesh_option)
+    mesh.steady_cylinder_create_mesh_TetGen(solidfn,fullrundir)
 
 
-import pulsatile_cylinder_create_bc_files_generic as bc
-bc.pulsatile_cylinder_create_flow_files_generic(fullrundir)
+import steady_cylinder_create_bc_files_generic as bc
+bc.steady_cylinder_create_flow_files_generic(fullrundir)
 
 #
 #  Create script file for presolver
@@ -153,12 +146,12 @@ infp = open(directory+'/solver.inp', 'rU')
 outfp = open(fullrundir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', str(0.2/timesteps))
+    line = string.replace(line,'my_initial_time_increment', str(0.128/timesteps))
     line = string.replace(line,'my_number_of_time_steps', str(total_timesteps))
     if (selected_LS=='leslib'):
         line = string.replace(line,'#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#memls_linear_solver', "")
+        line = string.replace(line,'#svls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -208,5 +201,5 @@ except:
 ##  compare results
 ##
 #
-#source ../generic/pulsatile_cylinder_compare_with_analytic_generic.tcl
+#source ../generic/steady_cylinder_compare_with_analytic_generic.tcl
 

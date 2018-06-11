@@ -27,35 +27,34 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import os
-import math
-import pyMath
-def pulsatile_cylinder_create_flow_files_generic (dstdir):
 
-  # Write sinusodial flowrate
-  print "Generating sinusodial volumetric flow waveform."
-  T = 0.2
-  Vbar =135
-  radius = 2
+import pySolid2
+import pyMeshObject
+from sys import path
 
-  # calculate FFT terms
-  pts =[]
-  os.mkdir(dstdir+'/flow-files')
-  fp= open(dstdir+'/flow-files/inflow.flow','w+')
-  fp.write("#  Time (sec)   Flow (cc/sec)\n")
-  #fp.write("0   -1570.796327\n")
-  #fp.write("0.2 -1570.796327\n")
 
-  for i in range(0,256):
-      dt = T/255.0
-      t = i*dt
-      Vmean = Vbar*(1.0+math.sin(2*math.pi*t/T))
-      area = math.pi*radius*radius
-      pts.append([t, -Vmean*area])
-      fp.write("%f %f\n"% (t, -Vmean*area))
-  fp.close()
-  
-  print "Calculate analytic profile for outlet. (not done!!)"
-  terms = pyMath.math_FFT(pts, 2,256)
-    
-  return terms
+
+pySolid2.solid_setKernel("PolyData")
+pyMeshObject.mesh_setKernel("TetGen")
+
+gOptions = {'meshing_kernel':'TetGen'}
+gOptions['meshing_solid_kernel'] = 'PolyData'
+
+
+num_procs = -1
+procs_case = 0
+selected_LS = -1
+pulsatile_mesh_option = -1
+timesteps  = -1
+
+# shared functions
+path.append("./../../common")
+import executable_names
+
+# custom functions
+import cylinder_create_model_polydata as model
+import steady_cylinder_create_mesh_tetgen as mesh
+
+# run example
+path.append("./../generic-py")
+import steady_cylinder_generic2 as example
