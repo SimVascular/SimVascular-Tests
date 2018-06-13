@@ -233,8 +233,8 @@ for line in infp:
     line = string.replace(line,'my_initial_time_increment', '0.001')
     line = string.replace(line,'my_number_of_time_steps', '100')
     line = string.replace(line,'my_deformable_flag', 'False')
-    line = string.replace(line,'my_rho_infinity', '0.5')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1    \# this is the standard three iteration")
+    #line = string.replace(line,'my_rho_infinity', '0.5')
+    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1    # this is the standard three iteration")
     if (selected_LS=='leslib'):
         line = string.replace(line,'#leslib_linear_solver', "")
     else:
@@ -312,7 +312,7 @@ f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
 f.write('prescribed_velocities_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/inflow.vtp'))
 f.write('deformable_wall_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/wall.vtp'))
-f.write('pressure_vtp %s %f\n' % ((fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp'),11649.0))
+f.write('pressure_vtp %s %f\n' % ((fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp'),11649.000000))
 f.write('set_surface_id_vtp %s 1\n' % (fullrundir + '/mesh-complete/cylinder.exterior.vtp'))
 f.write('set_surface_id_vtp %s 2\n' % (fullrundir + '/mesh-complete/mesh-surfaces/outlet.vtp'))
 
@@ -354,11 +354,11 @@ infp = open(directory+'/solver.inp.deformable', 'rU')
 outfp = open(def_steady_dir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', '0.004')
+    line = string.replace(line,'my_initial_time_increment', '0.0004')
     line = string.replace(line,'my_number_of_time_steps', '100')
     line = string.replace(line,'my_deformable_flag', 'True')
     line = string.replace(line,'my_rho_infinity', '0.0')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1    \# this is the standard three iteration")
+    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1    # this is the standard three iteration")
     if (selected_LS=='leslib'):
         line = string.replace(line,'#leslib_linear_solver', "")
     else:
@@ -429,7 +429,7 @@ if run_varwall=='Yes':
     f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
     f.write('prescribed_velocities_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/inflow.vtp'))
     f.write('deformable_wall_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/wall.vtp'))
-    f.write('pressure_vtp %s %f\n' % ((fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp'),11649.0))
+    f.write('pressure_vtp %s %f\n' % ((fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp'),11649.00000))
     f.write('set_surface_id_vtp %s 1\n' % (fullrundir + '/mesh-complete/cylinder.exterior.vtp'))
     f.write('set_surface_id_vtp %s 2\n' % (fullrundir + '/mesh-complete/mesh-surfaces/outlet.vtp'))
     f.write('set_surface_thickness_vtp %s 1.5\n' % (fullrundir + '/mesh-complete/mesh-surfaces/inflow.vtp'))
@@ -440,8 +440,6 @@ if run_varwall=='Yes':
     f.write("solve_varwall_E\n")
     f.write("varwallprop_write_vtp %s\n" % (def_varwall_dir+'/varwallprop.vtp'))
     
-    f.write('deformable_E 414400.0\n')
-    f.write('deformable_thickness 0.1\n')
     f.write('deformable_nu 0.5\n')
     f.write('deformable_pressure 12000.0\n')
     f.write('deformable_kcons 0.833333\n')
@@ -479,12 +477,12 @@ if run_varwall=='Yes':
     outfp = open(def_varwall_dir+'/solver.inp', 'w+')
     
     for line in infp:
-        line = string.replace(line,'my_initial_time_increment', '0.004')
+        line = string.replace(line,'my_initial_time_increment', '0.0004')
         line = string.replace(line,'my_number_of_time_steps', '200')
         line = string.replace(line,'my_deformable_flag', 'True')
         line = string.replace(line,'my_variablewall_flag', 'True')
         line = string.replace(line,'my_rho_infinity', '0.0')
-        line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1 0 1  \# this is the standard five iteration")
+        line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1 0 1  # this is the standard five iteration")
         if (selected_LS=='leslib'):
             line = string.replace(line,'#leslib_linear_solver', "")
         else:
@@ -573,7 +571,7 @@ for line in infp:
     line = string.replace(line,'my_number_of_time_steps', '2750')
     line = string.replace(line,'my_deformable_flag', 'True')
     line = string.replace(line,'my_rho_infinity', '0.0')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1   \# this is the standard four iteration")
+    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1   # this is the standard four iteration")
     if (selected_LS=='leslib'):
         line = string.replace(line,'#leslib_linear_solver', "")
     else:
