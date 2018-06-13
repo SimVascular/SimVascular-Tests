@@ -30,7 +30,7 @@
 import os
 import pyRepository
 import mesh_utils
-def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option):
+def deformable_cylinder_create_mesh_TetGen (solidfn,dstdir):
 
   #
   #  Mesh the solid
@@ -47,15 +47,11 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   fp.write("newMesh\n")
   fp.write("option surface 1\n")
   fp.write("option volume 1\n")
-  fp.write("option GlobalEdgeSize 0.75\n")
+  fp.write("option GlobalEdgeSize 0.4\n")
   fp.write("wallFaces wall\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("boundaryLayer 3 0.5 0.7\n")
   fp.write("option QualityRatio 1.4\n")
   fp.write("option NoBisect 1\n")
   fp.write("generateMesh\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("getBoundaries\n")
   fp.write("writeMesh %s vtu 0\n" % (dstdir + '/cylinder.sms'))
   fp.write("deleteMesh\n")
   fp.write("deleteModel\n")

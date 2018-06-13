@@ -27,50 +27,33 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import os
-import pyRepository
-import mesh_utils
-def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option):
 
-  #
-  #  Mesh the solid
-  #
+import pySolid2
+import pyMeshObject
+from sys import path
 
-  print "Creating mesh."
 
-  # create meshsim style script file
-  fp= open(dstdir+'/cylinder.tgs','w+')
-  fp.write("msinit\n")
-  fp.write("logon %s \n" % (dstdir +'/cylinder.logfile'))
-  fp.write("loadModel %s\n" % solidfn)
-  fp.write("setSolidModel\n")
-  fp.write("newMesh\n")
-  fp.write("option surface 1\n")
-  fp.write("option volume 1\n")
-  fp.write("option GlobalEdgeSize 0.75\n")
-  fp.write("wallFaces wall\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("boundaryLayer 3 0.5 0.7\n")
-  fp.write("option QualityRatio 1.4\n")
-  fp.write("option NoBisect 1\n")
-  fp.write("generateMesh\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("getBoundaries\n")
-  fp.write("writeMesh %s vtu 0\n" % (dstdir + '/cylinder.sms'))
-  fp.write("deleteMesh\n")
-  fp.write("deleteModel\n")
-  fp.write("logoff\n")
-  fp.close()
 
-  try:
-      pyRepository.repos_delete("mymesh")
-  except:
-      pass
-      
-  mesh_utils.mesh_readTGS(dstdir+'/cylinder.tgs', 'mymesh')
+pySolid2.solid_setKernel("PolyData")
+pyMeshObject.mesh_setKernel("TetGen")
 
-  print "Writing out mesh surfaces."
-  os.mkdir(dstdir+'/mesh-complete')
-  os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
+gOptions = {'meshing_kernel':'TetGen'}
+gOptions['meshing_solid_kernel'] = 'PolyData'
 
-  mesh_utils.mesh_writeCompleteMesh('mymesh','cyl','cylinder',dstdir+'/mesh-complete')
+
+num_procs = -1
+procs_case = 0
+selected_LS = -1
+run_varwall = -1
+
+# shared functions
+path.append("./../../common")
+import executable_names
+
+# custom functions
+import cylinder_create_model_polydata as model
+import deformable_cylinder_create_mesh_tetgen as mesh
+
+# run example
+path.append("./../generic-py")
+import deformable_cylinder_generic2 as example

@@ -6,7 +6,7 @@ import pyRepository
 import pySolid2
 import pySolidPolydata
 import vtk
-import steady_cylinder as pc
+import bifurcation as pc
 
 
 gPolyDataFaceNames={}
@@ -98,7 +98,7 @@ def mesh_readTGS (filename,resObjName):
               pass
           solidfn = line.split()[1]
           geom.solid_readNative(solid, solidfn)
-          #set smasherInputName $solid
+      #set smasherInputName $solid
           if (pc.gOptions['meshing_solid_kernel'] == "PolyData"):
               global gPolyDataFaceNames
               global gPolyDataFaceNamesInfo

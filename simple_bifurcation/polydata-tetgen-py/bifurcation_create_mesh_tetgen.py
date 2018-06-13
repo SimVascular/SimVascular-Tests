@@ -30,7 +30,7 @@
 import os
 import pyRepository
 import mesh_utils
-def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option):
+def bifurcation_create_mesh_TetGen (solidfn,dstdir,bifurcation_mesh_option):
 
   #
   #  Mesh the solid
@@ -39,24 +39,28 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   print "Creating mesh."
 
   # create meshsim style script file
-  fp= open(dstdir+'/cylinder.tgs','w+')
+  fp= open(dstdir+'/bifurcation.tgs','w+')
   fp.write("msinit\n")
-  fp.write("logon %s \n" % (dstdir +'/cylinder.logfile'))
+  fp.write("logon %s \n" % (dstdir +'/bifurcation.logfile'))
   fp.write("loadModel %s\n" % solidfn)
   fp.write("setSolidModel\n")
   fp.write("newMesh\n")
   fp.write("option surface 1\n")
   fp.write("option volume 1\n")
-  fp.write("option GlobalEdgeSize 0.75\n")
-  fp.write("wallFaces wall\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("boundaryLayer 3 0.5 0.7\n")
+  if bifurcation_mesh_option == 'Coarse Isotropic Mesh':
+      fp.write("option GlobalEdgeSize 1.2\n")
+      fp.write("wallFaces wall\n")
+  elif (bifurcation_mesh_option == 'Refined Mesh'):
+      fp.write("option GlobalEdgeSize 1.2\n")
+      fp.write("wallFaces wall\n")
+      fp.write("sphereRefinement 0.5 10.0 16.0 0.0 -95.0\n")
+  elif (bifurcation_mesh_option == 'Dense Mesh'):
+      fp.write("option GlobalEdgeSize 0.75\n")
+      fp.write("wallFaces wall\n")
   fp.write("option QualityRatio 1.4\n")
   fp.write("option NoBisect 1\n")
   fp.write("generateMesh\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("getBoundaries\n")
-  fp.write("writeMesh %s vtu 0\n" % (dstdir + '/cylinder.sms'))
+  fp.write("writeMesh %s vtu 0\n" % (dstdir + '/bifurcation.sms'))
   fp.write("deleteMesh\n")
   fp.write("deleteModel\n")
   fp.write("logoff\n")
@@ -67,10 +71,10 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   except:
       pass
       
-  mesh_utils.mesh_readTGS(dstdir+'/cylinder.tgs', 'mymesh')
+  mesh_utils.mesh_readTGS(dstdir+'/bifurcation.tgs', 'mymesh')
 
   print "Writing out mesh surfaces."
   os.mkdir(dstdir+'/mesh-complete')
   os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
 
-  mesh_utils.mesh_writeCompleteMesh('mymesh','cyl','cylinder',dstdir+'/mesh-complete')
+  mesh_utils.mesh_writeCompleteMesh('mymesh','bifurcation','bifurcation',dstdir+'/mesh-complete')

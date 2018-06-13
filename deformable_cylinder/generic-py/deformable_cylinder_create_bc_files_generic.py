@@ -28,49 +28,34 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-import pyRepository
-import mesh_utils
-def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option):
+import math
+import pyMath
+def pulsatile_cylinder_create_flow_files_generic (dstdir):
 
-  #
-  #  Mesh the solid
-  #
+  # Write sinusodial flowrate
+  print "Generating sinusodial volumetric flow waveform."
+  T = 0.2
+  Vbar =135
+  radius = 2
 
-  print "Creating mesh."
+  # calculate FFT terms
+  pts =[]
+  os.mkdir(dstdir+'/flow-files')
+  fp= open(dstdir+'/flow-files/inflow.flow','w+')
+  fp.write("#  Time (sec)   Flow (cc/sec)\n")
+  #fp.write("0   -1570.796327\n")
+  #fp.write("0.2 -1570.796327\n")
 
-  # create meshsim style script file
-  fp= open(dstdir+'/cylinder.tgs','w+')
-  fp.write("msinit\n")
-  fp.write("logon %s \n" % (dstdir +'/cylinder.logfile'))
-  fp.write("loadModel %s\n" % solidfn)
-  fp.write("setSolidModel\n")
-  fp.write("newMesh\n")
-  fp.write("option surface 1\n")
-  fp.write("option volume 1\n")
-  fp.write("option GlobalEdgeSize 0.75\n")
-  fp.write("wallFaces wall\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("boundaryLayer 3 0.5 0.7\n")
-  fp.write("option QualityRatio 1.4\n")
-  fp.write("option NoBisect 1\n")
-  fp.write("generateMesh\n")
-  if pulsatile_mesh_option == 'Boundary Layer Mesh':
-      fp.write("getBoundaries\n")
-  fp.write("writeMesh %s vtu 0\n" % (dstdir + '/cylinder.sms'))
-  fp.write("deleteMesh\n")
-  fp.write("deleteModel\n")
-  fp.write("logoff\n")
+  for i in range(0,256):
+      dt = T/255.0
+      t = i*dt
+      Vmean = Vbar*(1.0+math.sin(2*math.pi*t/T))
+      area = math.pi*radius*radius
+      pts.append([t, -Vmean*area])
+      fp.write("%f %f\n"% (t, -Vmean*area))
   fp.close()
-
-  try:
-      pyRepository.repos_delete("mymesh")
-  except:
-      pass
-      
-  mesh_utils.mesh_readTGS(dstdir+'/cylinder.tgs', 'mymesh')
-
-  print "Writing out mesh surfaces."
-  os.mkdir(dstdir+'/mesh-complete')
-  os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
-
-  mesh_utils.mesh_writeCompleteMesh('mymesh','cyl','cylinder',dstdir+'/mesh-complete')
+  
+  print "Calculate analytic profile for outlet. (not done!!)"
+  terms = pyMath.math_FFT(pts, 2,256)
+    
+  return terms

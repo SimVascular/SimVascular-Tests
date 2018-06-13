@@ -163,7 +163,7 @@ while {[gets $infp line] >= 0} {
   regsub -all my_initial_time_increment $line 0.001 line
   regsub -all my_number_of_time_steps $line [expr $timesteps] line
   regsub -all my_deformable_flag $line False line
-  regsub -all my_rho_infinity $line 0.5 line
+  regsub -all my_rho_infinity $line  line
   regsub -all my_step_construction $line "0 1 0 1 0 1    \# this is the standard three iteration" line
   if {$selected_LS} {
        regsub -all "\#leslib_linear_solver" $line {} line
