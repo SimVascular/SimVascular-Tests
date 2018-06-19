@@ -210,5 +210,5 @@ except:
 ##
 #
 path.append("./../generic-py")
-#import pulsatile_cylinder_compare_with_analytic_generic
+import pulsatile_cylinder_compare_with_analytic_generic
 

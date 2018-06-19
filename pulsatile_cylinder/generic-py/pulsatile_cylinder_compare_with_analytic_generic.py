@@ -38,7 +38,7 @@ import pyMath
 import pyRepository
 import pyGeom
 import vtk
-import matplotlib.pyplot as plt
+
 
 timesteps = int(pc.timesteps)
 timesteps = 16
@@ -89,8 +89,7 @@ resReader.Update()
 
 # now calculate flow rate for each time point
 countem = 0
-fig, axarr = plt.subplots(2, 2)
-fig.suptitle("Comparison between analytic results and simulation results", fontsize=16)
+
 for stepnum in simstepnumlist:
     time = tlist[countem]
     countem = countem+1
@@ -129,7 +128,7 @@ for stepnum in simstepnumlist:
     xR = []
     for j in range(-20,21):
         r = float(j)/10.
-        xR.append(r/radius)
+        #xR.append(r/radius)
         fp.write("%.4f\t%.4f\t"%(r,r/radius))
         womersley = pyMath.math_computeWomersley(terms,time,viscosity,omega,density,radius,r)
         try:
@@ -138,36 +137,13 @@ for stepnum in simstepnumlist:
             tmpvec = [0]
             pass
         
-        analytic.append(womersley)
+        #analytic.append(womersley)
         if len(tmpvec)==3:
             fp.write("%.4f\t%.4f\t\n"%(womersley,tmpvec[2]))
-            result.append(tmpvec[2])
+            #result.append(tmpvec[2])
         else:
             fp.write("%.4f\t\t\n"%(womersley))
             
     fp.close()
-    if countem==1:
-        axarr[0, 0].plot(xR, result/10,'r')
-        axarr[0, 0].plot(xR, analytic/10,'g')
-        axarr[0, 0].set_title('Polydata_tetgen t/T='+str(time))
-    elif countem==2:
-        axarr[0, 1].plot(xR, result/10,'r')
-        axarr[0, 1].plot(xR, analytic/10,'g')
-        axarr[0, 1].set_title('Polydata_tetgen t/T='+str(time))
-    elif countem==3:
-        axarr[1, 0].plot(xR, result/10,'r')
-        axarr[1, 0].plot(xR, analytic/10,'g')
-        axarr[1, 0].set_title('Polydata_tetgen t/T='+str(time))
-    elif countem==4:
-        axarr[1, 1].plot(xR, result/10,'r')
-        axarr[1, 1].plot(xR, analytic/10,'g')
-        axarr[1, 1].set_title('Polydata_tetgen t/T='+str(time))
 
-    
-# Tight layout often produces nice results
-# but requires the title to be spaced accordingly
-fig.tight_layout()
-fig.subplots_adjust(top=0.88)
-
-plt.show()
 
