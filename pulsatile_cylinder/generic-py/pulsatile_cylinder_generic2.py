@@ -61,6 +61,7 @@ if pc.pulsatile_mesh_option == -1:
 #
 if pc.timesteps == -1:
     timesteps = raw_input("Select the Number of Time Steps 16, 32, 64, 128, 256, 512?")
+    pc.timesteps = timesteps
 
 #
 #  do work!
@@ -208,5 +209,6 @@ except:
 ##  compare results
 ##
 #
-#source ../generic/pulsatile_cylinder_compare_with_analytic_generic.tcl
+path.append("./../generic-py")
+#import pulsatile_cylinder_compare_with_analytic_generic
 

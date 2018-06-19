@@ -42,6 +42,7 @@ for {set i 0} {$i < 256} {incr i} {
 
 }
 set terms [math_FFT -pts $pts -numInterpPts 256 -nterms 2]
+puts  $terms
 
 # read outflow mesh face
 catch {repos_delete -obj outflow}

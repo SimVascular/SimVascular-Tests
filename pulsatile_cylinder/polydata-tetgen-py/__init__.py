@@ -19,3 +19,7 @@ import pyMeshTetgen
 myDLL=ctypes.PyDLL('lib_simvascular_utils.dylib')
 myDLL.initpyMath()
 import pyMath
+import vtk
+myDLL=ctypes.PyDLL('lib_simvascular_geom.dylib')
+myDLL.initpyGeom()
+import pyGeom
