@@ -40,7 +40,7 @@ for i in range(0,4):
     plt.title(title)
     axes = plt.gca()
     axes.set_xlim([min(rR),max(rR)])
-    axes.set_xlim([-5.,50.])
+    axes.set_ylim([-5.,50.])
     fp.close()
     
 plt.show()

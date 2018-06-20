@@ -142,7 +142,7 @@ def mesh_readTGS (filename,resObjName):
 	  for ids in faceids:
 	      if (gPolyDataFaceNames[ids] == facename):
 	          regionid = ids
-	  resObj.SetMeshOptions("LocalEdgeSize", float(line.split()[1]))
+	  resObj.SetMeshOptions("LocalEdgeSize", [float(line.split()[1])])
       elif (line.split()[0] == "useCenterlineRadius"):
 	  if (int(guiTGvars['meshWallFirst']) != 1):
 	      raise ValueError("ERROR: Must select wall faces for centerline extraction")
