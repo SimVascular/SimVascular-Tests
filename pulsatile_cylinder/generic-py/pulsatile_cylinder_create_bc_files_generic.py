@@ -35,8 +35,8 @@ def pulsatile_cylinder_create_flow_files_generic (dstdir):
   # Write sinusodial flowrate
   print "Generating sinusodial volumetric flow waveform."
   T = 0.2
-  Vbar =135
-  radius = 2
+  Vbar =135.0
+  radius = 2.0
 
   # calculate FFT terms
   pts =[]
@@ -52,7 +52,7 @@ def pulsatile_cylinder_create_flow_files_generic (dstdir):
       Vmean = Vbar*(1.0+math.sin(2*math.pi*t/T))
       area = math.pi*radius*radius
       pts.append([t, -Vmean*area])
-      fp.write("%f %f\n"% (t, -Vmean*area))
+      fp.write("%.10f %.10f\n"% (t, -Vmean*area))
   fp.close()
   
   print "Calculate analytic profile for outlet. (not done!!)"

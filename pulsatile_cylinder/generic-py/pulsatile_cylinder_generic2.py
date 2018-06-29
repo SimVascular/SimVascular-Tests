@@ -61,6 +61,7 @@ if pc.pulsatile_mesh_option == -1:
 #
 if pc.timesteps == -1:
     timesteps = raw_input("Select the Number of Time Steps 16, 32, 64, 128, 256, 512?")
+    pc.timesteps = timesteps
 
 #
 #  do work!
@@ -81,7 +82,9 @@ else:
 
 # create model, mesh, and bc files
 if pc.gOptions["meshing_solid_kernel"] == 'PolyData':
-    solidfn = cylinder_create_model_polydata.demo_create_model(fullrundir)
+    #solidfn = cylinder_create_model_polydata.demo_create_model(fullrundir)
+    #solidfn = cylinder_create_model_polydata.demo_create_cylinder(fullrundir)
+    solidfn = cylinder_create_model_polydata.demo_loft_cylinder(fullrundir)
 
 if pc.gOptions["meshing_kernel"] =='TetGen':
     mesh.pulsatile_cylinder_create_mesh_TetGen(solidfn,fullrundir,pulsatile_mesh_option)
@@ -208,5 +211,6 @@ except:
 ##  compare results
 ##
 #
-#source ../generic/pulsatile_cylinder_compare_with_analytic_generic.tcl
+path.append("./../generic-py")
+import pulsatile_cylinder_compare_with_analytic_generic
 

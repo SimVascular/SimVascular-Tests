@@ -19,3 +19,18 @@ import pyMeshTetgen
 myDLL=ctypes.PyDLL('lib_simvascular_utils.dylib')
 myDLL.initpyMath()
 import pyMath
+import vtk
+myDLL=ctypes.PyDLL('lib_simvascular_geom.dylib')
+myDLL.initpyGeom()
+import pyGeom
+myDll=ctypes.PyDLL('lib_simvascular_segmentation.dylib')
+myDll.initpyContour()
+myDll.initpyCircleContour()
+import pyContour
+import pyCircleContour
+myDll=ctypes.PyDLL('lib_simvascular_path.dylib')
+myDll.initpyPath()
+import pyPath
+mydll=ctypes.PyDLL('lib_simvascular_vmtk_utils.dylib')
+mydll.initpyVMTKUtils()
+import pyVMTKUtils

@@ -1,0 +1,13 @@
+# user defined face id to name mapping for model file (C:/cygwin/home/nwilson/work/2014/2014-08-01-solver_tests/trunk/Testing/TetGen/steady_cylinder/cylinder.vtp)
+# timestamp: 1412122777  (Tue Sep 30 17:19:37 PDT 2014)
+
+global gPolyDataFaceNames
+global gPolyDataFaceNamesInfo
+
+gPolyDataFaceNamesInfo['timestamp']=1412122777
+gPolyDataFaceNamesInfo['model_file_md5'] = 'F8D55791178713778B1AAEF0EB89F8F5'
+gPolyDataFaceNamesInfo['model_file_name'] = 'cylinder.vtp'
+
+gPolyDataFaceNames['1']='wall'
+gPolyDataFaceNames['2']='outlet'
+gPolyDataFaceNames['3']='inflow'
