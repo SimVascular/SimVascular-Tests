@@ -1,5 +1,8 @@
-import pyRepository
-import pySolid2
+try:
+    import pyRepository
+    import pySolid2
+except:
+    from __init__ import *
 
 def demo_create_model (dstdir):
   # just copy the model for now

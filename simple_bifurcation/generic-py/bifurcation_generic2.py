@@ -39,46 +39,62 @@ import bifurcation_create_model_polydata
 import bifurcation_create_mesh_tetgen as mesh 
 import string
 import executable_names
+import sys
 
 
 if bifurcation.num_procs ==-1:
-    bifurcation.num_procs = raw_input("Number of Processors to use (1-4)?")
+    if sys.version_info <(3,0):
+        bifurcation.num_procs = raw_input("Number of Processors to use (1-4)?")
+    else:
+        bifurcation.num_procs = input("Number of Processors to use (1-4)?")
 
 #
 # prompt user for linear solver
 #
 if bifurcation.selected_LS == -1:
-    bifurcation.selected_LS = raw_input("Use which linear solver? svLS or leslib ?")
+    bifurcation.selected_LS ="svLS"
 
 #
 # prompt user for mesh type
 #
 if bifurcation.bifurcation_mesh_option == -1:
-    bifurcation.bifurcation_mesh_option = raw_input("Select the Mesh to Use: Coarse Isotropic Mesh, Refined Mesh or Dense Mesh?")
+    if sys.version_info <(3,0):
+        bifurcation.bifurcation_mesh_option = raw_input("Select the Mesh to Use: Coarse Isotropic Mesh, Refined Mesh or Dense Mesh?")
+    else:
+        bifurcation.bifurcation_mesh_option = input("Select the Mesh to Use: Coarse Isotropic Mesh, Refined Mesh or Dense Mesh?")
 
 
 #
 # prompt user about BC
 #
 if bifurcation.use_resistance == -1:
-    use_resistance= raw_input("Select Outlet B.C: Zero Pressure or Resistance?")
+    if sys.version_info < (3,0):
+        use_resistance= raw_input("Select Outlet B.C: Zero Pressure or Resistance?")
+    else:
+        use_resistance= input("Select Outlet B.C: Zero Pressure or Resistance?")
 
 
 #
 # prompt user for the number of timesteps
 #
 if bifurcation.timesteps == -1:
-    timesteps = raw_input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?")
-    timesteps = int(timesteps)
+    if sys.version_info < (3,0):
+        timesteps = raw_input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?")
+    else:
+        timesteps = input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?")
 
+    timesteps = int(timesteps)
 #
 # prompt user for the number of periods
 #
 
 if bifurcation.num_periods == -1:
-    num_periods = raw_input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
+    if sys.version_info < (3,0):
+        num_periods = raw_input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
+    else:
+        num_periods = input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
 
-print "Number of periods: %s" % num_periods
+print ("Number of periods: %s" % num_periods)
 
 #
 #  do work!
@@ -112,7 +128,7 @@ if bifurcation.gOptions["meshing_kernel"] =='TetGen':
 #  Create script file for presolver
 #
 
-print "Create script file for presolver."
+print ("Create script file for presolver.")
 SVPRE = fullrundir + '/bifurcation.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/bifurcation.mesh.vtu'))
@@ -152,9 +168,10 @@ import subprocess
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (fullrundir+'/bifurcation.svpre')], stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out
+    print (out)
+    print (err)
 except:
-    print "Error running presolver"
+    print ("Error running presolver")
 
 #
 #  Run solver.
@@ -168,13 +185,13 @@ infp = open(directory+'/solver.inp', 'rU')
 outfp = open(fullrundir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', str(1.1/timesteps))
-    line = string.replace(line,'my_number_of_time_steps', str(timesteps*int(num_periods)))
-    line = string.replace(line,'#resistance_sim','')
+    line = line.replace('my_initial_time_increment', str(1.1/timesteps))
+    line = line.replace('my_number_of_time_steps', str(timesteps*int(num_periods)))
+    line = line.replace('#resistance_sim','')
     if (bifurcation.selected_LS=='leslib'):
-        line = string.replace(line,'#leslib_linear_solver', "")
+        line = line.replace('#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#svls_linear_solver', "")
+        line = line.replace('#svls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -198,28 +215,28 @@ try:
     cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
     os.system(cmd)
 except:
-    print "Error running solver"
+    print ("Error running solver")
 
 endstep=0
 fp =open(fullrundir + '/numstart.dat','rU')
 last = fp.readline()
 fp.close()
-print "Total number of timesteps finished: " + last.replace(' ','')
+print ("Total number of timesteps finished: " + last.replace(' ',''))
 endstep = int(last.replace(' ',''))
 ##
 ##
 ##  Create ParaView files
 ##
-print "Reduce restart files."
+print ("Reduce restart files.")
 #
 
 try:
     proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','bifurcation_results.vtu','-vtp','bifurcation_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out
-    print err
+    print (out)
+    print (err)
 except:
-    print "Error running postsolver"
+    print ("Error running postsolver")
 #
 ##  compare results
 ##

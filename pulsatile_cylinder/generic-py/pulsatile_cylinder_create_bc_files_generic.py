@@ -29,11 +29,14 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 import math
-import pyMath
+try:
+    import pyMath
+except:
+    from __init__ import *
 def pulsatile_cylinder_create_flow_files_generic (dstdir):
 
   # Write sinusodial flowrate
-  print "Generating sinusodial volumetric flow waveform."
+  print ("Generating sinusodial volumetric flow waveform.")
   T = 0.2
   Vbar =135.0
   radius = 2.0
@@ -55,7 +58,7 @@ def pulsatile_cylinder_create_flow_files_generic (dstdir):
       fp.write("%.10f %.10f\n"% (t, -Vmean*area))
   fp.close()
   
-  print "Calculate analytic profile for outlet. (not done!!)"
+  print ("Calculate analytic profile for outlet. (not done!!)")
   terms = pyMath.math_FFT(pts, 2,256)
     
   return terms
