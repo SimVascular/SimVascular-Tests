@@ -28,7 +28,10 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-import pyRepository
+try:
+    import pyRepository
+except:
+    from __init__ import *
 import mesh_utils
 def bifurcation_create_mesh_TetGen (solidfn,dstdir,bifurcation_mesh_option):
 
@@ -36,7 +39,7 @@ def bifurcation_create_mesh_TetGen (solidfn,dstdir,bifurcation_mesh_option):
   #  Mesh the solid
   #
 
-  print "Creating mesh."
+  print ("Creating mesh.")
 
   # create meshsim style script file
   fp= open(dstdir+'/bifurcation.tgs','w+')
@@ -73,7 +76,7 @@ def bifurcation_create_mesh_TetGen (solidfn,dstdir,bifurcation_mesh_option):
       
   mesh_utils.mesh_readTGS(dstdir+'/bifurcation.tgs', 'mymesh')
 
-  print "Writing out mesh surfaces."
+  print ("Writing out mesh surfaces.")
   os.mkdir(dstdir+'/mesh-complete')
   os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
 

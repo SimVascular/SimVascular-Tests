@@ -34,9 +34,12 @@
 import pulsatile_cylinder as pc
 import pulsatile_cylinder_generic2 as gen
 import math
-import pyMath
-import pyRepository
-import pyGeom
+try:
+    import pyMath
+    import pyRepository
+    import pyGeom
+except:
+    from __init__ import *
 import vtk
 
 
@@ -82,7 +85,7 @@ numPts = pyGeom.geom_numPts('outflow')
 outflowObj = pyRepository.repos_exportToVtk('outflow')
 outflowScalars = outflowObj.GetPointData().GetScalars()
 
-print "Reading simulation results: " + resfn
+print ("Reading simulation results: " + resfn)
 resReader = vtk.vtkXMLUnstructuredGridReader()
 resReader.SetFileName(resfn)
 resReader.Update()
@@ -128,19 +131,15 @@ for stepnum in simstepnumlist:
     xR = []
     for j in range(-20,21):
         r = float(j)/10.
-        #xR.append(r/radius)
         fp.write("%.4f\t%.4f\t"%(r,r/radius))
         womersley = pyMath.math_computeWomersley(terms,time,viscosity,omega,density,radius,r)
-        try:
+        if abs(r)!=2:
             tmpvec = pyGeom.geom_interpolateVector('outflowTmp',[r,0.,0.])
-        except:
+        else:
             tmpvec = [0]
-            pass
         
-        #analytic.append(womersley)
         if len(tmpvec)==3:
             fp.write("%.4f\t%.4f\t\n"%(womersley,tmpvec[2]))
-            #result.append(tmpvec[2])
         else:
             fp.write("%.4f\t\t\n"%(womersley))
             

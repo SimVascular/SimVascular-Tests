@@ -28,8 +28,11 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import pySolid2
-import pyMeshObject
+try:
+    import pySolid2
+    import pyMeshObject
+except:
+    from __init__ import *
 from sys import path
 
 

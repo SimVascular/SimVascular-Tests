@@ -1,10 +1,13 @@
-import pyRepository
-import pySolid2
-import pyContour
-import pyCircleContour
-import pyPath
-import pyGeom
-import pyVMTKUtils
+try:
+    import pyRepository
+    import pySolid2
+    import pyContour
+    import pyCircleContour
+    import pyPath
+    import pyGeom
+    import pyVMTKUtils
+except:
+    from __init__ import *
 
 def demo_create_model (dstdir):
   # just copy the model for now
@@ -33,7 +36,7 @@ def demo_create_cylinder (dstdir):
   cyl.solid_cylinder('cyl',2.,30.,ctrL,axisL)
   cyl.GetPolyData('resultCyl',0.5)
   cyl.GetBoundaryFaces(90)
-  print "Creating model: \nFaceID found: " + str(cyl.GetFaceIds())
+  print ("Creating model: \nFaceID found: " + str(cyl.GetFaceIds()))
   cyl.WriteNative(dstdir + "/cylinder.vtp")
   from shutil import copyfile
   copyfile("cylinder.vtp.facenames2",dstdir + "/cylinder.vtp.facenames")  
@@ -61,13 +64,13 @@ def demo_loft_cylinder(dstdir):
     c.contour_newObject('ct','path',0)
     c.contour_setCtrlPtsByRadius([0.,0.,0.],2)
     c.contour_create()
-    print "Contour created: area is: " + str(c.contour_area()) + "; center is: " +str(c.contour_center())
+    print ("Contour created: area is: " + str(c.contour_area()) + "; center is: " +str(c.contour_center()))
     
     c2 = pyContour.pyContour()
     c2.contour_newObject('ct2','path',num-1)
     c2.contour_setCtrlPtsByRadius([0.,0.,30.],2)
     c2.contour_create()
-    print "Contour created: area is: " + str(c2.contour_area()) + "; center is: " +str(c2.contour_center())
+    print ("Contour created: area is: " + str(c2.contour_area()) + "; center is: " +str(c2.contour_center()))
     c.contour_getPolyData('ctp')
     c2.contour_getPolyData('ct2p')
     
@@ -85,7 +88,6 @@ def demo_loft_cylinder(dstdir):
     pyGeom.geom_sampleLoop('ct2p',numOutPtsInSegs,'ct2ps')
     pyGeom.geom_alignProfile('ctps','ct2ps','ct2psa',0)
 
-    
     srcList = ['ctps','ct2psa']
     pyGeom.geom_loftSolid(srcList,dstName,numOutPtsInSegs,numOutPtsAlongLength,numLinearPtsAlongLength,numModes,useFFT,useLinearSampleAlongLength)
     #cap the cylinder
@@ -95,7 +97,7 @@ def demo_loft_cylinder(dstdir):
     solid.solid_newObject('cyl')
     solid.SetVtkPolyData('cap')
     solid.GetBoundaryFaces(90)
-    print "Creating model: \nFaceID found: " + str(solid.GetFaceIds())
+    print ("Creating model: \nFaceID found: " + str(solid.GetFaceIds()))
     solid.WriteNative(dstdir + "/cylinder.vtp")
     
     pyRepository.repos_delete('ctp')

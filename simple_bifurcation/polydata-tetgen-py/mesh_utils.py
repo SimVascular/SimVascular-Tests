@@ -1,10 +1,13 @@
 import os
 import ctypes
-import pyMeshObject
-import pyMeshTetgen
-import pyRepository
-import pySolid2
-import pySolidPolydata
+try:
+    import pyMeshObject
+    import pyMeshTetgen
+    import pyRepository
+    import pySolid2
+    import pySolidPolydata
+except:
+    from __init__ import *
 import vtk
 import bifurcation as pc
 
@@ -108,21 +111,21 @@ def mesh_readTGS (filename,resObjName):
               #import hashlib
               #hashlib.md5(open(line.split()[1],'rb').read()).hexdigest()
              #if {$mymd5 != $gPolyDataFaceNamesInfo(model_file_md5)} {
-	     #  return -code error "ERROR: polydata model ([lrange $line 1 end]) file doesn't match one used to generate facenames ([lindex $line 1].facenames)!"
+             #  return -code error "ERROR: polydata model ([lrange $line 1 end]) file doesn't match one used to generate facenames ([lindex $line 1].facenames)!"
              #}
-	  else:
-	     print ("Getting Solid Boundaries...")
-	     gInputReturnVar = 50.0
-	     gInputReturnVar = input("Boundary Extraction" "Enter Boundary Extraction Angle (0-90 degrees):")
-	     guiPDvars['angleForBoundaries'] = gInputReturnVar
-	     geom.GetBoundaryFaces(gInputReturnVar)
-             allids = geom.GetFaceIds()
-	     numfaces = len(allids)
-	     yesno = input("The number of surfaces found was: %i.  Is this the correct number of surfaces on your polydata? yes/no" % numfaces)
-	     if (yesno == "no"): 
-	         raise ValueError("Try again with a different boundary extraction angle or check the surface of the polydata for deteriorated elements.")
-	         return
-             for newid in allids:
+          else:
+              print ("Getting Solid Boundaries...")
+              gInputReturnVar = 50.0
+              gInputReturnVar = input("Boundary Extraction" "Enter Boundary Extraction Angle (0-90 degrees):")
+              guiPDvars['angleForBoundaries'] = gInputReturnVar
+              geom.GetBoundaryFaces(gInputReturnVar)
+              allids = geom.GetFaceIds()
+              numfaces = len(allids)
+              yesno = input("The number of surfaces found was: %i.  Is this the correct number of surfaces on your polydata? yes/no" % numfaces)
+              if (yesno == "no"): 
+                 raise ValueError("Try again with a different boundary extraction angle or check the surface of the polydata for deteriorated elements.")
+                 return
+              for newid in allids:
                  gPolyDataFaceNames[newid] = "noname_" + str(newid)
       elif (line.split()[0] == "setSolidModel"):
           solidPD ="/tmp/solid/pd"
@@ -130,48 +133,48 @@ def mesh_readTGS (filename,resObjName):
               pyRepository.repos_delete(solidPD)
           except:
               pass
-	  #Set the polydatasolid in the mesh object to the current solid model
-	  geom.GetPolyData(solidPD)
+          #Set the polydatasolid in the mesh object to the current solid model
+          geom.GetPolyData(solidPD)
           resObj.SetVtkPolyData(solidPD)
       elif (line.split()[0] == "localSize"):
           facename = line.split()[1]
-	  if (facename == ""):
-	      raise ValueError("ERROR: Must select a face to add local mesh size on !")
-	      return
-	  faceids = geom.GetFaceIds()
-	  for ids in faceids:
-	      if (gPolyDataFaceNames[ids] == facename):
-	          regionid = ids
-	  resObj.SetMeshOptions("LocalEdgeSize", float(line.split()[1]))
+          if (facename == ""):
+              raise ValueError("ERROR: Must select a face to add local mesh size on !")
+              return
+          faceids = geom.GetFaceIds()
+          for ids in faceids:
+              if (gPolyDataFaceNames[ids] == facename):
+                  regionid = ids
+          resObj.SetMeshOptions("LocalEdgeSize", [float(line.split()[1])])
       elif (line.split()[0] == "useCenterlineRadius"):
-	  if (int(guiTGvars['meshWallFirst']) != 1):
-	      raise ValueError("ERROR: Must select wall faces for centerline extraction")
-	      return
-	  cappedsolid = "/tmp/solid/cappedpd"
-	  try:
+          if (int(guiTGvars['meshWallFirst']) != 1):
+              raise ValueError("ERROR: Must select wall faces for centerline extraction")
+              return
+          cappedsolid = "/tmp/solid/cappedpd"
+          try:
               pyRepository.repos_delete(cappedsolid)
           except:
               pass
-	  cappedsolid = PolyDataVMTKGetCenterIds(resObj, "mesh") 
-	  polys = PolyDataVMTKCenterlines(cappedsolid, resObj, "mesh")
+          cappedsolid = PolyDataVMTKGetCenterIds(resObj, "mesh") 
+          polys = PolyDataVMTKCenterlines(cappedsolid, resObj, "mesh")
           resObj.SetVtkPolyData(polys[0])
       elif (line.split()[0] ==  "functionBasedMeshing"):
-	  resObj.SetSizeFunctionBasedMesh(float(line.split()[1]), float(line.split()[2]))
+          resObj.SetSizeFunctionBasedMesh(float(line.split()[1]), float(line.split()[2]))
       elif (line.split()[0] == "sphereRefinement"):
-	  resObj.SetSphereRefinement(float(line.split()[1]),float(line.split()[2]),[float(i) for i in line.split()[3:]])
+          resObj.SetSphereRefinement(float(line.split()[1]),float(line.split()[2]),[float(i) for i in line.split()[3:]])
       elif (line.split()[0] == "wallFaces"):
-	  guiTGvars['meshWallFirst'] = 1
-	  resObj.SetMeshOptions("MeshWallFirst", [1])
-	  walls = []
-	  for i in range(1,len(line.split())):
-	      name  = line.split()[i]
-	      name_id =  return_face_id(geom, name)
-	      walls.append(name_id)
-	  resObj.SetWalls(walls)
+          guiTGvars['meshWallFirst'] = 1
+          resObj.SetMeshOptions("MeshWallFirst", [1])
+          walls = []
+          for i in range(1,len(line.split())):
+              name  = line.split()[i]
+              name_id =  return_face_id(geom, name)
+              walls.append(name_id)
+          resObj.SetWalls(walls)
       elif (line.split()[0] == "boundaryLayer"):
-	  if (guiTGvars['meshWallFirst'] != 1):
-	      raise ValueError("ERROR: Must select wall faces for boundary layer")
-	      return
+          if (guiTGvars['meshWallFirst'] != 1):
+              raise ValueError("ERROR: Must select wall faces for boundary layer")
+              return
           resObj.SetBoundaryLayer(0, 0, 0, int(line.split()[1]), [float(i) for i in line.split()[2:]])
       elif (line.split()[0] == "tolerance"):
           resObj.SetTolerance(float(line.split()[1]))
@@ -180,22 +183,22 @@ def mesh_readTGS (filename,resObjName):
       elif (line.split()[0] == "writeMesh"):
           resObj.WriteMesh(line.split()[1], int(line.split()[-1]))
       elif (line.split()[0] == "option"):
-	  if (len(line.split())== 3):
-	     if (line.split()[1]=="surface"):
+          if (len(line.split())== 3):
+             if (line.split()[1]=="surface"):
                resObj.SetMeshOptions("SurfaceMeshFlag", [int(line.split()[2])])
-	     elif (line.split()[1] == "volume"):
+             elif (line.split()[1] == "volume"):
                resObj.SetMeshOptions("VolumeMeshFlag" ,[int(line.split()[2])])
                guiMMvars['meshGenerateVolumeMesh'] = 1
-	     elif (line.split()[1] == "gsize"):
+             elif (line.split()[1] == "gsize"):
                resObj.SetMeshOptions("GlobalEdgeSize", [float(line.split()[2])])
-	     elif (line.split()[1] == "a"):
+             elif (line.split()[1] == "a"):
                resObj.SetMeshOptions("GlobalEdgeSize",[float(line.split()[2])])
-     	     else:
-	       #lappend mylist [lindex $line 2]
-	       resObj.SetMeshOptions(line.split()[1],[float(line.split()[2])])
-	  else:
-	      for lineval in line.split():
-	          resObj.SetMeshOptions(lineval, [1])
+             else:
+               #lappend mylist [lindex $line 2]
+               resObj.SetMeshOptions(line.split()[1],[float(line.split()[2])])
+          else:
+              for lineval in line.split():
+                  resObj.SetMeshOptions(lineval, [1])
       elif (line.split()[0] == "getBoundaries"):
           resObj.GetBoundaryFaces(guiPDvars['angleForBoundaries'])
       else:
@@ -312,7 +315,7 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
       try:
           mesh.GetFacePolyData(facepd, int(i))
       except:
-          print "Warning face %s not found, skipping face" % i
+          print ("Warning face %s not found, skipping face" % i)
           pass
       pdwriter.SetInputDataObject(pyRepository.repos_exportToVtk(facepd))
       pdwriter.SetFileName(outdir+'/mesh-surfaces/'+facename+'.vtp')
