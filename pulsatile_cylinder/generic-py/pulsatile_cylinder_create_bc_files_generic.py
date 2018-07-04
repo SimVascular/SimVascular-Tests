@@ -30,7 +30,7 @@
 import os
 import math
 try:
-    import pyMath
+    import Math
 except:
     from __init__ import *
 def pulsatile_cylinder_create_flow_files_generic (dstdir):
@@ -59,6 +59,6 @@ def pulsatile_cylinder_create_flow_files_generic (dstdir):
   fp.close()
   
   print ("Calculate analytic profile for outlet. (not done!!)")
-  terms = pyMath.math_FFT(pts, 2,256)
+  terms = Math.FFT(pts, 2,256)
     
   return terms

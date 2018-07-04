@@ -29,17 +29,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 try:
-    import pySolid2
-    import pyMeshObject
-    import pyMeshTetgen
+    import Solid
+    import MeshObject
+    import MeshTetgen
 except:
     from __init__ import *
 from sys import path
 
 
 
-pySolid2.solid_setKernel("PolyData")
-pyMeshObject.mesh_setKernel("TetGen")
+Solid.SetKernel("PolyData")
+MeshObject.SetKernel("TetGen")
 
 gOptions = {}
 gOptions['meshing_kernel']='TetGen'
