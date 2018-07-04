@@ -1,11 +1,11 @@
 import os
 import ctypes
 try:
-    import pyMeshObject
-    import pyMeshTetgen
-    import pyRepository
-    import pySolid2
-    import pySolidPolydata
+    import MeshObject
+    import MeshTetgen
+    import Repository
+    import Solid
+    import SolidPolydata
 except:
     from __init__ import *
 import vtk
@@ -45,23 +45,23 @@ def mesh_readTGS (filename,resObjName):
   #@note resObj is not deleted, even if the script file
   #@note specifies deleteModel and deleteMesh.
 
-  if (int(pyRepository.repos_exists(resObjName)) != 0):
+  if (int(Repository.Exists(resObjName)) != 0):
     raise ValueError( "object" + resObjName + "already exists!")
     return
 
   solid  = "/tmp/mesh_readTGS/solid"
   try:
-      pyRepository.repos_delete(solid)
+      Repository.Delete(solid)
   except:
       pass
   global guiMMvars
   guiMMvars['meshGenerateVolumeMesh'] = 0
   global guiPDvars
   global guiTGvars
-  geom=pySolid2.pySolidModel()
-  resObj=pyMeshObject.pyMeshObject()
-  pyMeshObject.mesh_setKernel(pc.gOptions['meshing_kernel'])
-  resObj.mesh_newObject(resObjName)
+  geom=Solid.pySolidModel()
+  resObj=MeshObject.pyMeshObject()
+  MeshObject.SetKernel(pc.gOptions['meshing_kernel'])
+  resObj.NewObject(resObjName)
   resObj.SetSolidKernel(pc.gOptions['meshing_solid_kernel'])
   # lookup for type
   types = {}
@@ -86,9 +86,9 @@ def mesh_readTGS (filename,resObjName):
          continue
       # supported commands
       if (line.split()[0] == "logon"):
-          pyMeshObject.mesh_logon(line.split()[1])
+          MeshObject.Logon(line.split()[1])
       elif (line.split()[0] == "logoff"):
-          pyMeshObject.mesh_logoff
+          MeshObject.Logoff
       elif (line.split()[0] == "newMesh"):
           resObj.NewMesh()
       elif (line.split()[0] == "generateMesh"):
@@ -96,11 +96,11 @@ def mesh_readTGS (filename,resObjName):
       elif (line.split()[0] == "loadModel"):
           resObj.LoadModel(line.split()[1])
           try:
-              pyRepository.repos_delete(solid)
+              Repository.Delete(solid)
           except:
               pass
           solidfn = line.split()[1]
-          geom.solid_readNative(solid, solidfn)
+          geom.ReadNative(solid, solidfn)
       #set smasherInputName $solid
           if (pc.gOptions['meshing_solid_kernel'] == "PolyData"):
               global gPolyDataFaceNames
@@ -130,7 +130,7 @@ def mesh_readTGS (filename,resObjName):
       elif (line.split()[0] == "setSolidModel"):
           solidPD ="/tmp/solid/pd"
           try:
-              pyRepository.repos_delete(solidPD)
+              Repository.Delete(solidPD)
           except:
               pass
           #Set the polydatasolid in the mesh object to the current solid model
@@ -152,7 +152,7 @@ def mesh_readTGS (filename,resObjName):
               return
           cappedsolid = "/tmp/solid/cappedpd"
           try:
-              pyRepository.repos_delete(cappedsolid)
+              Repository.Delete(cappedsolid)
           except:
               pass
           cappedsolid = PolyDataVMTKGetCenterIds(resObj, "mesh") 
@@ -205,19 +205,19 @@ def mesh_readTGS (filename,resObjName):
           print("ignoring line: " + line)
   fp.close()
   try:
-      pyRepository.repos_delete(solid)
+      Repository.Delete(solid)
   except:
       pass
       
 def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
   global guiMMvars
   global gFilenames
-  solid = pySolid2.pySolidModel()
-  solid.solid_getModel(solidName)
+  solid = Solid.pySolidModel()
+  solid.GetModel(solidName)
   kernel = solid.GetKernel()
   
-  mesh =pyMeshObject.pyMeshObject()
-  mesh.mesh_getMesh(meshName)
+  mesh =MeshObject.pyMeshObject()
+  mesh.GetMesh(meshName)
   
   try:
     os.mkdir(outdir + '/mesh-surfaces')
@@ -230,15 +230,15 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
   facepd = "myfacepd"
 
   try:
-      pyRepository.repos_delete(ug)
+      Repository.Delete(ug)
   except: 
       pass
   try:
-      pyRepository.repos_delete(pd)
+      Repository.Delete(pd)
   except: 
       pass 
   try:
-      pyRepository.repos_delete(facepd)
+      Repository.Delete(facepd)
   except: 
       pass 
       
@@ -249,7 +249,7 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
     ugwriter = vtk.vtkXMLUnstructuredGridWriter()
     ugwriter.SetCompressorTypeToZLib()
     ugwriter.EncodeAppendedDataOff()
-    ugwriter.SetInputDataObject(pyRepository.repos_exportToVtk(ug))
+    ugwriter.SetInputDataObject(Repository.ExportToVtk(ug))
     ugwriter.SetFileName(outdir+ '/'+ prefix+'.mesh.vtu')
     ugwriter.Write()
     del ugwriter
@@ -259,7 +259,7 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
   pdwriter = vtk.vtkXMLPolyDataWriter()
   pdwriter.SetCompressorTypeToZLib()
   pdwriter.EncodeAppendedDataOff()
-  pdwriter.SetInputDataObject(pyRepository.repos_exportToVtk(pd))
+  pdwriter.SetInputDataObject(Repository.ExportToVtk(pd))
   pdwriter.SetFileName(outdir+'/'+prefix+'.exterior.vtp')
   pdwriter.Write()
 
@@ -309,7 +309,7 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
           name_to_identifier[facename] = ident
           identifier_to_name[ident] = facename
           try:
-              pyRepository.repos_delete(facepd)
+              Repository.Delete(facepd)
           except:
               pass
       try:
@@ -317,17 +317,17 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
       except:
           print ("Warning face %s not found, skipping face" % i)
           pass
-      pdwriter.SetInputDataObject(pyRepository.repos_exportToVtk(facepd))
+      pdwriter.SetInputDataObject(Repository.ExportToVtk(facepd))
       pdwriter.SetFileName(outdir+'/mesh-surfaces/'+facename+'.vtp')
       pdwriter.Write()
       if "wall" in facename:
           foundWall = 1
-          appender.AddInputData(pyRepository.repos_exportToVtk(facepd))
+          appender.AddInputData(Repository.ExportToVtk(facepd))
       if "stent" in facename:
           foundStent = 1
-          Sappender.AddInputData(pyRepository.repos_exportToVtk(facepd))
+          appender.AddInputData(Repository.ExportToVtk(facepd))
       try:
-          pyRepository.repos_delete(facepd)
+          Repository.Delete(facepd)
       except:
           pass
           
@@ -368,15 +368,15 @@ def mesh_writeCompleteMesh (meshName, solidName, prefix, outdir):
   #  mesh.WriteMesh(outdir+'/'+prefix+'.sms')
 
   try:
-      pyRepository.repos_delete(ug)
+      Repository.Delete(ug)
   except:
       pass
   try:
-      pyRepository.repos_delete(pd)
+      Repository.Delete(pd)
   except:
       pass 
   try:
-      pyRepository.repos_delete(facepd)
+      Repository.Delete(facepd)
   except:
       pass
 

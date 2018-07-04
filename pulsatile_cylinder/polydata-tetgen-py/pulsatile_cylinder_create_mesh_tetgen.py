@@ -29,7 +29,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 try:
-    import pyRepository
+    import Repository
 except:
     from __init__ import *
 import mesh_utils
@@ -66,7 +66,7 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   fp.close()
 
   try:
-      pyRepository.repos_delete("mymesh")
+      Repository.Delete("mymesh")
   except:
       pass
       

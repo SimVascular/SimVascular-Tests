@@ -1,6 +1,6 @@
 try:
-    import pyRepository
-    import pySolid2
+    import Repository
+    import Solid
 except:
     from __init__ import *
 
@@ -8,11 +8,11 @@ def demo_create_model (dstdir):
   # just copy the model for now
   # hardcode path for testing purpose
   try:
-      pyRepository.repos_delete("bifurcation")
+      Repository.repos_delete("bifurcation")
   except:
       pass
-  cyl=pySolid2.pySolidModel()
-  cyl.solid_readNative("bifurcation","bifurcation.vtp")
+  cyl=Solid.pySolidModel()
+  cyl.ReadNative("bifurcation","bifurcation.vtp")
   from shutil import copyfile
   copyfile("bifurcation.vtp",dstdir + "/bifurcation.vtp")
   copyfile("bifurcation.vtp.facenames",dstdir + "/bifurcation.vtp.facenames")  

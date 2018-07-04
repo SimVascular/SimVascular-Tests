@@ -35,9 +35,9 @@ import pulsatile_cylinder as pc
 import pulsatile_cylinder_generic2 as gen
 import math
 try:
-    import pyMath
-    import pyRepository
-    import pyGeom
+    import Math
+    import Repository
+    import Geom
 except:
     from __init__ import *
 import vtk
@@ -71,18 +71,18 @@ for i in range(0,256):
     area = math.pi*radius*radius
     pts.append([t, -Vmean*area])
     
-terms = pyMath.math_FFT(pts, 2,256)
+terms = Math.FFT(pts, 2,256)
 try:
-    pyRepository.repos_delete('outflow')
+    Repository.Delete('outflow')
 except:
     pass
     
 import os
 import stat
 os.chmod(fullrundir+'/mesh-complete/mesh-surfaces', 0o777)
-pyRepository.repos_readXMLPolyData('outflow',fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp')
-numPts = pyGeom.geom_numPts('outflow')
-outflowObj = pyRepository.repos_exportToVtk('outflow')
+Repository.ReadXMLPolyData('outflow',fullrundir+'/mesh-complete/mesh-surfaces/outlet.vtp')
+numPts = Geom.NumPts('outflow')
+outflowObj = Repository.ExportToVtk('outflow')
 outflowScalars = outflowObj.GetPointData().GetScalars()
 
 print ("Reading simulation results: " + resfn)
@@ -117,10 +117,10 @@ for stepnum in simstepnumlist:
         
     outflowObj.GetPointData().SetVectors(myVectors)
     try:
-        pyRepository.repos_delete('outflowTmp')
+        Repository.Delete('outflowTmp')
     except:
         pass
-    pyRepository.repos_importVtkPd(outflowObj,'outflowTmp')
+    Repository.ImportVtkPd(outflowObj,'outflowTmp')
     
     fp = open(fullrundir+'/profiles_for_'+str(time),'w+')
     fp.write("radius\tr/R\tanalytic\t")
@@ -132,9 +132,9 @@ for stepnum in simstepnumlist:
     for j in range(-20,21):
         r = float(j)/10.
         fp.write("%.4f\t%.4f\t"%(r,r/radius))
-        womersley = pyMath.math_computeWomersley(terms,time,viscosity,omega,density,radius,r)
+        womersley = Math.ComputeWomersley(terms,time,viscosity,omega,density,radius,r)
         if abs(r)!=2:
-            tmpvec = pyGeom.geom_interpolateVector('outflowTmp',[r,0.,0.])
+            tmpvec = Geom.InterpolateVector('outflowTmp',[r,0.,0.])
         else:
             tmpvec = [0]
         
