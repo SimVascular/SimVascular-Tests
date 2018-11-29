@@ -28,7 +28,10 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-import pyRepository
+try:
+    import Repository
+except:
+    from __init__ import *
 import mesh_utils
 def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option):
 
@@ -36,7 +39,7 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   #  Mesh the solid
   #
 
-  print "Creating mesh."
+  print ("Creating mesh.")
 
   # create meshsim style script file
   fp= open(dstdir+'/cylinder.tgs','w+')
@@ -63,13 +66,13 @@ def pulsatile_cylinder_create_mesh_TetGen (solidfn,dstdir,pulsatile_mesh_option)
   fp.close()
 
   try:
-      pyRepository.repos_delete("mymesh")
+      Repository.Delete("mymesh")
   except:
       pass
       
   mesh_utils.mesh_readTGS(dstdir+'/cylinder.tgs', 'mymesh')
 
-  print "Writing out mesh surfaces."
+  print ("Writing out mesh surfaces.")
   os.mkdir(dstdir+'/mesh-complete')
   os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
 

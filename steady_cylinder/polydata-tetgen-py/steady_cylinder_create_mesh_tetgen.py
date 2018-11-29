@@ -28,7 +28,10 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-import pyRepository
+try:
+    import Repository
+except:
+    from __init__ import *
 import mesh_utils
 def steady_cylinder_create_mesh_TetGen (solidfn,dstdir):
 
@@ -36,7 +39,7 @@ def steady_cylinder_create_mesh_TetGen (solidfn,dstdir):
   #  Mesh the solid
   #
 
-  print "Creating mesh."
+  print ("Creating mesh.")
 
   # create meshsim style script file
   fp= open(dstdir+'/cylinder.tgs','w+')
@@ -47,7 +50,7 @@ def steady_cylinder_create_mesh_TetGen (solidfn,dstdir):
   fp.write("newMesh\n")
   fp.write("option surface 1\n")
   fp.write("option volume 1\n")
-  fp.write("option GlobalEdgeSize 0.5\n")
+  fp.write("option GlobalEdgeSize 0.75\n")
   fp.write("wallFaces wall\n")
   fp.write("option QualityRatio 1.4\n")
   fp.write("option NoBisect 1\n")
@@ -59,13 +62,13 @@ def steady_cylinder_create_mesh_TetGen (solidfn,dstdir):
   fp.close()
 
   try:
-      pyRepository.repos_delete("mymesh")
+      Repository.Delete("mymesh")
   except:
       pass
       
   mesh_utils.mesh_readTGS(dstdir+'/cylinder.tgs', 'mymesh')
 
-  print "Writing out mesh surfaces."
+  print ("Writing out mesh surfaces.")
   os.mkdir(dstdir+'/mesh-complete')
   os.mkdir(dstdir+'/mesh-complete/mesh-surfaces')
 

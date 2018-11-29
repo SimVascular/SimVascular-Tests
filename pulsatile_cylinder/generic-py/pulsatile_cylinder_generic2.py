@@ -39,28 +39,30 @@ import cylinder_create_model_polydata
 import pulsatile_cylinder_create_mesh_tetgen as mesh 
 import string
 import executable_names
-
+import sys
 
 if pc.num_procs ==-1:
-    pc.num_procs = raw_input("Number of Processors to use (1-4)?")
+    if sys.version_info >= (3,0):
+        pc.num_procs=input("Number of Processors to use (1-4)?\n")
+    else: 
+        pc.num_procs = raw_input("Number of Processors to use (1-4)?\n")
 
 #
 # prompt user for linear solver
 #
 if pc.selected_LS == -1:
-    selected_LS = raw_input("Use which linear solver? svLS or leslib ?")
+    selected_LS = "svLS"
 
 #
 # prompt user for mesh type
 #
 if pc.pulsatile_mesh_option == -1:
-    pulsatile_mesh_option = raw_input("Select the Mesh to Use: Isotropic Mesh or Boundary Layer Mesh ?")
-
+    pulsatile_mesh_option = "Isotropic Mesh"
 #
 # prompt user for the number of timesteps
 #
 if pc.timesteps == -1:
-    timesteps = raw_input("Select the Number of Time Steps 16, 32, 64, 128, 256, 512?")
+    timesteps = 16
     pc.timesteps = timesteps
 
 #
@@ -97,7 +99,7 @@ bc.pulsatile_cylinder_create_flow_files_generic(fullrundir)
 #  Create script file for presolver
 #
 
-print "Create script file for presolver."
+print ("Create script file for presolver.")
 SVPRE = fullrundir + '/cylinder.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -133,9 +135,9 @@ import subprocess
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (fullrundir+'/cylinder.svpre')], stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out
+    print( out)
 except:
-    print "Error running presolver"
+    print( "Error running presolver")
 
 
 timesteps = int(timesteps)
@@ -156,12 +158,12 @@ infp = open(directory+'/solver.inp', 'rU')
 outfp = open(fullrundir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', str(0.2/timesteps))
-    line = string.replace(line,'my_number_of_time_steps', str(total_timesteps))
+    line = line.replace('my_initial_time_increment', str(0.2/timesteps))
+    line = line.replace('my_number_of_time_steps', str(total_timesteps))
     if (selected_LS=='leslib'):
-        line = string.replace(line,'#leslib_linear_solver', "")
+        line=line.replace('#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#memls_linear_solver', "")
+        line=line.replace('#memls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -185,32 +187,33 @@ try:
     cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
     os.system(cmd)
 except:
-    print "Error running solver"
+    print( "Error running solver")
 
 endstep=0
 fp =open(fullrundir + '/numstart.dat','rU')
 last = fp.readline()
 fp.close()
-print "Total number of timesteps finished: " + last.replace(' ','')
+print ("Total number of timesteps finished: " + last.replace(' ',''))
 endstep = int(last.replace(' ',''))
 ##
 ##
 ##  Create ParaView files
 ##
-print "Reduce restart files."
+print ("Reduce restart files.")
 #
 
 try:
     proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out
-    print err
+    print( out)
+    print (err)
 except:
-    print "Error running postsolver"
+    print ("Error running postsolver")
 #
 ##  compare results
 ##
 #
 path.append("./../generic-py")
 import pulsatile_cylinder_compare_with_analytic_generic
+import pulsatile_cylinder_create_pyPlot
 

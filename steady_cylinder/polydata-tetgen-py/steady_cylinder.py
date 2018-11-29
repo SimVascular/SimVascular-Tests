@@ -28,16 +28,21 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import pySolid2
-import pyMeshObject
+try:
+    import Solid
+    import MeshObject
+    import MeshTetgen
+except:
+    from __init__ import *
 from sys import path
 
 
 
-pySolid2.solid_setKernel("PolyData")
-pyMeshObject.mesh_setKernel("TetGen")
+Solid.SetKernel("PolyData")
+MeshObject.SetKernel("TetGen")
 
-gOptions = {'meshing_kernel':'TetGen'}
+gOptions = {}
+gOptions['meshing_kernel']='TetGen'
 gOptions['meshing_solid_kernel'] = 'PolyData'
 
 
