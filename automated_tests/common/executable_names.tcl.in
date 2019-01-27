@@ -1,6 +1,0 @@
-  set PRESOLVER     @OUTBIN_DIR@/@PRESOLVER_EXE@
-  set POSTSOLVER    @SCRIPT_DIR@/@postsolver_DEV_SCRIPT_NAME@@WIN_BAT@
-  set MPIEXEC       @MPIEXEC@
-  set SOLVER         @SCRIPT_DIR@/@flowsolver_DEV_SCRIPT_NAME@@WIN_BAT@
-  set FLOWSOLVER_CONFIG [file dirname $gExternalPrograms(cvflowsolver)] 
-  set ADAPTOR        @SCRIPT_DIR@/@adaptor_DEV_SCRIPT_NAME@@WIN_BAT@
