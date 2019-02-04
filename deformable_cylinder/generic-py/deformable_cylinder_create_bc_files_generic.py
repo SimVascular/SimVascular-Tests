@@ -29,7 +29,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 import math
-import pyMath
+import Math
 def pulsatile_cylinder_create_flow_files_generic (dstdir):
 
   # Write sinusodial flowrate
@@ -56,6 +56,6 @@ def pulsatile_cylinder_create_flow_files_generic (dstdir):
   fp.close()
   
   print "Calculate analytic profile for outlet. (not done!!)"
-  terms = pyMath.math_FFT(pts, 2,256)
+  terms = Math.FFT(pts, 2,256)
     
   return terms

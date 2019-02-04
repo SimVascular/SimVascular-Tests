@@ -41,6 +41,13 @@ import string
 import executable_names
 import sys
 
+# options:
+bifurcation.num_procs = 1
+bifurcation.bifurcation_mesh_option = 'Coarse Isotropic Mesh'
+bifurcation.use_resistance = 'Resistance'
+bifurcation.timesteps = 15
+bifurcation.num_periods = 2
+
 
 if bifurcation.num_procs ==-1:
     if sys.version_info <(3,0):
@@ -69,9 +76,10 @@ if bifurcation.bifurcation_mesh_option == -1:
 #
 if bifurcation.use_resistance == -1:
     if sys.version_info < (3,0):
-        use_resistance= raw_input("Select Outlet B.C: Zero Pressure or Resistance?")
+        bifurcation.use_resistance= raw_input("Select Outlet B.C: Zero Pressure or Resistance?")
     else:
-        use_resistance= input("Select Outlet B.C: Zero Pressure or Resistance?")
+        bifurcation.use_resistance= input("Select Outlet B.C: Zero Pressure or Resistance?")
+
 
 
 #
@@ -79,22 +87,21 @@ if bifurcation.use_resistance == -1:
 #
 if bifurcation.timesteps == -1:
     if sys.version_info < (3,0):
-        timesteps = raw_input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?")
+        bifurcation.timesteps = int(raw_input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?"))
     else:
-        timesteps = input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?")
+        bifurcation.timesteps = int(input("Select the Number of Time Steps 5, 15, 25, 50, 100, 200, 400, 800?"))
 
-    timesteps = int(timesteps)
 #
 # prompt user for the number of periods
 #
 
 if bifurcation.num_periods == -1:
     if sys.version_info < (3,0):
-        num_periods = raw_input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
+        bifurcation.num_periods = raw_input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
     else:
-        num_periods = input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
+        bifurcation.num_periods = input("Select the Number of Cycles: 2, 3, 4, 5, 6 ?")
 
-print ("Number of periods: %s" % num_periods)
+print ("Number of periods: %s" % bifurcation.num_periods)
 
 #
 #  do work!
@@ -136,10 +143,10 @@ f.write('prescribed_velocities_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-su
 f.write('noslip_vtp %s\n' %(fullrundir +'/mesh-complete/walls_combined.vtp'))
 f.write('zero_pressure_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/lt_iliac.vtp'))
 f.write('set_surface_id_vtp %s 1\n' % (fullrundir + '/mesh-complete/bifurcation.exterior.vtp'))
-if use_resistance =='Resistance':
+if bifurcation.use_resistance =='Resistance':
   f.write('set_surface_id_vtp %s 2\n' % (fullrundir + '/mesh-complete/mesh-surfaces/lt_iliac.vtp'))
 f.write('zero_pressure_vtp %s\n' % (fullrundir + '/mesh-complete/mesh-surfaces/rt_iliac.vtp'))
-if use_resistance =='Resistance':
+if bifurcation.use_resistance =='Resistance':
   f.write('set_surface_id_vtp %s 3\n' % (fullrundir + '/mesh-complete/mesh-surfaces/rt_iliac.vtp'))
 
 f.write('fluid_density 0.00106\n')
@@ -185,8 +192,8 @@ infp = open(directory+'/solver.inp', 'rU')
 outfp = open(fullrundir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = line.replace('my_initial_time_increment', str(1.1/timesteps))
-    line = line.replace('my_number_of_time_steps', str(timesteps*int(num_periods)))
+    line = line.replace('my_initial_time_increment', str(1.1/bifurcation.timesteps))
+    line = line.replace('my_number_of_time_steps', str(bifurcation.timesteps*int(bifurcation.num_periods)))
     line = line.replace('#resistance_sim','')
     if (bifurcation.selected_LS=='leslib'):
         line = line.replace('#leslib_linear_solver', "")
@@ -212,7 +219,8 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    #cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+fullrundir+'/solver.inp'+'"'
     os.system(cmd)
 except:
     print ("Error running solver")
@@ -231,10 +239,9 @@ print ("Reduce restart files.")
 #
 
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','bifurcation_results.vtu','-vtp','bifurcation_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print (out)
-    print (err)
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','bifurcation_results.vtu','-vtp','bifurcation_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ fullsimdir +'"'+ ' -outdir '+'"'+ fullrundir +'"'+ ' -start '+ '1' + ' -stop '+ str(endstep) + ' -incr ' + '1' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'bifurcation_results.vtu' + ' -vtp ' + 'bifurcation_results.vtp'
+    os.system(cmd)
 except:
     print ("Error running postsolver")
 #

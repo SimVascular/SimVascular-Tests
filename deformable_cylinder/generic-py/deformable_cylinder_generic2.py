@@ -37,8 +37,12 @@ path.append("../polydata-tetgen-py")
 import deformable_cylinder as pc
 import cylinder_create_model_polydata
 import deformable_cylinder_create_mesh_tetgen as mesh 
-import string
 import executable_names
+
+# options:
+pc.num_procs = 1
+pc.selected_LS = 'svLS'
+pc.run_varwall = 'Yes'
 
 
 if pc.num_procs ==-1:
@@ -48,12 +52,11 @@ if pc.num_procs ==-1:
 # prompt user for linear solver
 #
 if pc.selected_LS == -1:
-    selected_LS = raw_input("Use which linear solver? svLS or leslib ?")
-#
-# prompt user for the number of timesteps
-#
+    pc.selected_LS = raw_input("Use which linear solver? svLS or leslib ?")
+
+
 if pc.run_varwall == -1:
-    run_varwall = raw_input("Variable Wall Selection: Add a variable wall demo? No or Yes?")
+    pc.run_varwall = raw_input("Variable Wall Selection: Add a variable wall demo? No or Yes?")
 
 #
 #  do work!
@@ -104,7 +107,7 @@ if pc.gOptions["meshing_kernel"] =='TetGen':
 #  Create script file for presolver
 #
 
-print "Create script file for steady bct."
+print("Create script file for steady bct.")
 SVPRE = fullrundir + '/steady_bct.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -130,16 +133,16 @@ import subprocess
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (fullrundir+'/steady_bct.svpre')], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out, err
+    print(out)
 except:
-    print "Error running presolver"
+    print("Error running presolver")
 
 
 #
 #  Create script file for presolver
 #
 
-print "Create script file for pulsatile bct."
+print("Create script file for pulsatile bct.")
 SVPRE = fullrundir + '/pulsatile_bct.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -164,9 +167,9 @@ print('Run cvpresolver for pulsatile bct.')
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (fullrundir+'/pulsatile_bct.svpre')], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out, err
+    print(out)
 except:
-    print "Error running presolver"
+    print("Error running presolver")
     
 from shutil import copyfile
 copyfile(fullrundir+'/bct_steady.dat',rigid_steady_dir + "/bct.dat")
@@ -184,7 +187,7 @@ copyfile(fullrundir+'/bct_steady.vtp',def_varwall_dir + "/bct.vtp")
 #   Create presolver script file for rigid wall steady
 #
 
-print "Create script file for rigid wall steady."
+print("Create script file for rigid wall steady.")
 SVPRE = rigid_steady_dir + '/rigid_steady_cylinder.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -210,13 +213,13 @@ print('Run cvpresolver')
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (rigid_steady_dir+'/rigid_steady_cylinder.svpre')], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out, err
+    print(out)
 except:
-    print "Error running presolver"
+    print("Error running presolver")
 
 
 timesteps = 100
-print "Number of timesteps: 100"
+print("Number of timesteps: 100")
 
 #
 #  Run solver.
@@ -230,15 +233,15 @@ infp = open(directory+'/solver.inp.deformable', 'rU')
 outfp = open(rigid_steady_dir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', '0.001')
-    line = string.replace(line,'my_number_of_time_steps', '100')
-    line = string.replace(line,'my_deformable_flag', 'False')
-    #line = string.replace(line,'my_rho_infinity', '0.5')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1    # this is the standard three iteration")
-    if (selected_LS=='leslib'):
-        line = string.replace(line,'#leslib_linear_solver', "")
+    line = line.replace('my_initial_time_increment', '0.001')
+    line = line.replace('my_number_of_time_steps', '100')
+    line = line.replace('my_deformable_flag', 'False')
+    #line = line.replace('my_rho_infinity', '0.5')
+    line = line.replace('my_step_construction', "0 1 0 1 0 1    # this is the standard three iteration")
+    if (pc.selected_LS=='leslib'):
+        line = line.replace('#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#svls_linear_solver', "")
+        line = line.replace('#svls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -259,38 +262,40 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+rigid_steady_dir+ ' && '+ executable_names.SOLVER+ (' '+rigid_steady_dir+'/solver.inp')+' >> '+(rigid_steady_dir+'/solver.log')
+    #cmd = 'cd'+' '+rigid_steady_dir+ ' && '+ executable_names.SOLVER+ (' '+rigid_steady_dir+'/solver.inp')+' >> '+(rigid_steady_dir+'/solver.log')
+    cmd = 'cd'+' '+'"'+rigid_steady_dir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+rigid_steady_dir+'/solver.inp'+'"'
+    print(cmd)
     os.system(cmd)
 except:
-    print "Error running solver"
+    print("Error running solver")
 
 endstep=0
 fp =open(rigid_steady_sim_dir+'/numstart.dat','rU')
 last = fp.readline()
 fp.close()
-print "Total number of timesteps finished: " + last.replace(' ','')
+print("Total number of timesteps finished: " + last.replace(' ',''))
 endstep = int(last.replace(' ',''))
 ##
 ##
 ##  Create ParaView files
 ##
-print "Reduce restart files."
+print("Reduce restart files.")
 #
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', rigid_steady_sim_dir, '-outdir',rigid_steady_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', rigid_steady_sim_dir, '-outdir',rigid_steady_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ rigid_steady_sim_dir +'"'+ ' -outdir '+'"'+ rigid_steady_dir +'"'+ ' -sn '+ str(endstep) + ' -ph '+ ' -td ' + ' -sol ' + ' -newsn ' + '0' 
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
     
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', rigid_steady_sim_dir, '-outdir',rigid_steady_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', rigid_steady_sim_dir, '-outdir',rigid_steady_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ rigid_steady_sim_dir +'"'+ ' -outdir '+'"'+ rigid_steady_dir +'"'+ ' -start '+ '0' + ' -stop '+ str(timesteps) + ' -incr ' + '25' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
     
 copyfile(rigid_steady_dir+'/restart.0.0',def_steady_dir + "/restart.0.1")
 
@@ -306,7 +311,7 @@ copyfile(rigid_steady_dir+'/restart.0.0',def_steady_dir + "/restart.0.1")
 #   Create presolver script file for rigid wall steady
 #
 
-print "Create script file for deformable wall steady."
+print("Create script file for deformable wall steady.")
 SVPRE = def_steady_dir + '/deformable_steady_cylinder.svpre'
 f= open(SVPRE,'w+')
 f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -336,11 +341,11 @@ print('Run cvpresolver')
 try:
     proc = subprocess.Popen([executable_names.PRESOLVER, (def_steady_dir+'/deformable_steady_cylinder.svpre')], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
-    print out, err
+    print(out)
 except:
-    print "Error running presolver"
+    print("Error running presolver")
 timesteps = 100
-print "Number of timesteps: 100" 
+print("Number of timesteps: 100")
 
 #
 #  Run solver.
@@ -354,15 +359,15 @@ infp = open(directory+'/solver.inp.deformable', 'rU')
 outfp = open(def_steady_dir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', '0.0004')
-    line = string.replace(line,'my_number_of_time_steps', '100')
-    line = string.replace(line,'my_deformable_flag', 'True')
-    line = string.replace(line,'my_rho_infinity', '0.0')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1    # this is the standard three iteration")
-    if (selected_LS=='leslib'):
-        line = string.replace(line,'#leslib_linear_solver', "")
+    line = line.replace('my_initial_time_increment', '0.0004')
+    line = line.replace('my_number_of_time_steps', '100')
+    line = line.replace('my_deformable_flag', 'True')
+    line = line.replace('my_rho_infinity', '0.0')
+    line = line.replace('my_step_construction', "0 1 0 1 0 1 0 1    # this is the standard three iteration")
+    if (pc.selected_LS=='leslib'):
+        line = line.replace('#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#svls_linear_solver', "")
+        line = line.replace('#svls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -381,40 +386,42 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+def_steady_dir+ ' && '+ executable_names.SOLVER+ (' '+def_steady_dir+'/solver.inp')+' >> '+(def_steady_dir+'/solver.log')
+    #cmd = 'cd'+' '+def_steady_dir+ ' && '+ executable_names.SOLVER+ (' '+def_steady_dir+'/solver.inp')+' >> '+(def_steady_dir+'/solver.log')
+    cmd = 'cd'+' '+'"'+def_steady_dir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+def_steady_dir+'/solver.inp'+'"'
+    print(cmd)
     os.system(cmd)
 except:
-    print "Error running solver"
+    print("Error running solver")
 
 endstep=0
 fp =open(def_steady_sim_dir+'/numstart.dat','rU')
 last = fp.readline()
 fp.close()
-print "Total number of timesteps finished: " + last.replace(' ','')
+print("Total number of timesteps finished: " + last.replace(' ',''))
 endstep = int(last.replace(' ',''))
 ##
 ##
 ##  Create ParaView files
 ##
-print "Reduce restart files."
+print("Reduce restart files.")
 #
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_steady_sim_dir, '-outdir',def_steady_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_steady_sim_dir, '-outdir',def_steady_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_steady_sim_dir +'"'+ ' -outdir '+'"'+ def_steady_dir +'"'+ ' -sn '+ str(endstep) + ' -ph '+ ' -td ' + ' -sol ' + ' -newsn ' + '0' 
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
     
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_steady_sim_dir, '-outdir',def_steady_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_steady_sim_dir, '-outdir',def_steady_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_steady_sim_dir +'"'+ ' -outdir '+'"'+ def_steady_dir +'"'+ ' -start '+ '0' + ' -stop '+ str(timesteps) + ' -incr ' + '25' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
     
-if run_varwall=='Yes':
+if pc.run_varwall=='Yes':
 ###
 ###
 ###    
@@ -423,7 +430,7 @@ if run_varwall=='Yes':
 ###
 ###
     copyfile(rigid_steady_dir+'/restart.0.0',def_varwall_dir + "/restart.0.1")
-    print "Create script file for variable wall steady."
+    print("Create script file for variable wall steady.")
     SVPRE = def_varwall_dir + '/variable_steady_cylinder.svpre'
     f= open(SVPRE,'w+')
     f.write('mesh_and_adjncy_vtu %s\n' % (fullrundir + '/mesh-complete/cylinder.mesh.vtu'))
@@ -459,11 +466,11 @@ if run_varwall=='Yes':
     try:
         proc = subprocess.Popen([executable_names.PRESOLVER, (def_varwall_dir+'/variable_steady_cylinder.svpre')], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         (out, err) = proc.communicate()
-        print out, err
+        print(out)
     except:
-        print "Error running presolver"
+        print("Error running presolver")
     timesteps = 200
-    print "Number of timesteps: 200" 
+    print("Number of timesteps: 200")
     
     #
     #  Run solver.
@@ -477,16 +484,16 @@ if run_varwall=='Yes':
     outfp = open(def_varwall_dir+'/solver.inp', 'w+')
     
     for line in infp:
-        line = string.replace(line,'my_initial_time_increment', '0.0004')
-        line = string.replace(line,'my_number_of_time_steps', '200')
-        line = string.replace(line,'my_deformable_flag', 'True')
-        line = string.replace(line,'my_variablewall_flag', 'True')
-        line = string.replace(line,'my_rho_infinity', '0.0')
-        line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1 0 1  # this is the standard five iteration")
-        if (selected_LS=='leslib'):
-            line = string.replace(line,'#leslib_linear_solver', "")
+        line = line.replace('my_initial_time_increment', '0.0004')
+        line = line.replace('my_number_of_time_steps', '200')
+        line = line.replace('my_deformable_flag', 'True')
+        line = line.replace('my_variablewall_flag', 'True')
+        line = line.replace('my_rho_infinity', '0.0')
+        line = line.replace('my_step_construction', "0 1 0 1 0 1 0 1 0 1  # this is the standard five iteration")
+        if (pc.selected_LS=='leslib'):
+            line = line.replace('#leslib_linear_solver', "")
         else:
-            line = string.replace(line,'#svls_linear_solver', "")
+            line = line.replace('#svls_linear_solver', "")
         outfp.write(line)
     infp.close()
     outfp.close()
@@ -504,38 +511,40 @@ if run_varwall=='Yes':
     fp.close()
     
     try:
-        cmd = 'cd'+' '+def_varwall_dir+ ' && '+ executable_names.SOLVER+ (' '+def_varwall_dir+'/solver.inp')+' >> '+(def_varwall_dir+'/solver.log')
+        #cmd = 'cd'+' '+def_varwall_dir+ ' && '+ executable_names.SOLVER+ (' '+def_varwall_dir+'/solver.inp')+' >> '+(def_varwall_dir+'/solver.log')
+        cmd = 'cd'+' '+'"'+def_varwall_dir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+def_varwall_dir+'/solver.inp'+'"'
+        print(cmd)
         os.system(cmd)
     except:
-        print "Error running solver"
+        print("Error running solver")
     
     endstep=0
     fp =open(def_varwall_sim_dir+'/numstart.dat','rU')
     last = fp.readline()
     fp.close()
-    print "Total number of timesteps finished: " + last.replace(' ','')
+    print("Total number of timesteps finished: " + last.replace(' ',''))
     endstep = int(last.replace(' ',''))
     ##
     ##
     ##  Create ParaView files
     ##
-    print "Reduce restart files."
+    print("Reduce restart files.")
     #
     try:
-        proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_varwall_sim_dir, '-outdir',def_varwall_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (out, err) = proc.communicate()
-        print out
-        print err
+        #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_varwall_sim_dir, '-outdir',def_varwall_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_varwall_sim_dir +'"'+ ' -outdir '+'"'+ def_varwall_dir +'"'+ ' -sn '+ str(endstep) + ' -ph '+ ' -td ' + ' -sol ' + ' -newsn ' + '0' 
+        print(cmd)
+        os.system(cmd)
     except:
-        print "Error running postsolver"
+        print("Error running postsolver")
         
     try:
-        proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_varwall_sim_dir, '-outdir',def_varwall_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (out, err) = proc.communicate()
-        print out
-        print err
+        #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_varwall_sim_dir, '-outdir',def_varwall_dir,'-start','0', '-stop',str(timesteps),'-incr','25','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_varwall_sim_dir +'"'+ ' -outdir '+'"'+ def_varwall_dir +'"'+ ' -start '+ '0' + ' -stop '+ str(timesteps) + ' -incr ' + '25' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+        print(cmd)
+        os.system(cmd)
     except:
-        print "Error running postsolver"
+        print("Error running postsolver")
         
 ###
 ###
@@ -549,7 +558,7 @@ copyfile(def_steady_dir+'/restart.0.0',def_pulse_dir + "/restart.0.1")
 copyfile(def_steady_dir+'/geombc.dat.1',def_pulse_dir + "/geombc.dat.1")
 
 timesteps = 2750
-print "Number of timesteps: 2750" 
+print("Number of timesteps: 2750")
     
 #
 #  Run solver.
@@ -567,15 +576,15 @@ infp = open(directory+'/solver.inp.deformable', 'rU')
 outfp = open(def_pulse_dir+'/solver.inp', 'w+')
 
 for line in infp:
-    line = string.replace(line,'my_initial_time_increment', '0.0004')
-    line = string.replace(line,'my_number_of_time_steps', '2750')
-    line = string.replace(line,'my_deformable_flag', 'True')
-    line = string.replace(line,'my_rho_infinity', '0.0')
-    line = string.replace(line,'my_step_construction', "0 1 0 1 0 1 0 1   # this is the standard four iteration")
-    if (selected_LS=='leslib'):
-        line = string.replace(line,'#leslib_linear_solver', "")
+    line = line.replace('my_initial_time_increment', '0.0004')
+    line = line.replace('my_number_of_time_steps', '2750')
+    line = line.replace('my_deformable_flag', 'True')
+    line = line.replace('my_rho_infinity', '0.0')
+    line = line.replace('my_step_construction', "0 1 0 1 0 1 0 1   # this is the standard four iteration")
+    if (pc.selected_LS=='leslib'):
+        line = line.replace('#leslib_linear_solver', "")
     else:
-        line = string.replace(line,'#svls_linear_solver', "")
+        line = line.replace('#svls_linear_solver', "")
     outfp.write(line)
 infp.close()
 outfp.close()
@@ -593,38 +602,40 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+def_pulse_dir+ ' && '+ executable_names.SOLVER+ (' '+def_pulse_dir+'/solver.inp')+' >> '+(def_pulse_dir+'/solver.log')
+    #cmd = 'cd'+' '+def_pulse_dir+ ' && '+ executable_names.SOLVER+ (' '+def_pulse_dir+'/solver.inp')+' >> '+(def_pulse_dir+'/solver.log')
+    cmd = 'cd'+' '+'"'+def_pulse_dir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+def_pulse_dir+'/solver.inp'+'"'
+    print(cmd)
     os.system(cmd)
 except:
-    print "Error running solver"
+    print("Error running solver")
 
 endstep=0
 fp =open(def_pulse_sim_dir+'/numstart.dat','rU')
 last = fp.readline()
 fp.close()
-print "Total number of timesteps finished: " + last.replace(' ','')
+print("Total number of timesteps finished: " + last.replace(' ',''))
 endstep = int(last.replace(' ',''))
 ##
 ##
 ##  Create ParaView files
 ##
-print "Reduce restart files."
+print("Reduce restart files.")
 #
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_pulse_sim_dir, '-outdir',def_pulse_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_pulse_sim_dir, '-outdir',def_pulse_dir,'-sn',str(endstep), '-ph', '-td', '-sol', '-newsn', '0'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_pulse_sim_dir +'"'+ ' -outdir '+'"'+ def_pulse_dir +'"'+ ' -sn '+ str(endstep) + ' -ph '+ ' -td ' + ' -sol ' + ' -newsn ' + '0' 
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
     
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_pulse_sim_dir, '-outdir',def_pulse_dir,'-start','0', '-stop',str(timesteps),'-incr','250','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print out
-    print err
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', def_pulse_sim_dir, '-outdir',def_pulse_dir,'-start','0', '-stop',str(timesteps),'-incr','250','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ def_pulse_sim_dir +'"'+ ' -outdir '+'"'+ def_pulse_dir +'"'+ ' -start '+ '0' + ' -stop '+ str(timesteps) + ' -incr ' + '250' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+    print(cmd)
+    os.system(cmd)
 except:
-    print "Error running postsolver"
+    print("Error running postsolver")
 #
 ##  compare results
 ##
