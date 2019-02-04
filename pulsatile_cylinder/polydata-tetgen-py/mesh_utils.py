@@ -46,8 +46,7 @@ def mesh_readTGS (filename,resObjName):
   #@note specifies deleteModel and deleteMesh.
 
   if (int(Repository.Exists(resObjName)) != 0):
-    raise ValueError( "object" + resObjName + "already exists!")
-    return
+      Repository.Delete(resObjName)
 
   solid  = "/tmp/mesh_readTGS/solid"
   try:

@@ -8,7 +8,7 @@ def demo_create_model (dstdir):
   # just copy the model for now
   # hardcode path for testing purpose
   try:
-      Repository.repos_delete("bifurcation")
+      Repository.Delete("bifurcation")
   except:
       pass
   cyl=Solid.pySolidModel()
