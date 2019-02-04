@@ -41,7 +41,6 @@ import steady_cylinder_create_mesh_tetgen as mesh
 import string
 import executable_names
 
-
 pc.num_procs=1
 if pc.num_procs ==-1:
     if sys.version_info <(3,0):
@@ -176,8 +175,11 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    #cmd = 'cd'+' '+'"'+fullrundir+'"'+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+fullrundir+'/solver.inp'+'"'
+    print(cmd)
     os.system(cmd)
+ #   os.system('"C:/Program Files/SimVascular/svSolver/2017-08-23/svsolver-nompi-bin.exe" C:/sv-win-demos/polydata-tetgen-py/7-7-2018-12396/solver.inp')
 except:
     print ("Error running solver")
 
@@ -195,10 +197,10 @@ print ("Reduce restart files.")
 #
 
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print( out)
-    print( err)
+#    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ fullsimdir +'"'+ ' -outdir '+'"'+ fullrundir +'"'+ ' -start '+ '1' + ' -stop '+ str(endstep) + ' -incr ' + '1' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+    print(cmd)
+    os.system(cmd)
 except:
     print( "Error running postsolver")
 #
