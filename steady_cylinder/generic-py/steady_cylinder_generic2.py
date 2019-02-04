@@ -42,6 +42,7 @@ import string
 import executable_names
 
 
+pc.num_procs=1
 if pc.num_procs ==-1:
     if sys.version_info <(3,0):
         pc.num_procs = raw_input("Number of Processors to use (1-4)?")
