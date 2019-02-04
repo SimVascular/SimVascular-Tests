@@ -41,6 +41,7 @@ import string
 import executable_names
 import sys
 
+pc.num_procs=1
 if pc.num_procs ==-1:
     if sys.version_info >= (3,0):
         pc.num_procs=input("Number of Processors to use (1-4)?\n")
@@ -184,7 +185,8 @@ fp.write('Start running solver...')
 fp.close()
 
 try:
-    cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    #cmd = 'cd'+' '+fullrundir+ ' && '+ executable_names.SOLVER+ (' '+fullrundir+'/solver.inp')+' >> '+(fullrundir+'/solver.log')
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.SOLVER+'"'+' '+'"'+fullrundir+'/solver.inp'+'"'
     os.system(cmd)
 except:
     print( "Error running solver")
@@ -203,10 +205,9 @@ print ("Reduce restart files.")
 #
 
 try:
-    proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    print( out)
-    print (err)
+    #proc = subprocess.Popen([executable_names.POSTSOLVER, '-indir', fullsimdir, '-outdir',fullrundir,'-start','1', '-stop',str(endstep),'-incr','1','-sim_units_mm','-vtkcombo','-vtu','cylinder_results.vtu','-vtp','cylinder_results.vtp'], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    cmd = 'cd'+' '+'"'+fullrundir+'"'+' && '+'"'+executable_names.POSTSOLVER+'"' + ' -indir ' + '"'+ fullsimdir +'"'+ ' -outdir '+'"'+ fullrundir +'"'+ ' -start '+ '1' + ' -stop '+ str(endstep) + ' -incr ' + '1' + ' -sim_units_mm ' + ' -vtkcombo ' + ' -vtu ' + 'cylinder_results.vtu' + ' -vtp ' + 'cylinder_results.vtp'
+    os.system(cmd)
 except:
     print ("Error running postsolver")
 #
