@@ -1,15 +1,18 @@
-import pyRepository
-import pySolid2
+try:
+    import Repository
+    import Solid
+except:
+    from __init__ import *
 
 def demo_create_model (dstdir):
   # just copy the model for now
   # hardcode path for testing purpose
   try:
-      pyRepository.repos_delete("cyl")
+      Repository.Delete("cyl")
   except:
       pass
-  cyl=pySolid2.pySolidModel()
-  cyl.solid_readNative("cyl","cylinder.vtp")
+  cyl=Solid.pySolidModel()
+  cyl.ReadNative("cyl","cylinder.vtp")
   from shutil import copyfile
   copyfile("cylinder.vtp",dstdir + "/cylinder.vtp")
   copyfile("cylinder.vtp.facenames",dstdir + "/cylinder.vtp.facenames")  
