@@ -45,4 +45,4 @@ Repository.ImportVtkImg(imageData,'image')
 
 ren, renwin= vis.initRen('demo')
 vis.vis_imgRepos(ren,'image')
-vis.interact(ren)
+vis.interact(ren, 150)
