@@ -48,4 +48,4 @@ act = vis.pRepos(ren,'poly')
 act2 = vis.pRepos(ren,'poly2')
 vis.polyDisplayWireframe(ren, 'poly2')
 
-vis.interact(ren)
+vis.interact(ren, 150)
