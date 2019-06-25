@@ -2,6 +2,8 @@
 from sv import *
 import PathDemo
 
+#Check if path exists
+assert Repository.Exists('path1'), "Path not found"
 #Set contour type
 Contour.SetContourKernel('Circle')
 #Create new contour 

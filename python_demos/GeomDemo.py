@@ -1,6 +1,9 @@
 #import module
 from sv import *
 
+#Check if contours exist:
+assert Repository.Exists('ctp'), "Contour ctp doesn't exist"
+assert Repository.Exists('ct2p'),"Contour ct2p doesn't exist"
 # resample contour points
 numOutPtsInSegs = 60
 Geom.SampleLoop('ctp',numOutPtsInSegs,'ctps')

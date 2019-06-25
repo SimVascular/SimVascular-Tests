@@ -2,6 +2,8 @@
 from sv import *
 import os
 
+#Check if objects exist
+assert Repository.Exists('loft'), "Object loft doesn't exist"
 #Cap the cylinder
 VMTKUtils.Cap_with_ids('loft','cap',0,0)
 
