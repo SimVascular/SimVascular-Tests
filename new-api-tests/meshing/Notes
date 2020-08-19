@@ -1,0 +1,47 @@
+
+======================================================================
+ Methods
+======================================================================
+
+- compute_model_boundary_faces
+
+- generate_mesh
+
+- get_face_polydata
+
+- get_mesh
+
+- get_model_face_info
+
+- get_model_polydata
+
+- get_surface
+
+- load_mesh
+
+- load_model
+
+- set_boundary_layer_options
+
+- set_meshing_options
+
+- set_solid_modeler_kernel
+
+- set_walls
+
+- write_mesh
+
+
+======================================================================
+ Flags for boundary meshing 
+======================================================================
+SurfaceMeshFlag = 1
+VolumeMeshFlag = 1
+UseMMG = 1
+GlobalEdgeSize = 0.8
+SetWalls, 
+BoundaryLayerDirection = 1
+Optimization = 3
+QualityRatio = 1.4
+NoBisect = 0
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<format version="1.0" />
+<model type="Parasolid">
+    <timestep id="0">
+        <model_element type="Parasolid" num_sampling="0" use_uniform="0" max_dist="1">
+            <segmentations />
+            <faces>
+                <face id="75" name="top" type="cap" visible="true" opacity="1" color1="1" color2="1" color3="1" />
+                <face id="66" name="bottom" type="cap" visible="true" opacity="1" color1="1" color2="1" color3="1" />
+                <face id="71" name="outter" type="wall" visible="true" opacity="1" color1="1" color2="1" color3="1" />
+                <face id="72" name="inner" type="wall" visible="true" opacity="1" color1="1" color2="1" color3="1" />
+            </faces>
+            <blend_radii />
+        </model_element>
+    </timestep>
+</model>
