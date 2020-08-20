@@ -1,26 +1,15 @@
-'''Experiment with blend target_decimation parameter. 
+'''Experiment with blend num_cgsmooth_iterations parameter. 
    
-   default target_decimation = 0.01 
+   default num_cgsmooth_iterations = 2
 
-   while ( this->ActualReduction < this->TargetReduction )
+   Blend num_cgsmooth_iterations : 1
 
-   ActualReduction = (double) numDeletedTris / numTris;
+   Blend num_cgsmooth_iterations : 2
 
-      numDeletedTris / numTris = 0.01 = 1%  
+   Blend num_cgsmooth_iterations : 10
 
- target_decimation = 0.0
-   Blend: Num nodes: 13672
-   Blend: Num cells: 27340
-
- target_decimation = 0.01 
-   Blend: Num nodes: 22340
-   Blend: Num cells: 44676
-
- target_decimation = 0.02 
-   Blend: Num nodes: 14984
-   Blend: Num cells: 29964
-
- target_decimation = 0.10 
+   A larger num_cgsmooth_iterations increases spreading somewhat the blend, reduces the curvature 
+   between vessels at the union boundary, at a higher cost.
 
 '''
 from pathlib import Path
@@ -63,20 +52,28 @@ elif file_name == "demo-no-blend.vtp":
 
 ## Perform the blend operation.
 #
-target_decimation_list = [ (0.01, [1.0,0.0,0.0]), (0.02,[0.0,1.0,0.0]),  (0.10,[0.0,0.0,1.0])  ]
+num_cgsmooth_iterations_list = \
+[ 
+ (1,  [0.0,0.0,1.0]), 
+ (2,  [0.0,1.0,0.0]), 
+ (10, [1.0,0.0,0.0])  
+]
 
-for i,entry in enumerate(target_decimation_list):
-    target_decimation = entry[0]
+for i,entry in enumerate(num_cgsmooth_iterations_list):
+    num_cgsmooth_iterations = entry[0]
     color = entry[1]
-    print("Blend target_decimation: {0:g}".format(target_decimation))
-    options.target_decimation = target_decimation 
+    print("Blend num_cgsmooth_iterations : {0:g}".format(num_cgsmooth_iterations))
+    options.num_cgsmooth_iterations = num_cgsmooth_iterations 
     blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=options)
     print("  Blend: Num nodes: {0:d}".format(blend.GetNumberOfPoints()))
     print("  Blend: Num cells: {0:d}".format(blend.GetNumberOfCells()))
-    gr.add_geometry(renderer, blend, color=color, wire=True)
+    if i == 2:
+        gr.add_geometry(renderer, blend, color=color, wire=True)
+    else:
+        gr.add_geometry(renderer, blend, color=color, wire=False)
 
     ## Write the blended surface.
-    file_name = "blended-decimate-" + str(i) + ".vtp"
+    file_name = "blend-numcgsmooth-" + str(i) + ".vtp"
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)

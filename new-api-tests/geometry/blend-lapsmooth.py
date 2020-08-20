@@ -1,26 +1,21 @@
-'''Experiment with blend target_decimation parameter. 
+'''Experiment with blend num_lapsmooth_iterations parameter. 
    
-   default target_decimation = 0.01 
+   default num_lapsmooth_iterations = 50
 
-   while ( this->ActualReduction < this->TargetReduction )
+   Blend num_lapsmooth_iterations : 1
+     Blend: Num nodes: 22340
+     Blend: Num cells: 44676
 
-   ActualReduction = (double) numDeletedTris / numTris;
+   Blend num_lapsmooth_iterations : 50
+     Blend: Num nodes: 22340
+     Blend: Num cells: 44676
 
-      numDeletedTris / numTris = 0.01 = 1%  
+   Blend num_lapsmooth_iterations : 100
+     Blend: Num nodes: 22340
+     Blend: Num cells: 44676
 
- target_decimation = 0.0
-   Blend: Num nodes: 13672
-   Blend: Num cells: 27340
-
- target_decimation = 0.01 
-   Blend: Num nodes: 22340
-   Blend: Num cells: 44676
-
- target_decimation = 0.02 
-   Blend: Num nodes: 14984
-   Blend: Num cells: 29964
-
- target_decimation = 0.10 
+   A larger num_lapsmooth_iterations increases spreading the blend, reduces the curvature 
+   between vessels at the union boundary.
 
 '''
 from pathlib import Path
@@ -63,20 +58,28 @@ elif file_name == "demo-no-blend.vtp":
 
 ## Perform the blend operation.
 #
-target_decimation_list = [ (0.01, [1.0,0.0,0.0]), (0.02,[0.0,1.0,0.0]),  (0.10,[0.0,0.0,1.0])  ]
+num_lapsmooth_iterations_list = \
+[ 
+ (1,   [0.0,0.0,1.0]), 
+ (50,  [0.0,1.0,0.0]), 
+ (1000, [1.0,0.0,0.0])  
+]
 
-for i,entry in enumerate(target_decimation_list):
-    target_decimation = entry[0]
+for i,entry in enumerate(num_lapsmooth_iterations_list):
+    num_lapsmooth_iterations = entry[0]
     color = entry[1]
-    print("Blend target_decimation: {0:g}".format(target_decimation))
-    options.target_decimation = target_decimation 
+    print("Blend num_lapsmooth_iterations : {0:g}".format(num_lapsmooth_iterations))
+    options.num_lapsmooth_iterations = num_lapsmooth_iterations 
     blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=options)
     print("  Blend: Num nodes: {0:d}".format(blend.GetNumberOfPoints()))
     print("  Blend: Num cells: {0:d}".format(blend.GetNumberOfCells()))
-    gr.add_geometry(renderer, blend, color=color, wire=True)
+    if i == 2:
+        gr.add_geometry(renderer, blend, color=color, wire=True)
+    else:
+        gr.add_geometry(renderer, blend, color=color, wire=False)
 
     ## Write the blended surface.
-    file_name = "blended-decimate-" + str(i) + ".vtp"
+    file_name = "blend-numlapsmooth-" + str(i) + ".vtp"
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)

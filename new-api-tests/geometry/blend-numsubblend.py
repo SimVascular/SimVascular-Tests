@@ -1,26 +1,20 @@
-'''Experiment with blend target_decimation parameter. 
+'''Experiment with blend numsubblenditers parameter. 
    
-   default target_decimation = 0.01 
+   default numsubblenditers = 3 
 
-   while ( this->ActualReduction < this->TargetReduction )
+   Blend num_sub_blend_iter: 1
+     Blend: Num nodes: 27516
+     Blend: Num cells: 55028
 
-   ActualReduction = (double) numDeletedTris / numTris;
+   Blend num_sub_blend_iter: 3
+     Blend: Num nodes: 22340
+     Blend: Num cells: 44676
 
-      numDeletedTris / numTris = 0.01 = 1%  
+   Blend num_sub_blend_iter: 5
+     Blend: Num nodes: 17404
+     Blend: Num cells: 34804
 
- target_decimation = 0.0
-   Blend: Num nodes: 13672
-   Blend: Num cells: 27340
-
- target_decimation = 0.01 
-   Blend: Num nodes: 22340
-   Blend: Num cells: 44676
-
- target_decimation = 0.02 
-   Blend: Num nodes: 14984
-   Blend: Num cells: 29964
-
- target_decimation = 0.10 
+   The higher num_sub_blend_iter seems to produce a more spread out blend.
 
 '''
 from pathlib import Path
@@ -63,20 +57,28 @@ elif file_name == "demo-no-blend.vtp":
 
 ## Perform the blend operation.
 #
-target_decimation_list = [ (0.01, [1.0,0.0,0.0]), (0.02,[0.0,1.0,0.0]),  (0.10,[0.0,0.0,1.0])  ]
+num_sub_blend_iters_list = \
+[ 
+ (1, [0.0,0.0,1.0]), 
+ (3, [0.0,1.0,0.0]), 
+ (5, [1.0,0.0,0.0])  
+]
 
-for i,entry in enumerate(target_decimation_list):
-    target_decimation = entry[0]
+for i,entry in enumerate(num_sub_blend_iters_list):
+    num_sub_blend_iter = entry[0]
     color = entry[1]
-    print("Blend target_decimation: {0:g}".format(target_decimation))
-    options.target_decimation = target_decimation 
+    print("Blend num_sub_blend_iter: {0:g}".format(num_sub_blend_iter))
+    options.num_subblend_iterations = num_sub_blend_iter
     blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=options)
     print("  Blend: Num nodes: {0:d}".format(blend.GetNumberOfPoints()))
     print("  Blend: Num cells: {0:d}".format(blend.GetNumberOfCells()))
-    gr.add_geometry(renderer, blend, color=color, wire=True)
+    if i == 2:
+        gr.add_geometry(renderer, blend, color=color, wire=True)
+    else:
+        gr.add_geometry(renderer, blend, color=color, wire=False)
 
     ## Write the blended surface.
-    file_name = "blended-decimate-" + str(i) + ".vtp"
+    file_name = "blend-numsubbblend-" + str(i) + ".vtp"
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)
