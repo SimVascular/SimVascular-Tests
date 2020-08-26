@@ -22,7 +22,7 @@ center = [0.0, 0.0, 0.0]
 axis = [0.0, 0.0, 1.0]
 radius = 1.5
 length = 10.0
-cyl = modeler.cylinder(radius, length, center, axis)
+cyl = modeler.cylinder(center=center, axis=axis, radius=radius, length=length)
 
 print("cyl type: " + str(type(cyl)))
 cyl_polydata = cyl.get_polydata() 

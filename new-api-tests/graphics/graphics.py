@@ -277,14 +277,15 @@ def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], wire=False, edges=Fa
     actor.SetMapper(mapper)
     actor.GetProperty().SetColor(color[0], color[1], color[2])
     #actor.GetProperty().SetPointSize(5)
-    actor.GetProperty().SetLineWidth(1.0)
 
     if wire:
         actor.GetProperty().SetRepresentationToWireframe()
-        actor.GetProperty().SetLineWidth(2.0)
+        actor.GetProperty().SetLineWidth(1.0)
 
     if edges:
-       actor.GetProperty().EdgeVisibilityOn();
+        actor.GetProperty().EdgeVisibilityOn();
+    else:
+        actor.GetProperty().EdgeVisibilityOff();
 
     renderer.AddActor(actor)
 

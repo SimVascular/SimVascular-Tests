@@ -1,11 +1,13 @@
 '''Test setting MeshSim options using MeshSimOptions Python class.
 '''
 import sv
+import sys
 
 ## Create options object.
 #
 global_edge_size = { 'edge_size':0.1, 'absolute':True }
 options = sv.meshing.MeshSimOptions(global_edge_size=global_edge_size, surface_mesh_flag=True, volume_mesh_flag=True)
+print(str(type(options)))
 
 #------------------
 # global_curvature 
