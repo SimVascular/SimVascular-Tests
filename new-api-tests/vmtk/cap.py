@@ -61,6 +61,12 @@ writer.SetInputData(capped_cylinder)
 writer.Update()
 writer.Write()
 
+capped_model = sv.modeling.PolyData()
+capped_model.set_surface(surface=capped_cylinder)
+face_ids = capped_model.compute_boundary_faces(angle=60.0)
+print("Model face IDs: " + str(face_ids))
+capped_model.write("bob", "vtp")
+
 # Add geometry to vtk renderer.
 #gr.add_geom(renderer, cylinder_polydata, color=[0.5, 0.0, 0.0], wire=True)
 gr.add_geometry(renderer, capped_cylinder, color=[0.0, 1.0, 0.0], wire=True)

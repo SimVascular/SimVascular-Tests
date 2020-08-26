@@ -45,6 +45,8 @@ reader = vtk.vtkXMLPolyDataReader()
 reader.SetFileName(mdir+file_name) 
 reader.Update()
 model = reader.GetOutput()
+print("Model: ")
+print("  Num cells: {0:d}".format(model.GetNumberOfCells()))
 
 ## Set faces to blend.
 blend_radius = 1.0
@@ -54,6 +56,7 @@ if file_name == "two-cyls.vtp":
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
 elif file_name == "demo-no-blend.vtp":
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
+
 
 ## Perform the blend operation.
 #

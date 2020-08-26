@@ -1,0 +1,65 @@
+'''Test the 1D simulation class. 
+
+   Generate a 1D simulation input file.
+
+   Use the centerlines and faces from the Demo project.
+'''
+import os
+from pathlib import Path
+import sv
+import sys
+import vtk
+sys.path.insert(1, '../../graphics/')
+import graphics as gr
+
+## Create a 1D simulation.
+input_dir = os.getcwd() + "/input/"
+oned_simulation = sv.simulation.OneDimensional() 
+
+## Create 1D simulation parameters.
+params = sv.simulation.OneDimensionalParameters()
+
+## Mesh parameters.
+mesh_params = params.MeshParameters()
+
+## Model parameters.
+model_params = params.ModelParameters()
+model_params.name = "demo"
+model_params.inlet_face_names = ['cap_aorta' ] 
+model_params.outlet_face_names = ['cap_right_iliac', 'cap_aorta_2' ] 
+model_params.centerlines_file_name = input_dir + 'centerlines.vtp' 
+
+## Fluid properties.
+fluid_props = params.FluidProperties()
+
+## Set wall properties.
+#
+print("Set wall properties ...")
+material = params.WallProperties.OlufsenMaterial()
+print("Material model: {0:s}".format(str(material)))
+
+## Set boundary conditions.
+#
+bcs = params.BoundaryConditions()
+#bcs.add_resistance(face_name='outlet', resistance=1333)
+bcs.add_velocities(face_name='inlet', file_name=input_dir+'inflow.flow')
+bcs.add_rcr(face_name='cap_right_iliac', Rp=90.0, C=0.0008, Rd=1200)
+bcs.add_rcr(face_name='cap_aorta_2', Rp=100.0, C=0.0004, Rd=1100)
+
+## Set solution parameters. 
+#
+solution_params = params.Solution()
+solution_params.time_step = 0.001
+solution_params.num_time_steps = 1000
+
+## Write a 1D solver input file.
+#
+output_dir = os.getcwd() + "/output/"
+oned_simulation.write_input_file(model=model_params, mesh=mesh_params, fluid=fluid_props, 
+  material=material, boundary_conditions=bcs, solution=solution_params, directory=output_dir)
+
+## Run a simulation.
+#
+#fluid_simulation.run(parameters=fluid_params, use_mpi=True, num_processes=4)
+
+
