@@ -42,12 +42,17 @@ print("Options type {0:s} ".format(str(type(options))))
 #-----------------
 # options.local_edge_size is a list of {'face_id': int, 'edge_size': float}.
 #
-values = []
-values.append( {'face_id': 1, 'edge_size': 0.1} )
+#values = []
+#values.append( {'face_id': 1, 'edge_size': 0.1} )
 #options.local_edge_size = values 
-#options.local_edge_size.append( options.LocalEdgeSize(face_id=2, edge_size=0.2) )
 
-#options.local_edge_size.append( {'face_id': 1, 'edge_size': 0.1} )
+#options.local_edge_size.append( options.create_local_edge_size(face_id=2, edge_size=0.2) )
+
+options.local_edge_size.append( {'face_id': 1, 'edge_size': 0.1} )
+
+#options.surface_mesh_flag = True
+
+print("Size of local_edge_size: {0:d} ".format(len(options.local_edge_size)))
 
 #----------------------------
 # Radius meshing centerlines 
@@ -110,9 +115,11 @@ options.boundary_layer_inside = False
 #-------------------
 # print all options
 #-------------------
+'''
 print("Options values: ")
 [ print("  {0:s}:{1:s}".format(key,str(value))) for (key, value) in sorted(options.get_values().items()) ]
 #help(options)
+'''
 
 #--------------------
 # Set mesher options

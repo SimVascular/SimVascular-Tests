@@ -6,7 +6,10 @@
 '''
 from pathlib import Path
 import sv
+import sys
 import vtk
+sys.path.insert(1, '../graphics/')
+import graphics as gr
 
 #print(dir(sv))
 print(dir(sv.meshing))
@@ -78,4 +81,30 @@ mesh = mesher.get_mesh()
 print("Mesh:");
 print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
+
+show_mesh = True
+if show_mesh:
+    ## Create renderer and graphics window.
+    win_width = 500
+    win_height = 500
+    renderer, renderer_window = gr.init_graphics(win_width, win_height)
+
+    #mesh_polydata = gr.convert_ug_to_polydata(mesh)
+    mesh_surface = mesher.get_surface()
+    gr.add_geometry(renderer, mesh_surface, color=[1.0, 1.0, 1.0], wire=True, edges=True)
+    #gr.add_geometry(renderer, mesh_polydata, color=[1.0, 1.0, 1.0], wire=False, edges=True)
+
+    #mesh_model_polydata = mesher.get_model_polydata()
+    #gr.add_geometry(renderer, mesh_model_polydata, color=[0.0, 1.0, 1.0], wire=True, edges=True)
+
+    face1_polydata = mesher.get_face_polydata(1)
+    gr.add_geometry(renderer, face1_polydata, color=[1.0, 0.0, 0.0], wire=False, edges=True)
+
+    face2_polydata = mesher.get_face_polydata(2)
+    gr.add_geometry(renderer, face2_polydata, color=[0.0, 1.0, 0.0], wire=False, edges=True)
+
+    face3_polydata = mesher.get_face_polydata(3)
+    gr.add_geometry(renderer, face3_polydata, color=[0.0, 0.0, 1.0], wire=False, edges=True)
+
+    gr.display(renderer_window)
 

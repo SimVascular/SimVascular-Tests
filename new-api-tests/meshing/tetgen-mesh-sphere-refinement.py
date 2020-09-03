@@ -4,7 +4,10 @@
 '''
 from pathlib import Path
 import sv
+import sys
 import vtk
+sys.path.insert(1, '../graphics/')
+import graphics as gr
 
 #print(dir(sv))
 print(dir(sv.meshing))
@@ -41,11 +44,15 @@ options.no_bisect = True
 
 ## Set sphere refinement options.
 #
-sphere1 = { 'edge_size':0.2, 'radius':3.74711,  'center':[1.41902, -1.04231, 0.0785005] }
+radius = 3.74711
+center = [1.41902, -1.04231, 0.0785005]
+
+sphere1 = { 'edge_size':0.2, 'radius':radius,  'center':center }
 options.sphere_refinement.append( sphere1 ) 
 options.sphere_refinement_on = True 
+
 # Check errors.
-sphere2 = { 'bedge_size':0.2, 'radius':3.74711,  'center':[1.41902, -1.04231, 0.0785005] }
+#sphere2 = { 'bedge_size':0.2, 'radius':3.74711,  'center':[1.41902, -1.04231, 0.0785005] }
 #sphere2 = { 'edge_size':0.2, 'radius':3.74711,  'center':[1.41902] }
 #sphere2 = { 'edge_size':0.2, 'radius':'a',  'center':[1.41902, -1.04231, 0.0785005] }
 #options.sphere_refinement.append( sphere2 ) 
@@ -64,11 +71,25 @@ mesher.generate_mesh(options)
 ## Write the mesh.
 mesher.write_mesh(file_name=model_name+'-sphere-refine-mesh.vtu')
 
-'''
 ## Get the mesh as a vtkUnstructuredGrid. 
 mesh = mesher.get_mesh()
 print("Mesh:");
 print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
-'''
+
+## Show the mesh.
+#
+show_mesh = True
+if show_mesh:
+    win_width = 500
+    win_height = 500
+    renderer, renderer_window = gr.init_graphics(win_width, win_height)
+
+    #mesh_polydata = gr.convert_ug_to_polydata(mesh)
+    mesh_surface = mesher.get_surface()
+    gr.add_geometry(renderer, mesh_surface, color=[1.0, 1.0, 1.0], wire=False, edges=True)
+
+    gr.add_sphere(renderer, center, radius, color=[0,1,0], wire=True)
+
+    gr.display(renderer_window)
 
