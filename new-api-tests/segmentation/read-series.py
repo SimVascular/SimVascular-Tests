@@ -25,6 +25,8 @@ for time in range(num_times):
     num_segs = seg_series.get_num_segmentations(time)
     for sid in range(num_segs):
         seg = seg_series.get_segmentation(sid, time)
+        ctype = seg.get_type()
+        print('Segmentation type: {0:s}'.format(ctype))
         gr.create_segmentation_geometry(renderer, seg)
 
 # Display window.

@@ -53,13 +53,13 @@ print("  Number of contour points: {0:d}".format(num_pts))
 win_width = 500
 win_height = 500
 renderer, renderer_window = gr.init_graphics(win_width, win_height)
-
+center = seg.get_center()
 ## Show plane.
 plane = vtk.vtkPlane()
 plane.SetOrigin(center)
 plane.SetNormal(normal)
 #
-gr.add_plane(renderer, center, normal, color=[1,0,1])
+#gr.add_plane(renderer, center, normal, color=[1,0,1])
 
 ## Show contour.
 gr.create_segmentation_geometry(renderer, seg)

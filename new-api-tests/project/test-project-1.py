@@ -125,6 +125,7 @@ class TestProject(object):
 print("  ")
 print("==================== Test Opening a Project ====================")
 project_path = "../data/DemoProject"
+project_path = "/Users/parkerda/SimVascular/DemoProject/"
 project = project.Project()
 project.open(project_path)
 

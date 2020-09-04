@@ -19,6 +19,7 @@ radius = 4.0
 length = 16.0 
 cylinder = modeler.cylinder(center=center, axis=axis, radius=radius, length=length)
 print("  Cylinder type: " + str(type(cylinder)))
+print(dir(cylinder))
 #
 cylinder.compute_boundary_faces(angle=60.0)
 

@@ -1,4 +1,7 @@
 '''Test check using Parasolid kernel.
+
+   If the Parasolid plugin is installed then the interface to the
+   Parasolid modeling kernel will be defined.
 '''
 import sv
 import vtk
