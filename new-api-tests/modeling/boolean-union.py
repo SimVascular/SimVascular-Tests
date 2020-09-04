@@ -9,6 +9,7 @@ import graphics as gr
 # Create a modeler.
 #oc_modeler = sv.modeling.Modeler(sv.modeling.Kernel.OPENCASCADE)
 modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
+#modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
 print("sv.modeling.Kernel.POLYDATA: {0:s}".format(sv.modeling.Kernel.POLYDATA))
 
 ## Create a box.
@@ -40,9 +41,9 @@ win_height = 500
 renderer, renderer_window = gr.init_graphics(win_width, win_height)
 
 ## Add model polydata.
-gr.add_geometry(renderer, box_pd, color=[0.0, 1.0, 0.0], wire=True, edges=False)
-gr.add_geometry(renderer, cylinder_pd, color=[0.0, 0.0, 1.0], wire=True, edges=False)
-#gr.add_geometry(renderer, result_pd, color=[1.0, 0.0, 0.0], wire=False, edges=False)
+#gr.add_geometry(renderer, box_pd, color=[0.0, 1.0, 0.0], wire=True, edges=False)
+#gr.add_geometry(renderer, cylinder_pd, color=[0.0, 0.0, 1.0], wire=True, edges=False)
+gr.add_geometry(renderer, result_pd, color=[1.0, 0.0, 0.0], wire=True, edges=False)
 
 # Display window.
 gr.display(renderer_window)

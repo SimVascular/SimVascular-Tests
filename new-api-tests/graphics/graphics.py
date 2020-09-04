@@ -72,7 +72,7 @@ def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0]):
     renderer.AddActor(actor)
     actor.GetProperty().SetPointSize(5)
     renderer.AddActor(actor)
-    return
+    #return
 
 
     ## Add control points.
@@ -95,7 +95,7 @@ def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0]):
     actor.SetMapper(mapper)
     actor.GetProperty().SetColor(1.0, 0.0, 0.0)
     actor.GetProperty().SetPointSize(5)
-    # renderer.AddActor(actor)
+    renderer.AddActor(actor)
 
 def create_path_geometry(renderer, path, line_color=[0.0, 0.6, 0.0], marker_color=[1.0,0.0,0.0], show_points=False):
     ''' Create geometry for the path curve and control points.
@@ -281,6 +281,8 @@ def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], wire=False, edges=Fa
     if wire:
         actor.GetProperty().SetRepresentationToWireframe()
         actor.GetProperty().SetLineWidth(1.0)
+    elif not edges:
+        actor.GetProperty().SetLineWidth(5)
 
     if edges:
         actor.GetProperty().EdgeVisibilityOn();

@@ -19,6 +19,10 @@ mdir = '../data/vmtk/'
 print("Read surface model file ...")
 file_name = "aorta.vtp"
 model = modeler.read(mdir+file_name)
+
+#model = modeler.read("cylinder.vtp")
+model = modeler.read("mesh-complete.exterior.vtp")
+
 model_polydata = model.get_polydata()
 print("Model: num nodes: {0:d}".format(model_polydata.GetNumberOfPoints()))
 gr.add_geometry(renderer, model_polydata, color=[0.0, 1.0, 0.0], wire=True)
@@ -59,10 +63,13 @@ outlet_ids = [1113, 529]
 # Use face IDs.
 inlet_ids = [3]
 outlet_ids = [5, 4]
+
+inlet_ids = [2]
+outlet_ids = [3]
 centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, use_face_ids=True)
 
 print("Centerlines: num nodes: {0:d}".format(centerlines_polydata.GetNumberOfPoints()))
-gr.add_geometry(renderer, centerlines_polydata, color=[1.0, 0.0, 0.0], wire=True)
+gr.add_geometry(renderer, centerlines_polydata, color=[1.0, 0.0, 0.0])
 
 ## Show geometry.
 #
