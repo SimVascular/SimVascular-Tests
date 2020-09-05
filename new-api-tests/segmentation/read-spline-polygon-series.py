@@ -25,7 +25,17 @@ renderer, renderer_window = gr.init_graphics(win_width, win_height)
 for time in range(num_times):
     num_segs = seg_series.get_num_segmentations(time)
     for sid in range(num_segs):
+        print('\n---------- segmentation {0:d} ---------- '.format(sid))
         seg = seg_series.get_segmentation(sid, time)
+        ctype = seg.get_type()
+        print('Segmentation type: {0:s}'.format(ctype))
+        try:
+            control_points = seg.get_control_points()
+        except:
+            print("**** Exception getting control points")
+            control_points = []
+        print("Number of control points: {0:d}".format(len(control_points)))
+
         gr.create_segmentation_geometry(renderer, seg)
 
 # Display window.

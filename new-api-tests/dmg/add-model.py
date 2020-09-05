@@ -5,17 +5,16 @@
 from pathlib import Path
 import sv
 
-## Create a model from an SV file.
+## Create a cylinder model.
 #
-home = str(Path.home())
-file_name = home + "/SimVascular/DemoProject/Models/demo.mdl"
-print("Read SV mdl file: {0:s}".format(file_name))
-demo_models = sv.modeling.Series(file_name)
-num_models = demo_models.get_num_times()
-print("Number of models: {0:d}".format(num_models))
+modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
+cylinder = modeler.cylinder(center=[0.0,0.0,0.0], axis=[1.0,0.0,0.0], radius=4.0, length=16.0)
+cylinder.compute_boundary_faces(angle=60.0)
 
 ## Add the Python model object under the SV Data Manager 'Model' nodes
 #  as a new  node named 'new_demo'.
 #
-sv.dmg.add_model("new_demo", demo_models)
+sv.dmg.add_model("cylinder", cylinder)
 
+## Error checking.
+#sv.dmg.add_model("cylinder", modeler)

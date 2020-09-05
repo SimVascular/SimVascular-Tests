@@ -1,13 +1,19 @@
-'''Test getting a model from the SV Data Manager.
+'''Test getting an OpenCascade  model from the SV Data Manager.
 
-   This is tested using the Demo Project.
+   This is tested using the Demo Project, creating a model from ../data/model/cylinder.brep.
+
+   Results:
+     Model type: <class 'modeling.OpenCascade'>
+     Model Face IDs: [1, 2, 3]
+     Model polydata: num nodes: 122
+     Model polydata: num polygons: 240
 '''
 import sv
 import vtk
   
 ## Get model object from the SV Data Manager 'Models/demo' node. 
 #
-model_name = "demo"
+model_name = "cylinder"
 print("Get model: " + model_name)
 model = sv.dmg.get_model(model_name)
 print("Model type: " + str(type(model)))

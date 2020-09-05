@@ -77,7 +77,10 @@ def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0]):
 
     ## Add control points.
     #
-    coords = segmentation.get_control_points()
+    try:
+        coords = segmentation.get_control_points()
+    except:
+        coords = []
     num_pts = len(coords)
     points = vtk.vtkPoints()
     vertices = vtk.vtkCellArray()

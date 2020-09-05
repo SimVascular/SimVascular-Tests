@@ -7,9 +7,9 @@ import sv
 
 ## Create a PathSeries from an SV file.
 #
-mdir = "../data/"
-file_name = "DemoProject/Paths/aorta.pth"
-path_series = sv.pathplanning.Series(mdir+file_name)
+home = str(Path.home())
+file_name = home + "/SimVascular/DemoProject/Paths/aorta.pth"
+path_series = sv.pathplanning.Series(file_name)
 print("Number of paths: {0:d}".format(path_series.get_num_times()))
 print("Method: {0:s}".format(path_series.get_method()))
 
