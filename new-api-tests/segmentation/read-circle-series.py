@@ -30,10 +30,14 @@ for time in range(num_times):
     print("Number of segmentationspoints : {0:d}".format(num_segs))
 
     for sid in range(num_segs):
-        print("----------- Segmentation {0:d} -------- ".format(sid))
-        print("get_segmentation")
+        print("\n---------- segmentation {0:d} ----------".format(sid))
         seg = seg_series.get_segmentation(sid, time)
-        print("create_segmentation_geometry")
+        print("  Type: {0:s}".format(str(type(seg))))
+        try:
+            control_points = seg.get_control_points()
+        except:
+            control_points = []
+        print("  Number of control points: {0:d}".format(len(control_points)))
         gr.create_segmentation_geometry(renderer, seg)
         segs.append(seg)
 

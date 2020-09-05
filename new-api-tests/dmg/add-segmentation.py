@@ -13,13 +13,18 @@ home = str(Path.home())
 file_name = home + "/SimVascular/DemoProject/Segmentations/aorta.ctgr"
 print("Read SV ctgr file: {0:s}".format(file_name))
 seg_series = sv.segmentation.Series(file_name)
-num_segs = seg_series.num_segmentations(time=0)
-print("Number of segmentations: {0:d}".format(num_segs))
+num_times = seg_series.get_num_times()
+print("Number of times: {0:d}".format(num_times))
+
+time = 0
+num_segs = seg_series.get_num_segmentations(time)
 segmentations = []
-for i in range(num_segs):
-    #print("---------- segmentation {0:d} ----------".format(i))
-    segmentation = aorta_segmentations.get_segmentation(i, time=0)
-    segmentations.append(segmentation)
+
+for sid in range(num_segs):
+    seg = seg_series.get_segmentation(sid, time)
+    ctype = seg.get_type()
+    segmentations = []
+    print('Segmentation type: {0:s}'.format(ctype))
 
 ## Add the Python segmentation objects under the SV Data Manager 'Segmentations' nodes
 #  as a new  node named 'new_aorta'.
