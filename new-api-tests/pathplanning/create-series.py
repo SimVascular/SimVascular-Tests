@@ -22,7 +22,7 @@ path_series.set_path(path=path, time=0)
 path_series.set_path_id(1)
 
 print("Path series:")
-print("  Number of paths: {0:d}".format(path_series.get_num_paths()))
+print("  Number of time points: {0:d}".format(path_series.get_num_times()))
 
 ## Write the path series to a file.
 path_series.write("test-series.pth")
