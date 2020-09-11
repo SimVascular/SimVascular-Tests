@@ -17,7 +17,7 @@ class VesselModel(object):
         self.segmentations = None 
         self.translate_scale = 0.1
         self.loft_with_nurbs = True 
-        self.num_divisions = 12 
+        self.num_sections = 12 
         self.wall_thickness = 0.25
         self.edge_size = 0.2
         self.inner_surface = None
@@ -73,9 +73,9 @@ class VesselModel(object):
 
         if loft_with_nurbs:
             print("Creating a lofted surface using NURBS.")
-            num_div = self.num_divisions
+            num_sect = self.num_sections 
             options = sv.geometry.LoftNurbsOptions()
-            loft_surf = sv.geometry.loft_nurbs(polydata_list=aligned_contours, loft_options=options, num_divisions=num_div)
+            loft_surf = sv.geometry.loft_nurbs(polydata_list=aligned_contours, loft_options=options, num_sections=num_sect)
 
         else:
             options = sv.geometry.LoftOptions()
