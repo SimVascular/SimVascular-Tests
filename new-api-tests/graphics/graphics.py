@@ -16,13 +16,13 @@ def add_line(renderer, pt1, pt2, color=[1.0, 1.0, 1.0], width=2):
     actor.GetProperty().SetLineWidth(width)
     renderer.AddActor(actor)
 
-def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0]):
+def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0], show_cpts=False, show_center=False):
     ''' Create geometry for the segmentation points and control points.
     '''
-    print("---------- gr.create_segmentation_geometry ----------")
+    #print("---------- gr.create_segmentation_geometry ----------")
     coords = segmentation.get_points()
     num_pts = len(coords)
-    print("[gr.create_segmentation_geometry] num_pts: {0:d}".format(num_pts))
+    #print("[gr.create_segmentation_geometry] num_pts: {0:d}".format(num_pts))
     if num_pts == 0:
         return
 
@@ -53,52 +53,52 @@ def create_segmentation_geometry(renderer, segmentation, color=[1.0, 1.0, 1.0]):
 
     ## Add center point.
     #
-    center = segmentation.get_center()
-    print("gr.create_segmentation_geometry] Center: {0:g} {1:g} {2:g}".format(center[0], center[1], center[2]))
-    num_pts = 1
-    points = vtk.vtkPoints()
-    vertices = vtk.vtkCellArray()
-    pid = points.InsertNextPoint(center)
-    vertices.InsertNextCell(1)
-    vertices.InsertCellPoint(pid)
-    points_pd = vtk.vtkPolyData()
-    points_pd.SetPoints(points)
-    points_pd.SetVerts(vertices)
-    mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInputData(points_pd)
-    actor = vtk.vtkActor()
-    actor.SetMapper(mapper)
-    actor.GetProperty().SetColor(color[0], color[1], color[2])
-    renderer.AddActor(actor)
-    actor.GetProperty().SetPointSize(5)
-    renderer.AddActor(actor)
-    #return
-
+    if show_center:
+        center = segmentation.get_center()
+        #print("gr.create_segmentation_geometry] Center: {0:g} {1:g} {2:g}".format(center[0], center[1], center[2]))
+        num_pts = 1
+        points = vtk.vtkPoints()
+        vertices = vtk.vtkCellArray()
+        pid = points.InsertNextPoint(center)
+        vertices.InsertNextCell(1)
+        vertices.InsertCellPoint(pid)
+        points_pd = vtk.vtkPolyData()
+        points_pd.SetPoints(points)
+        points_pd.SetVerts(vertices)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputData(points_pd)
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(color[0], color[1], color[2])
+        renderer.AddActor(actor)
+        actor.GetProperty().SetPointSize(5)
+        renderer.AddActor(actor)
 
     ## Add control points.
     #
-    try:
-        coords = segmentation.get_control_points()
-    except:
-        coords = []
-    num_pts = len(coords)
-    points = vtk.vtkPoints()
-    vertices = vtk.vtkCellArray()
-    for pt in coords:
-        pid = points.InsertNextPoint(pt)
-        vertices.InsertNextCell(1)
-        vertices.InsertCellPoint(pid)
-    #_for pt in coords
-    points_pd = vtk.vtkPolyData()
-    points_pd.SetPoints(points)
-    points_pd.SetVerts(vertices)
-    mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInputData(points_pd)
-    actor = vtk.vtkActor()
-    actor.SetMapper(mapper)
-    actor.GetProperty().SetColor(1.0, 0.0, 0.0)
-    actor.GetProperty().SetPointSize(5)
-    renderer.AddActor(actor)
+    if show_cpts:
+        try:
+            coords = segmentation.get_control_points()
+        except:
+            coords = []
+        num_pts = len(coords)
+        points = vtk.vtkPoints()
+        vertices = vtk.vtkCellArray()
+        for pt in coords:
+            pid = points.InsertNextPoint(pt)
+            vertices.InsertNextCell(1)
+            vertices.InsertCellPoint(pid)
+        #_for pt in coords
+        points_pd = vtk.vtkPolyData()
+        points_pd.SetPoints(points)
+        points_pd.SetVerts(vertices)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputData(points_pd)
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(1.0, 0.0, 0.0)
+        actor.GetProperty().SetPointSize(5)
+        renderer.AddActor(actor)
 
 def create_path_geometry(renderer, path, line_color=[0.0, 0.6, 0.0], marker_color=[1.0,0.0,0.0], show_points=False):
     ''' Create geometry for the path curve and control points.
@@ -285,7 +285,7 @@ def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], wire=False, edges=Fa
         actor.GetProperty().SetRepresentationToWireframe()
         actor.GetProperty().SetLineWidth(1.0)
     elif not edges:
-        actor.GetProperty().SetLineWidth(5)
+        actor.GetProperty().SetLineWidth(2.0)
 
     if edges:
         actor.GetProperty().EdgeVisibilityOn();
