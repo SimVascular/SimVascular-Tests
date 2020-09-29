@@ -1,4 +1,6 @@
 '''Test vmtk.centerlines() method.
+
+   The centerlines geometry is written to 'centerlines-result.vtp'.
 '''
 import sv
 import sys
@@ -19,9 +21,6 @@ mdir = '../data/vmtk/'
 print("Read surface model file ...")
 file_name = "aorta.vtp"
 model = modeler.read(mdir+file_name)
-
-#model = modeler.read("cylinder.vtp")
-model = modeler.read("mesh-complete.exterior.vtp")
 
 model_polydata = model.get_polydata()
 print("Model: num nodes: {0:d}".format(model_polydata.GetNumberOfPoints()))
@@ -67,6 +66,15 @@ outlet_ids = [5, 4]
 inlet_ids = [2]
 outlet_ids = [3]
 centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, use_face_ids=True)
+#centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, split=False, use_face_ids=True)
+
+## Write the capped surface.
+file_name = "centerlines-result.vtp"
+writer = vtk.vtkXMLPolyDataWriter()
+writer.SetFileName(file_name)
+writer.SetInputData(centerlines_polydata)
+writer.Update()
+writer.Write()
 
 print("Centerlines: num nodes: {0:d}".format(centerlines_polydata.GetNumberOfPoints()))
 gr.add_geometry(renderer, centerlines_polydata, color=[1.0, 0.0, 0.0])

@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
     ## Build models for the aorta.
     model_name = 'aorta'
-    seg_file_name = "../../data/DemoProject/Segmentations/" + model_name + ".ctgr"
+    seg_file_name = "../../../data/DemoProject/Segmentations/" + model_name + ".ctgr"
     aorta_vessel_model = VesselModel(renderer, sv.modeling.Kernel.POLYDATA)
     aorta_vessel_model.create_solid_models(model_name, seg_file_name)
     #aorta_vessel_model.show_inner_model(color=[1.0,0.0,0.0], wire=True, edges=False)
@@ -198,7 +198,7 @@ if __name__ == '__main__':
 
     ## Build models for the right iliac.
     model_name = 'right_iliac'
-    seg_file_name = "../../data/DemoProject/Segmentations/" + model_name + ".ctgr"
+    seg_file_name = "../../../data/DemoProject/Segmentations/" + model_name + ".ctgr"
     iliac_vessel_model = VesselModel(renderer, sv.modeling.Kernel.POLYDATA)
     iliac_vessel_model.create_solid_models(model_name, seg_file_name)
     #iliac_vessel_model.show_inner_model(color=[1.0,0.0,0.0], wire=False, edges=False)

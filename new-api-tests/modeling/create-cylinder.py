@@ -15,8 +15,8 @@ print("Create a cylinder ...")
 center = [0.0, 0.0, 0.0]
 axis = [0.0, 1.0, 0.0]
 axis = [1.0, 0.0, 0.0]
-radius = 4.0 
-length = 16.0 
+radius = 1.0 
+length = 6.0 
 cylinder = modeler.cylinder(center=center, axis=axis, radius=radius, length=length)
 print("  Cylinder type: " + str(type(cylinder)))
 print(dir(cylinder))
