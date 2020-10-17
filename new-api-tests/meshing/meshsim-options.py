@@ -34,13 +34,13 @@ if False:
 #-----------------
 # local_edge_size 
 #-----------------
-if False:
+if True:
     print("Set local edge size ... ")
     options.local_edge_size =  [ {'face_id':1, 'edge_size':1.0, 'absolute':True } ]
     options.local_edge_size.append( {'face_id':2, 'edge_size':2.0, 'absolute':True } ) 
     # Test error conditions.
-    options.local_edge_size =  {'face_id':1, 'edge_size':1.0, 'absolute':True }
-    options.local_edge_size.append( {'face_id':2, 'edge_siz':2.0, 'absolute':True } ) 
+    #options.local_edge_size =  {'face_id':1, 'edge_size':1.0, 'absolute':True }
+    #options.local_edge_size.append( {'face_id':2, 'edge_siz':2.0, 'absolute':True } ) 
 
 #-----------------
 # local_curvature 
@@ -55,7 +55,7 @@ if False:
 #--------------------
 # local_min_curvature 
 #--------------------
-if True:
+if False:
     print("Set local min curvature ... ")
     options.local_min_curvature =  [ {'face_id':1, 'min_curvature':1.0, 'absolute':True } ]
     options.local_min_curvature.append( {'face_id':2, 'min_curvature':2.0, 'absolute':True } )
@@ -72,7 +72,7 @@ if False:
 #----------------------
 # surface_optimization 
 #----------------------
-if True:
+if False:
     print("Set surface optimization ... ")
     options.surface_optimization = 2
     # Test error conditions.

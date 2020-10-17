@@ -36,17 +36,11 @@ mesher.load_model(mdir+"aorta-iliac.xmt_txt")
 face_ids = mesher.get_model_face_ids()
 print("Mesh face info: " + str(face_ids))
 
-## Set meshing options.
+## Create options object.
 #
-print("Set meshing options ... ")
-options = mesher.create_options(global_edge_size={'edge_size':0.5, 'absolute':True}, surface_mesh_flag=True, volume_mesh_flag=True)
-
-# Set local edge size on a face.
-#options.local_edge_size = [ {'face_id':13, 'edge_size':0.2, 'absolute':True} ]
-
-# Print options.
-print("options values: ")
-[ print("  {0:s}:{1:s}".format(key,str(value))) for (key, value) in sorted(options.get_values().items()) ]
+global_edge_size = { 'edge_size':0.1, 'absolute':True }
+options = sv.meshing.MeshSimOptions(global_edge_size=global_edge_size, surface_mesh_flag=True, volume_mesh_flag=True)
+print(str(type(options)))
 
 ## Generate the mesh. 
 #
