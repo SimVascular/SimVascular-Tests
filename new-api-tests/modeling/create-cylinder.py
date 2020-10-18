@@ -7,7 +7,8 @@ sys.path.insert(1, '../graphics/')
 import graphics as gr
 
 # Create a modeler.
-modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
+kernel = sv.modeling.Kernel.POLYDATA
+modeler = sv.modeling.Modeler(kernel)
 print("Modeler type: " + str(type(modeler)))
 
 ## Create a cylinder.

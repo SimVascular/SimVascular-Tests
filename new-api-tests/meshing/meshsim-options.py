@@ -36,8 +36,12 @@ if False:
 #-----------------
 if True:
     print("Set local edge size ... ")
-    options.local_edge_size =  [ {'face_id':1, 'edge_size':1.0, 'absolute':True } ]
-    options.local_edge_size.append( {'face_id':2, 'edge_size':2.0, 'absolute':True } ) 
+
+    #options.local_edge_size =  [ {'face_id':1, 'edge_size':1.0, 'absolute':True } ]
+    options.local_edge_size =  [ {'face_id':'wall_right_iliac', 'edge_size':1.0, 'absolute':True } ]
+
+    #options.local_edge_size.append( {'face_id':2, 'edge_size':2.0, 'absolute':True } ) 
+
     # Test error conditions.
     #options.local_edge_size =  {'face_id':1, 'edge_size':1.0, 'absolute':True }
     #options.local_edge_size.append( {'face_id':2, 'edge_siz':2.0, 'absolute':True } ) 
