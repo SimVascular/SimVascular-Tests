@@ -2,7 +2,7 @@
 
    Writes: 'cylinder-mesh.vtu'
 
-   Note: Be careful with global_edge_size, must match model Remesh Size resolution.
+   [TODO:DaveP] Set model does not work for MeshSim. 
 '''
 import sv
 import sys
@@ -19,27 +19,35 @@ axis = [1.0, 0.0, 0.0]
 radius = 1.0
 length = 6.0
 cylinder = modeler.cylinder(center=center, axis=axis, radius=radius, length=length)
-#face_ids = cylinder.compute_boundary_faces(angle=60.0)
-#print("Model face IDs: " + str(face_ids))
+polydata = cylinder.get_polydata()
+print("Cylinder:")
+print("  Number of points: {0:d}".format(polydata.GetNumberOfPoints()))
 
 ## Create a MeshSim mesher.
 #
+print("Create a mesher ...")
 mesher = sv.meshing.MeshSim()
 mesher.set_model(cylinder)
 
 ## Set the face IDs for model walls.
+#
 face_ids = [1]
 mesher.set_walls(face_ids)
 
-## Compute model boundary faces.
-face_ids = mesher.get_model_face_ids()
-print("Mesh face ids: " + str(face_ids))
+## Mesh face info:
+#
+print("Get mesh face information ...")
+face_info = mesher.get_model_face_info()
+print("Mesh face info: ")
+for key in face_info:
+    print("  {0:s}:  {1:s}".format(key, str(face_info[key])))
+
 
 ## Set meshing options.
 #
-# Note: Be careful with global_edge_size, must match model Remesh Size resolution.
-print("Set meshing options ... ")
-options = sv.meshing.TetGenOptions(global_edge_size=0.4, surface_mesh_flag=True, volume_mesh_flag=True)
+global_edge_size = { 'edge_size':0.4, 'absolute':True }
+options = sv.meshing.MeshSimOptions(global_edge_size=global_edge_size, surface_mesh_flag=True, volume_mesh_flag=True)
+
 
 ## Generate the mesh. 
 mesher.generate_mesh(options)
@@ -51,11 +59,12 @@ print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
 ## Write the mesh.
-mesher.write_mesh(file_name='cylinder-mesh.vtu')
+#mesher.write_mesh(file_name='cylinder-mesh.vtu')
 
 ## Show the mesh.
 #
 show_mesh = True
+show_mesh = False
 if show_mesh:
     ## Create renderer and graphics window.
     win_width = 500
