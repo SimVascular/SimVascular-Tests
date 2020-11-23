@@ -52,6 +52,7 @@ print("Mesh face ids: " + str(face_ids))
 # Note: Be careful with global_edge_size, must match model Remesh Size resolution.
 print("Set meshing options ... ")
 options = sv.meshing.TetGenOptions(global_edge_size=0.4, surface_mesh_flag=True, volume_mesh_flag=True)
+#options.minimum_dihedral_angle = 10.0
 
 ## Generate the mesh. 
 mesher.generate_mesh(options)

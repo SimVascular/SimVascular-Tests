@@ -115,11 +115,9 @@ options.boundary_layer_inside = False
 #-------------------
 # print all options
 #-------------------
-'''
 print("Options values: ")
 [ print("  {0:s}:{1:s}".format(key,str(value))) for (key, value) in sorted(options.get_values().items()) ]
 #help(options)
-'''
 
 #--------------------
 # Set mesher options
