@@ -272,7 +272,7 @@ def display(renderer_win):
     renderer_win.SetWindowName("SV Python API")
     interactor.Start()
 
-def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], wire=False, edges=False):
+def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], line_width=1, wire=False, edges=False):
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputData(polydata)
     mapper.SetScalarVisibility(False)
@@ -285,7 +285,7 @@ def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], wire=False, edges=Fa
         actor.GetProperty().SetRepresentationToWireframe()
         actor.GetProperty().SetLineWidth(1.0)
     elif not edges:
-        actor.GetProperty().SetLineWidth(2.0)
+        actor.GetProperty().SetLineWidth(line_width)
 
     if edges:
         actor.GetProperty().EdgeVisibilityOn();
@@ -302,6 +302,24 @@ def add_plane(renderer, center, normal, color=[1.0, 1.0, 1.0], wire=False):
     plane_pd = planeSource.GetOutput()
     add_geometry(renderer, plane_pd, color, wire)
 
+def add_points(renderer, points, color=[1.0, 1.0, 1.0], size=3):
+    geom_points = vtk.vtkPoints()
+    vertices = vtk.vtkCellArray()
+    for pt in points:
+        pid = geom_points.InsertNextPoint(pt)
+        vertices.InsertNextCell(1)
+        vertices.InsertCellPoint(pid)
+    points_pd = vtk.vtkPolyData()
+    points_pd.SetPoints(geom_points)
+    points_pd.SetVerts(vertices)
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputData(points_pd)
+    actor = vtk.vtkActor()
+    actor.SetMapper(mapper)
+    actor.GetProperty().SetColor(color)
+    actor.GetProperty().SetPointSize(size)
+    renderer.AddActor(actor)
+
 def add_sphere(renderer, center, radius, color=[1.0, 1.0, 1.0], wire=False):
     sphere = vtk.vtkSphereSource()
     sphere.SetCenter(center[0], center[1], center[2])
@@ -310,7 +328,7 @@ def add_sphere(renderer, center, radius, color=[1.0, 1.0, 1.0], wire=False):
     sphere.SetThetaResolution(16)
     sphere.Update()
     sphere_pd = sphere.GetOutput() 
-    add_geometry(renderer, sphere_pd, color, wire)
+    add_geometry(renderer, sphere_pd, color, wire=wire)
 
 def init_graphics(win_width, win_height):
     ''' Create renderer and graphics window.
