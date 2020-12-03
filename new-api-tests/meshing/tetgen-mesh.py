@@ -6,6 +6,9 @@
 
    Note: Loading an STL model does not work because the 'ModelFaceID' vtk array is not 
          set in compute_model_boundary_faces(). 
+
+         I added a workaround to read in the STL as a model, compute its faces and write 
+         it out as an .vtp file. The .vtp file is then loaded by the mesher. 
 '''
 import sv
 import sys
@@ -22,6 +25,10 @@ mesher = sv.meshing.TetGen()
 #
 #  Note: must load solid before setting certain options!
 #
+#  Loading a model (e.g. STL) that does not have a 'ModelFaceID' array 
+#  does not currently work. The mesher.compute_model_boundary_faces() 
+#  method does not create this array. 
+#
 if False:
     mdir = '../data/DemoProject/Models/'
     file_name = 'demo.vtp'
@@ -29,13 +36,45 @@ else:
     mdir = '../data/models/'
     file_name = 'cylinder.stl'
 
+    ## Workaround to create a .vtp model that has face IDs ('ModelFaceID' array).
+    reader = vtk.vtkSTLReader()
+    reader.SetFileName(mdir+file_name)
+    reader.Update()
+    polydata = reader.GetOutput()
+    model = sv.modeling.PolyData(surface=polydata)
+    # Create face IDs for the model ('ModelFaceID' array).
+    face_ids = model.compute_boundary_faces(angle=60.0)
+    print("Model face IDs: " + str(face_ids))
+    # Remesh the STL model if needed.
+    model_surf = model.get_polydata()
+    remesh_model = sv.mesh_utils.remesh(model.get_polydata(), hmin=0.4, hmax=0.4)
+    model.set_surface(surface=remesh_model)
+    model.compute_boundary_faces(angle=60.0)
+    # Need to remesh again, not sure why, maybe this is a bug. 
+    remesh_model = sv.mesh_utils.remesh(model.get_polydata(), hmin=0.4, hmax=0.4)
+    model.set_surface(surface=remesh_model)
+    model.compute_boundary_faces(angle=60.0)
+    # Write out the model as a .vtp file.
+    new_file_name = "cylinder-stl"
+    file_format = "vtp"
+    model.write(file_name=new_file_name, format=file_format)
+    # Reset the model loaded by the mesher.
+    mdir = './'
+    file_name = new_file_name + '.vtp'
+
+## Load the model into the mesher.
 mesher.load_model(mdir+file_name)
 
 ## Compute model boundary faces.
+#
+# [TODO:DaveP] this does not work yet.
+#
+'''
 if file_name == 'cylinder.stl':
     print("Compute boundary faces ...")
     mesher.compute_model_boundary_faces(angle=60.0)
     print("Done")
+'''
 
 print("Get model face IDs ...")
 face_ids = mesher.get_model_face_ids()
