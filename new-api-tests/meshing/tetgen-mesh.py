@@ -10,11 +10,22 @@
          I added a workaround to read in the STL as a model, compute its faces and write 
          it out as an .vtp file. The .vtp file is then loaded by the mesher. 
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data' 
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a TetGen mesher.
 mesher = sv.meshing.TetGen()
@@ -30,15 +41,13 @@ mesher = sv.meshing.TetGen()
 #  method does not create this array. 
 #
 if False:
-    mdir = '../data/DemoProject/Models/'
-    file_name = 'demo.vtp'
+    model_file = data_path / 'DemoProject' / 'Models' / 'demo.vtp'
 else:
-    mdir = '../data/models/'
-    file_name = 'cylinder.stl'
+    model_file = data_path / 'models' / 'cylinder.stl'
 
     ## Workaround to create a .vtp model that has face IDs ('ModelFaceID' array).
     reader = vtk.vtkSTLReader()
-    reader.SetFileName(mdir+file_name)
+    reader.SetFileName(str(model_file))
     reader.Update()
     polydata = reader.GetOutput()
     model = sv.modeling.PolyData(surface=polydata)
@@ -55,15 +64,14 @@ else:
     model.set_surface(surface=remesh_model)
     model.compute_boundary_faces(angle=60.0)
     # Write out the model as a .vtp file.
-    new_file_name = "cylinder-stl"
+    new_file = script_path / 'cylinder-stl'
     file_format = "vtp"
-    model.write(file_name=new_file_name, format=file_format)
+    model.write(file_name=str(new_file), format=file_format)
     # Reset the model loaded by the mesher.
-    mdir = './'
-    file_name = new_file_name + '.vtp'
+    model_file = Path(str(new_file) + '.vtp')
 
 ## Load the model into the mesher.
-mesher.load_model(mdir+file_name)
+mesher.load_model(str(model_file))
 
 ## Compute model boundary faces.
 #
@@ -81,9 +89,9 @@ face_ids = mesher.get_model_face_ids()
 print("Mesh face ids: " + str(face_ids))
 
 ## Set the face IDs for model walls.
-if file_name == 'demo.vtp':
+if 'demo' in str(model_file):
     face_ids = [1, 2]
-elif file_name == 'cylinder.stl':
+elif 'cyliner' in str(model_file):
     face_ids = [1]
 mesher.set_walls(face_ids)
 
@@ -104,12 +112,12 @@ print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
 ## Write the mesh.
-mesher.write_mesh(file_name='cylinder-mesh.vtu')
+mesh_file = script_path / 'cylinder-mehs.vtu'
+mesher.write_mesh(file_name=str(mesh_file))
 
 ## Show the mesh.
 #
-show_mesh = True
-if show_mesh:
+if 'gr' in dir():
     ## Create renderer and graphics window.
     win_width = 500
     win_height = 500
@@ -133,6 +141,4 @@ if show_mesh:
     gr.add_geometry(renderer, face3_polydata, color=[0.0, 0.0, 1.0], wire=False, edges=True)
 
     gr.display(renderer_window)
-
-
 
