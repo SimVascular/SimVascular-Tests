@@ -6,7 +6,7 @@ import sys
 import sv
 import vtk
 from math import sqrt
-sys.path.insert(1, '../../graphics/')
+sys.path.insert(1, '../../../graphics/')
 import graphics as gr
 
 class VesselModel(object):
