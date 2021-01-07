@@ -2,7 +2,7 @@ import os, pwd
 import sys
 import sv
 import vtk
-sys.path.insert(1, '../../graphics/')
+sys.path.insert(1, '../../../graphics/')
 import graphics as gr
 
 ## Create renderer and graphics window.
