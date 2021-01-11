@@ -1,5 +1,83 @@
 import sv
 import vtk
+from math import sqrt
+
+class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+
+    def __init__(self, surface=None, event_table=None):
+        #self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
+        self.AddObserver("KeyPressEvent", self.onKeyPressEvent)
+        self.AddObserver("CharEvent", self.onCharEvent)
+        self.surface = surface 
+        self.event_table = event_table
+        self.selected_points = []
+        self.selected_node_ids = []
+        self.picked_actor = None
+        self.last_picked_actor = None
+
+    def select_event(self, obj, event):
+        '''Process a select event. 
+        '''
+        clickPos = self.GetInteractor().GetEventPosition()
+        picker = vtk.vtkCellPicker()
+        picker.Pick(clickPos[0], clickPos[1], 0, self.renderer)
+
+        # Get selecected geometry. 
+        self.picked_actor = picker.GetActor()
+        if self.picked_actor == None:
+            #self.OnLeftButtonDown()
+            return
+        position = picker.GetPickPosition()
+        cell_id = picker.GetCellId()
+
+        if cell_id == -1: 
+            return
+
+        print(" ")
+        print("Picked position: {0:g} {1:g} {2:g} ".format(position[0], position[1], position[2]))
+        print("Cell id is: {0:d}".format(cell_id))
+
+        min_i = -1
+        min_d = 1e5
+        min_p = []
+        surface = self.surface
+        points = surface.GetPoints()
+
+        for i in range(points.GetNumberOfPoints()):
+            p = 3*[0.0]
+            points.GetPoint(i,p)
+            dx = p[0] - position[0]
+            dy = p[1] - position[1]
+            dz = p[2] - position[2]
+            d = sqrt(dx*dx + dy*dy + dz*dz)
+            if d < min_d:
+                min_d = d
+                min_p = p
+                min_i = i  
+
+        print("Picked node: {0:d} {1:g} {2:g} {3:g} ".format(min_i, min_p[0], min_p[1], min_p[2]))
+        self.selected_node_ids.append(min_i)
+
+    def onKeyPressEvent(self, renderer, event):
+        '''Process a key press event.
+        '''
+        key = self.GetInteractor().GetKeySym()
+
+        if (key == 's'):
+            self.select_event(None, event)
+
+        elif (key in self.event_table):
+            self.event_table[key](self.surface, self.selected_node_ids)
+
+    def onCharEvent(self, renderer, event):
+        '''Process an on char event.
+
+        This is used to prevent passing the shortcut key 'w' to vtk which we use
+        to write selected results and vtk uses to switch to wireframe display. 
+        '''
+        key = self.GetInteractor().GetKeySym()
+        if (key != 'w'):
+            self.OnChar()
 
 def add_line(renderer, pt1, pt2, color=[1.0, 1.0, 1.0], width=2):
     line = vtk.vtkLineSource()
@@ -293,6 +371,7 @@ def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], line_width=1, wire=F
         actor.GetProperty().EdgeVisibilityOff();
 
     renderer.AddActor(actor)
+    return actor
 
 def add_plane(renderer, center, normal, color=[1.0, 1.0, 1.0], wire=False):
     planeSource = vtk.vtkPlaneSource()
@@ -328,7 +407,7 @@ def add_sphere(renderer, center, radius, color=[1.0, 1.0, 1.0], wire=False):
     sphere.SetThetaResolution(16)
     sphere.Update()
     sphere_pd = sphere.GetOutput() 
-    add_geometry(renderer, sphere_pd, color, wire=wire)
+    return add_geometry(renderer, sphere_pd, color, wire=wire)
 
 def init_graphics(win_width, win_height):
     ''' Create renderer and graphics window.
@@ -341,5 +420,19 @@ def init_graphics(win_width, win_height):
     #renderer_win.Render()
     #renderer_win.SetWindowName("SV Python API")
     return renderer, renderer_win 
+
+def init_picking(window, renderer, surface, event_table):
+
+    # Create a trackball interacter to transoform the geometry using the mouse.
+    interactor = vtk.vtkRenderWindowInteractor()
+    interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
+    interactor.SetRenderWindow(window)
+
+    # Add the custom style.
+    style = MouseInteractorStyle(surface, event_table)
+    style.renderer = renderer
+    interactor.SetInteractorStyle(style)
+    style.SetCurrentRenderer(renderer)
+    return interactor
 
 
