@@ -2,6 +2,8 @@
 
 from collections import defaultdict
 from math import sqrt
+from math import pi
+from math import acos
 from os import path
 import vtk
 
@@ -132,7 +134,8 @@ class Centerlines(object):
 
         ## Remove the surface at the start of the centerlines.
         surface = self.surface
-        clipped_surface = self.remove_surface_start(surface, start_pt, start_radius, start_pids)
+        clipped_surface = self.remove_surface_start_using_offset(surface, start_pt, start_radius, start_pids)
+        #clipped_surface = self.remove_surface_start(surface, start_pt, start_radius, start_pids)
 
         ## Slice off the surface at the ends of the centerlines.
         print("[create_caps] Create end caps ...")
@@ -144,7 +147,8 @@ class Centerlines(object):
             end_radius = max_radius_data.GetValue(end_pid) 
             print("   End pid: {0:d}".format(end_pid))
             print("   End radius: {0:g}".format(end_radius))
-            clipped_surface = self.remove_surface_end(clipped_surface, end_pid, end_radius, pids)
+            clipped_surface = self.remove_surface_end_using_offset(clipped_surface, end_pid, end_radius, pids)
+            #clipped_surface = self.remove_surface_end(clipped_surface, end_pid, end_radius, pids)
 
         gr_geom = self.graphics.add_geometry(self.renderer, clipped_surface, color=[1.0, 1.0, 0.0])
         gr_geom.GetProperty().SetRepresentationToWireframe()
@@ -179,6 +183,85 @@ class Centerlines(object):
         pt2 = points.GetPoint(plane_pid)
         normal = [(pt2[i]-pt1[i]) for i in range(3)]
         vtk.vtkMath.Normalize(normal)
+        slice_plane = vtk.vtkPlane()
+        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
+        slice_plane.SetNormal(normal[0], normal[1], normal[2])
+        self.show_plane(plane_pt, normal, color=[1,0,0])
+
+        sphere = vtk.vtkSphereSource()
+        sphere.SetCenter(plane_pt)
+        sphere.SetRadius(end_radius)
+        sphere.Update()
+        bounds = 6*[0.0]
+        sphere.GetOutput().GetBounds(bounds)
+        slice_planes = vtk.vtkPlanes()
+        slice_planes.SetBounds(bounds)
+        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
+
+        ## Clip the surface.
+        box_func = self.compute_box_func(normal, plane_pt, end_radius)
+        clipped_surface = self.clip_surface(surface, box_func)
+        return clipped_surface
+
+    def remove_surface_end_using_offset(self, surface, end_pid, end_radius, pids):
+        '''Remove the portion of the surface at the end of the centerlines.
+        '''
+        print("   ---- remove_surface_end ----")
+        points = self.geometry.GetPoints()
+        end_pt = points.GetPoint(end_pid) 
+        num_pids = len(pids)
+        v1 = 3*[0.0]
+        v2 = 3*[0.0]
+
+        for i in reversed(range(num_pids)):
+            if i == end_pid:
+               continue
+            pid2 = pids[i]
+            pt2 = points.GetPoint(pid2)
+            pid3 = pids[i-1]
+            pt3 = points.GetPoint(pid3)
+            vtk.vtkMath.Subtract(pt2, end_pt, v1)
+            vtk.vtkMath.Normalize(v1)
+            vtk.vtkMath.Normalize(v2)
+            dot = vtk.vtkMath.Dot(v1, v2)
+            angle = acos(dot)
+            if angle >= 10.0*pi/180.0:
+                plane_pt = pt3
+                plane_pid = pid3
+                plane_pid_index = i-1
+                break
+        '''
+        for i in reversed(range(len(pids))):
+            pid = pids[i]
+            #print("   i: {0:d}".format(i))
+            #print("   pid: {0:d}".format(pid))
+            pt = points.GetPoint(pid)
+            d = sqrt(sum([(pt[j]-end_pt[j])**2 for j in range(3)]))
+            #print("  d: {0:g}".format(d), end = '')
+            if d >= end_radius + self.end_offset:
+                plane_pt = pt
+                plane_pid = pid
+                plane_pid_index = i
+                break
+        '''
+
+        print("   plane_pid_index: {0:d}".format(plane_pid_index))
+        print("   plane_pid: {0:d}".format(plane_pid))
+        print("   plane_pt: {0:s}".format(str(plane_pt)))
+        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 0.0])
+        gr_geom.GetProperty().SetRepresentationToWireframe()
+
+        #pt1 = points.GetPoint(pids[plane_pid_index-1])
+        #pt2 = points.GetPoint(plane_pid)
+
+        pt2 = points.GetPoint(plane_pid)
+        pt1 = points.GetPoint(pids[plane_pid_index-1])
+        normal = [(pt2[i]-pt1[i]) for i in range(3)]
+        vtk.vtkMath.Normalize(normal)
+
+        odist = 0.40 * end_radius
+        plane_pt = [plane_pt[i] + normal[i]*odist for i in range(3)]
+
         slice_plane = vtk.vtkPlane()
         slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
         slice_plane.SetNormal(normal[0], normal[1], normal[2])
@@ -263,6 +346,103 @@ class Centerlines(object):
         box_func = self.compute_box_func(normal, plane_pt, start_radius)
         clipped_surface = self.clip_surface(surface, box_func)
         return clipped_surface 
+
+    def remove_surface_start_using_offset(self, surface, start_pt, start_radius, start_pids):
+        '''Remove the portion of the surface at the start of the centerlines using an offset.
+        '''
+        print("========== remove_surface_start_using_offset ==========")
+        print("start_radius: " + str(start_radius))
+        ## Find point to place start slice plane.
+        points = self.geometry.GetPoints()
+        print("Find point to place start slice plane ... ")
+        pt1 = points.GetPoint(start_pids[0])
+        v1 = 3*[0.0]
+        v2 = 3*[0.0]
+
+        for i in range(1,len(start_pids)):
+            print("i: " + str(i))
+            pid2 = start_pids[i]
+            pt2 = points.GetPoint(pid2)
+            pid3 = start_pids[i+1]
+            pt3 = points.GetPoint(pid3)
+            vtk.vtkMath.Subtract(pt2, pt1, v1)
+            vtk.vtkMath.Normalize(v1)
+            vtk.vtkMath.Normalize(v2)
+            dot = vtk.vtkMath.Dot(v1, v2)
+            angle = acos(dot)
+            if angle >= 10.0*pi/180.0:
+                plane_pt = pt3
+                plane_pid = pid3
+                plane_pid_index = i+1
+                break 
+        #_for i,pid in enumerate(start_pids)
+
+        '''
+        for i,pid in enumerate(start_pids):
+            #print("  pid: {0:d}".format(pid), end = '')
+            pt = points.GetPoint(pid)
+            d = sqrt(sum([(pt[j]-start_pt[j])**2 for j in range(3)]))
+            #print("  d: {0:g}".format(d), end = '')
+            if i >= 2: 
+            #if d >= start_radius + self.end_offset:
+                plane_pt = pt
+                plane_pid = pid
+                plane_pid_index = i
+                break 
+        #_for i,pid in enumerate(start_pids)
+        '''
+
+        print("plane_pid_index: {0:d}".format(plane_pid_index))
+        print("plane_pid: {0:d}".format(plane_pid))
+        print("plane_pt: {0:s}".format(str(plane_pt)))
+        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 1.0])
+        gr_geom.GetProperty().SetRepresentationToWireframe()
+
+        if plane_pid_index == 0:
+            plane_pid_index += 1
+        pt1 = points.GetPoint(start_pids[plane_pid_index-1])
+        pt2 = points.GetPoint(plane_pid)
+        normal = [(pt1[i]-pt2[i]) for i in range(3)]
+        #normal = [(pt2[i]-pt1[i]) for i in range(3)]
+        vtk.vtkMath.Normalize(normal)
+
+        odist = 0.80 * start_radius
+        plane_pt = [plane_pt[i] + normal[i]*odist for i in range(3)]
+
+        slice_plane = vtk.vtkPlane()
+        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
+        slice_plane.SetNormal(normal[0], normal[1], normal[2])
+        self.show_plane(plane_pt, normal, color=[0,1,0])
+
+        '''
+        sphere = vtk.vtkSphereSource()
+        sphere.SetCenter(plane_pt)
+        sphere.SetRadius(start_radius)
+        sphere.Update()
+        bounds = 6*[0.0]
+        sphere.GetOutput().GetBounds(bounds)
+        slice_planes = vtk.vtkPlanes()
+        slice_planes_pts = vtk.vtkPoints()
+        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
+        for i in range(slice_planes.GetNumberOfPlanes()):
+            plane = slice_planes.GetPlane(i)
+            self.show_plane(plane.GetOrigin(), plane.GetNormal(), color=[1,0,1])
+        '''
+
+  
+        ## Extract slice from the suraface.
+        cutter = vtk.vtkCutter()
+        cutter.SetCutFunction(slice_plane)
+        cutter.SetInputData(surface)
+        cutter.Update()
+        sliced_surface = cutter.GetOutput()
+        self.graphics.add_geometry(self.renderer, sliced_surface, color=[1.0, 1.0, 0.0])
+
+        ## Clip the surface.
+        box_func = self.compute_box_func(normal, plane_pt, start_radius)
+        clipped_surface = self.clip_surface(surface, box_func)
+        return clipped_surface 
+
 
     def compute_box_func(self, normal, plane_pt, radius):
         '''Compute a implicit function for a bounding box. 
