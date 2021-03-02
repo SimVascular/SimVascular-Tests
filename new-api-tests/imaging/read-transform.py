@@ -1,4 +1,4 @@
-'''Test imaging.Image read methods. 
+'''Test reading an Image transform XML file. 
 '''
 import os
 import sv
@@ -13,21 +13,18 @@ sv_data_dir = os.environ['SIMVASCULAR_DATA']
 ## Read an image.
 #
 print("Read image file ...")
-file_name = sv_data_dir + "/data/OSMSC0110-aorta/image_data/volume/I.002.dcm"
 file_name = sv_data_dir + "/DemoProject/Images/sample_data-cm.vti"
-
-# Read image in constructor.
-use_ctor = False
-
-if use_ctor: 
-    image = sv.imaging.Image(file_name)
-else:
-    image = sv.imaging.Image()
-    image.read(file_name)
+image = sv.imaging.Image(file_name)
 
 dimensions = image.get_dimensions()
 print("Image dimensions: {0:g} {1:g} {2:g}".format(dimensions[0], dimensions[1], dimensions[2]))
 
 spacing = image.get_spacing()
 print("Image spacing: {0:g} {1:g} {2:g}".format(spacing[0], spacing[1], spacing[2]))
+
+
+# Read image transformation.
+xform_file_name = 'sample.transform.xml'
+image.read_transformation(xform_file_name)
+
 
