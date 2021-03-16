@@ -61,10 +61,10 @@ outlet_ids = [1113, 529]
 
 # Use face IDs.
 inlet_ids = [3]
-outlet_ids = [5, 4]
+outlet_ids = [4, 5]
 
-inlet_ids = [2]
-outlet_ids = [3]
+#inlet_ids = [2]
+#outlet_ids = [1,3]
 centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, use_face_ids=True)
 #centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, split=False, use_face_ids=True)
 
