@@ -1,4 +1,4 @@
-'''Test imaging.Image read methods. 
+'''Test scaling an image. 
 '''
 import os
 import sv
@@ -16,15 +16,19 @@ print("Read image file ...")
 file_name = sv_data_dir + "/data/OSMSC0110-aorta/image_data/volume/I.002.dcm"
 file_name = sv_data_dir + "/DemoProject/Images/sample_data-cm.vti"
 
-# Read image in constructor.
-use_ctor = False
-use_ctor = True
+# Read image.
+test_type = 3;
 
-if use_ctor: 
-    image = sv.imaging.Image(file_name)
-else:
+if test_type == 1:
+    image = sv.imaging.Image(file_name, scale_factor=0.1)
+
+elif test_type == 2:
     image = sv.imaging.Image()
-    image.read(file_name)
+    image.read(file_name, scale_factor=0.1)
+
+elif test_type == 3:
+    image = sv.imaging.Image(file_name)
+    image.scale(0.1)
 
 origin = image.get_origin()
 print("Image origin: {0:g} {1:g} {2:g}".format(origin[0], origin[1], origin[2]))
