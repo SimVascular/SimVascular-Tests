@@ -1,7 +1,13 @@
 
+import os
 from pathlib import Path
 import sv
 import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
 
 def get_profile_contour(gr, renderer, contours, cid, npts):
     cont = contours[cid]
@@ -23,8 +29,7 @@ def add_sphere(gr, renderer, cont_pd, radius):
 ## Read an SV contour group file. 
 #
 def read_contours():
-    mdir = "../data/"
-    file_name = mdir + "/DemoProject/Segmentations/aorta.ctgr"
+    file_name = str(data_path / 'DemoProject' / 'Segmentations' / 'aorta.ctgr')
     print("Read SV ctgr file: {0:s}".format(file_name))
     contour_group = sv.segmentation.Series(file_name)
     num_conts = contour_group.get_num_segmentations()

@@ -9,11 +9,14 @@ from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
 
 ## Create a 1D simulation.
-input_dir = os.getcwd() + "/input/"
+input_dir = str(script_path / 'input')
 oned_simulation = sv.simulation.OneDimensional() 
 
 ## Create 1D simulation parameters.
@@ -54,7 +57,7 @@ solution_params.num_time_steps = 1000
 
 ## Write a 1D solver input file.
 #
-output_dir = os.getcwd() + "/output/"
+output_dir = str(script_path / 'output')
 oned_simulation.write_input_file(model=model_params, mesh=mesh_params, fluid=fluid_props, 
   material=material, boundary_conditions=bcs, solution=solution_params, directory=output_dir)
 

@@ -1,10 +1,21 @@
 '''Test getting face polydata. 
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 modeler = None
@@ -48,5 +59,4 @@ gr.add_geometry(renderer, face1_polydata, color=[1.0, 0.0, 0.0], wire=False)
 
 # Display window.
 gr.display(renderer_window)
-
 

@@ -1,29 +1,39 @@
-'''Experiment with blend num_lapsmooth_iterations parameter. 
+'''Experiment with blend num_lapsmooth_operations parameter. 
    
-   default num_lapsmooth_iterations = 50
+   default num_lapsmooth_operations = 50
 
-   Blend num_lapsmooth_iterations : 1
+   Blend num_lapsmooth_operations : 1
      Blend: Num nodes: 22340
      Blend: Num cells: 44676
 
-   Blend num_lapsmooth_iterations : 50
+   Blend num_lapsmooth_operations : 50
      Blend: Num nodes: 22340
      Blend: Num cells: 44676
 
-   Blend num_lapsmooth_iterations : 100
+   Blend num_lapsmooth_operations : 100
      Blend: Num nodes: 22340
      Blend: Num cells: 44676
 
-   A larger num_lapsmooth_iterations increases spreading the blend, reduces the curvature 
+   A larger num_lapsmooth_operations increases spreading the blend, reduces the curvature 
    between vessels at the union boundary.
 
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Initialize graphics.
 #
@@ -36,14 +46,12 @@ options = sv.geometry.BlendOptions()
 print("\n\nOptions values: ")
 [ print("  {0:s}:{1:s}".format(key,str(value))) for (key, value) in sorted(options.get_values().items()) ]
 print("\n\n")
-#
 
 ## Read in a model.
-mdir = '../data/geometry/'
-file_name = "demo-no-blend.vtp" 
-file_name = "two-cyls.vtp" 
+file_name = str(data_path / 'geometry' / 'demo-no-blend.vtp')
+#file_name = str(data_path / 'geometry' / 'two-cyls.vtp')
 reader = vtk.vtkXMLPolyDataReader()
-reader.SetFileName(mdir+file_name) 
+reader.SetFileName(file_name) 
 reader.Update()
 model = reader.GetOutput()
 
@@ -51,25 +59,25 @@ model = reader.GetOutput()
 blend_radius = 1.0
 print("Blend radius: {0:f}".format(blend_radius))
 
-if file_name == "two-cyls.vtp":
+if "two-cyls.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
-elif file_name == "demo-no-blend.vtp":
+elif "demo-no-blend.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
 
 ## Perform the blend operation.
 #
-num_lapsmooth_iterations_list = \
+num_lapsmooth_operations_list = \
 [ 
  (1,   [0.0,0.0,1.0]), 
  (50,  [0.0,1.0,0.0]), 
  (1000, [1.0,0.0,0.0])  
 ]
 
-for i,entry in enumerate(num_lapsmooth_iterations_list):
-    num_lapsmooth_iterations = entry[0]
+for i,entry in enumerate(num_lapsmooth_operations_list):
+    num_lapsmooth_operations = entry[0]
     color = entry[1]
-    print("Blend num_lapsmooth_iterations : {0:g}".format(num_lapsmooth_iterations))
-    options.num_lapsmooth_iterations = num_lapsmooth_iterations 
+    print("Blend num_lapsmooth_operations : {0:g}".format(num_lapsmooth_operations))
+    options.num_lapsmooth_operations = num_lapsmooth_operations 
     blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=options)
     print("  Blend: Num nodes: {0:d}".format(blend.GetNumberOfPoints()))
     print("  Blend: Num cells: {0:d}".format(blend.GetNumberOfCells()))
@@ -79,7 +87,7 @@ for i,entry in enumerate(num_lapsmooth_iterations_list):
         gr.add_geometry(renderer, blend, color=color, wire=False)
 
     ## Write the blended surface.
-    file_name = "blend-numlapsmooth-" + str(i) + ".vtp"
+    file_name = str(script_path / str('blend-numlapsmooth-' + str(i) + '.vtp'))
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)

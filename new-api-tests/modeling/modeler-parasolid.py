@@ -9,7 +9,7 @@ import sys
 
 print("Solid modeling kernel names: {0:s}".format(str(sv.modeling.Kernel.names)))
 
-## Create a polydata modeler.
+## Create a modeler.
 #
 try:
     modeler = sv.modeling.Modeler(sv.modeling.Kernel.PARASOLID)

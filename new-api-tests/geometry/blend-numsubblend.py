@@ -1,6 +1,6 @@
-'''Experiment with blend numsubblenditers parameter. 
+'''Experiment with blend num_subblend_operations parameter. 
    
-   default numsubblenditers = 3 
+   default num_subblend_operations = 3 
 
    Blend num_sub_blend_iter: 1
      Blend: Num nodes: 27516
@@ -17,12 +17,22 @@
    The higher num_sub_blend_iter seems to produce a more spread out blend.
 
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Initialize graphics.
 #
@@ -39,10 +49,10 @@ print("\n\n")
 
 ## Read in a model.
 mdir = '../data/geometry/'
-file_name = "demo-no-blend.vtp" 
-file_name = "two-cyls.vtp" 
+file_name = str(data_path / 'geometry' / 'demo-no-blend.vtp')
+#file_name = str(data_path / 'geometry' / 'two-cyls.vtp')
 reader = vtk.vtkXMLPolyDataReader()
-reader.SetFileName(mdir+file_name) 
+reader.SetFileName(file_name) 
 reader.Update()
 model = reader.GetOutput()
 
@@ -50,9 +60,9 @@ model = reader.GetOutput()
 blend_radius = 1.0
 print("Blend radius: {0:f}".format(blend_radius))
 
-if file_name == "two-cyls.vtp":
+if "two-cyls.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
-elif file_name == "demo-no-blend.vtp":
+elif "demo-no-blend.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
 
 ## Perform the blend operation.
@@ -68,7 +78,7 @@ for i,entry in enumerate(num_sub_blend_iters_list):
     num_sub_blend_iter = entry[0]
     color = entry[1]
     print("Blend num_sub_blend_iter: {0:g}".format(num_sub_blend_iter))
-    options.num_subblend_iterations = num_sub_blend_iter
+    options.num_subblend_operations = num_sub_blend_iter
     blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=options)
     print("  Blend: Num nodes: {0:d}".format(blend.GetNumberOfPoints()))
     print("  Blend: Num cells: {0:d}".format(blend.GetNumberOfCells()))
@@ -78,7 +88,7 @@ for i,entry in enumerate(num_sub_blend_iters_list):
         gr.add_geometry(renderer, blend, color=color, wire=False)
 
     ## Write the blended surface.
-    file_name = "blend-numsubbblend-" + str(i) + ".vtp"
+    file_name = str(script_path / str('blend-numsubbblend-' + str(i) + '.vtp'))
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)

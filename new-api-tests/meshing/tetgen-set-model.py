@@ -4,11 +4,22 @@
 
    Note: Be careful with global_edge_size, must match model Remesh Size resolution.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a solid model of a cylinder.
 print("Create a cylinder ...")
@@ -51,7 +62,8 @@ print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
 ## Write the mesh.
-mesher.write_mesh(file_name='cylinder-mesh.vtu')
+file_name = str(script_path / 'cylinder-mesh.vtu')
+mesher.write_mesh(file_name)
 
 ## Show the mesh.
 #

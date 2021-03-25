@@ -1,10 +1,21 @@
 '''Test creating a Parasolid model.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 kernel = sv.modeling.Kernel.PARASOLID
@@ -21,7 +32,7 @@ face_ids = cyl.get_face_ids()
 print("Model face IDs: " + str(face_ids))
 
 ## Write the model.
-cyl.write(file_name="cylinder-parasolid") 
+cyl.write(file_name=str(script_path/"cylinder-parasolid"))
 
 ## Create renderer and graphics window.
 win_width = 500

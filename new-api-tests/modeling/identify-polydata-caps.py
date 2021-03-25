@@ -3,11 +3,22 @@
     This seems to mostly work except with healthy pulmonary model blended_discrete.vtp
     seems to have a couple of internal faces?
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 def identify_caps(model):
     #print("========== identify_caps ==========") 
@@ -64,9 +75,9 @@ win_height = 500
 renderer, renderer_window = gr.init_graphics(win_width, win_height)
 
 ## Create a modeler.
-file_name = "../data/models/cylinder.stl"
-file_name = "../data/DemoProject/Models/demo.vtp"
-file_name = "./blended_discrete.vtp"
+file_name = str(data_path / 'models' / 'cylinder.stl')
+file_name = str(data_path / 'DemoProject' / 'Models' / 'demo.vtp')
+file_name = str(script_path / 'blended_discrete.vtp')
 modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
 model = modeler.read(file_name)
 print("Model type: " + str(type(model)))

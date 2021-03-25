@@ -2,8 +2,6 @@
 '''
 import sv 
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 
 ## Control points.
 cpt1 = [2.0, 0.0, 0.0] 
@@ -40,5 +38,4 @@ control_points = path.get_control_points()
 print("\nNumber of new control points: {0:d}".format(len(control_points)))
 for i,pt in enumerate(control_points):
     print("i: {0:d}  point: {1:s}".format(i, str(pt)))
-
 

@@ -2,12 +2,23 @@
 
    Writes out 'cylinder-boundary-layer-mesh.vtu'.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 from mesh_utils import setup_mesher
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a TetGen mesher.
 #
@@ -32,7 +43,7 @@ options = sv.meshing.TetGenOptions(global_edge_size=0.8, surface_mesh_flag=True,
 #
 print("Read model ... ")
 mdir = "../data/meshing/"
-file_name = mdir + 'cylinder-model.vtp'
+file_name = str(data_path / 'meshing' / 'cylinder-model.vtp')
 mesher.load_model(file_name)
 
 ## Set the face IDs for model walls.
@@ -64,7 +75,8 @@ print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
 ## Write the mesh.
-mesher.write_mesh(file_name='cylinder-boundary-layer-mesh.vtu')
+file_name = str(script_path / 'cylinder-boundary-layer-mesh.vtu')
+mesher.write_mesh(file_name)
 
 ## Show the mesh.
 #
@@ -77,6 +89,4 @@ if True:
     mesh_surface = mesher.get_surface()
     gr.add_geometry(renderer, mesh_surface, color=[1.0, 1.0, 1.0], wire=False, edges=True)
     gr.display(renderer_window)
-
-
 

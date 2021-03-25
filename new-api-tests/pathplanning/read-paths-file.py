@@ -1,17 +1,27 @@
 ''' This scripts tests reading a path planning .pth file.
 '''
-import sv 
-import vtk 
-import sys 
+import os
 from pathlib import Path
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import sv
+import sys
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a Paths object from an SV file.
 #
 home = str(Path.home())
 path_name = "aorta"
-file_name = "../data/DemoProject/Paths/" + path_name + ".pth"
+file_name = str(data_path / 'DemoProject' / 'Paths' / (path_name + ".pth"))
 paths = sv.pathplanning.Series(file_name)
 print("Paths:")
 print("  Number of time steps: {0:d}".format(paths.get_num_times()))

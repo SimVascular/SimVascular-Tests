@@ -4,12 +4,22 @@
 
    [TODO:DaveP] this is not writing out a mesh.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 #print(dir(sv))
 print(dir(sv.meshing))
@@ -25,7 +35,7 @@ print("Mesher: " + str(mesher))
 #
 print("Read model ... ")
 model_name = "demo"
-file_name = "../data/DemoProject/Models/" + model_name + ".vtp"
+file_name = str(data_path / 'DemoProject' / 'Models' / (model_name + ".vtp"))
 mesher.load_model(file_name)
 print("Load model: " + file_name)
 
@@ -40,7 +50,7 @@ print("Mesh face info: " + str(face_ids))
 # Read centerlines. 
 if True:
 #if False:
-    centerlines_file = "../data/meshing/demo-centerlines.vtp"
+    centerlines_file = str(data_path / 'meshing' / 'demo-centerlines.vtp')
     reader = vtk.vtkXMLPolyDataReader()
     reader.SetFileName(centerlines_file) 
     reader.Update()
@@ -74,7 +84,8 @@ mesher.set_walls(face_ids)
 mesher.generate_mesh(options)
 
 ## Write the mesh.
-mesher.write_mesh(file_name=model_name+'-radius-mesh.vtu')
+file_name = str(script_path / (model_name+'-radius-mesh.vtu'))
+mesher.write_mesh(file_name)
 
 ## Get the mesh as a vtkUnstructuredGrid. 
 mesh = mesher.get_mesh()

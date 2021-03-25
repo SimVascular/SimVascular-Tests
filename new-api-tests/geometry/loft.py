@@ -1,12 +1,22 @@
 '''Test the geometry.loft method.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
-import sv_contour 
+import sv_contour
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -84,9 +94,9 @@ gr.add_geometry(renderer, loft_surf, color=[0.8, 0.8, 0.8], wire=False)
 ## Write the lofted surface.
 #
 if options.interpolate_spline_points: 
-    file_name = "loft-test-interpolate.vtp"
+    file_name = str(script_path / 'loft-test-interpolate.vtp')
 else:
-    file_name = "loft-test.vtp"
+    file_name = str(script_path / 'loft-test.vtp')
 
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)

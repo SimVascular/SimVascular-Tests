@@ -1,10 +1,21 @@
 '''Test TetGen adaptive meshing interface.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 #print(dir(sv))
 print(dir(sv.meshing))
@@ -31,8 +42,8 @@ print("options values: ")
 
 ## Generate an adpative mesh. 
 #
-results_file_name = '../data/meshing/all_results.vtu'
-model_file_name = '../data/meshing/cylinder-model.vtp'
+results_file_name = str(data_path / 'meshing' / 'all_results.vtu')
+model_file_name = str(data_path / 'meshing' / 'cylinder-model.vtp')
 adaptive_mesher.generate_mesh(results_file=results_file_name, model_file=model_file_name, options=options, log_file='mesher.log')
 
 ## Get the mesh.

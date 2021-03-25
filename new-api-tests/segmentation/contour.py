@@ -1,15 +1,26 @@
 '''Test creating a contour segmentation using contour points.
 '''
 import json
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Read in contour points.
 #
-with open('level-set-contour-points.json') as json_file:
+with open(str(script_path / 'level-set-contour-points.json')) as json_file:
     contour_points = json.load(json_file)
 print("Read {0:d} contour points.".format(len(contour_points)))
 

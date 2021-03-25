@@ -1,10 +1,21 @@
 '''Test the subtract Boolean operation.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 # Create a modeler.
 #modeler = sv.modeling.Modeler(sv.modeling.Kernel.OPENCASCADE)
@@ -46,7 +57,7 @@ result_pd = result.get_polydata()
 print("  Subtract result: num nodes: {0:d}".format(result_pd.GetNumberOfPoints()))
 
 ## Write the model.
-file_name = "box-minus-cylinder-partial"
+file_name = str(script_path / "box-minus-cylinder-partial")
 file_format = "vtp"
 result.write(file_name=file_name, format=file_format)
 

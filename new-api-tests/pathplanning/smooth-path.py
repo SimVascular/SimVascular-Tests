@@ -1,16 +1,25 @@
 '''This script tests smoothing a path. 
 '''
-import sv 
-import vtk 
-import sys 
+import os
 from pathlib import Path
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import sv
+import sys
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a PathSeries from an SV file.
 #
-home = str(Path.home())
-file_name = "../data/DemoProject/Paths/aorta.pth"
+file_name = str(data_path / 'DemoProject' / 'Paths' / 'aorta.pth')
 path_series = sv.pathplanning.Series(file_name)
 print("Number of time steps: {0:d}".format(path_series.get_num_times()))
 print("Method: {0:s}".format(path_series.get_method()))

@@ -1,10 +1,21 @@
 '''Test getting model polydata. 
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 modeler = None
@@ -29,7 +40,6 @@ radius = 2.0
 length = 4.0 
 model = modeler.cylinder(center=center, axis=axis, radius=radius, length=length)
 #
-model.compute_boundary_faces(angle=60.0)
 face_ids = model.get_face_ids()
 print("Model Face IDs: {0:s}".format(str(face_ids)))
 #

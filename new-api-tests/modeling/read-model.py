@@ -1,10 +1,21 @@
 '''Test solid.Modeler read methods. 
 '''
+import os
+from pathlib import Path
 import sv
-import vtk
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 #
@@ -19,12 +30,12 @@ modeler = sv.modeling.Modeler(kernel)
 print("Read modeling model file ...")
 
 if kernel == sv.modeling.Kernel.PARASOLID:
-    file_name = "../data/meshing/aorta-iliac.xmt_txt"
+    file_name = str(data_path / 'meshing' / 'aorta-iliac.xmt_txt')
 elif kernel == sv.modeling.Kernel.OPENCASCADE: 
-    file_name = "../data/models/cylinder.brep"
+    file_name = str(data_path / 'models' / 'cylinder.brep')
 else:
-    file_name = "../data/DemoProject/Models/demo.vtp"
-    file_name = "../data/models/cylinder.stl"
+    file_name = str(data_path / 'DemoProject' / 'Models' / 'demo.vtp')
+    file_name = str(data_path / 'models' / 'cylinder.stl')
 
 model = modeler.read(file_name)
 print("Model type: " + str(type(model)))
@@ -39,7 +50,7 @@ print("Model face IDs: " + str(face_ids))
 
 ## Write the model.
 if False:
-    file_name = "model-written"
+    file_name = str(script_Path / "model-written")
     file_format = "vtp"
     model.write(file_name=file_name, format=file_format)
 

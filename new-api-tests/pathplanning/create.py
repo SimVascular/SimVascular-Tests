@@ -1,13 +1,25 @@
 ''' Test creating a path.
 '''
 import json
-import sv 
+import os
+from pathlib import Path
+import sv
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 # Read control points.
-with open('aorta-control-points.json') as json_file:
+with open(str(script_path / 'aorta-control-points.json')) as json_file:
     control_points = json.load(json_file)
 
 # Create Path object.

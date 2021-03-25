@@ -1,16 +1,26 @@
 '''Test reading in an SV contour group file for level set contours.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Read an SV segmentation group file. 
 #
 home = str(Path.home())
-file_name = "../data/DemoProject/Segmentations/levelset.ctgr"
+file_name = str(data_path / 'DemoProject' / 'Segmentations' / 'levelset.ctgr')
 print("Read SV ctgr file: {0:s}".format(file_name))
 seg_series = sv.segmentation.Series(file_name)
 num_times = seg_series.get_num_times()

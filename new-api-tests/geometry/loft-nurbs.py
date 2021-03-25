@@ -1,12 +1,22 @@
 '''Test nurbs lofting.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 import sv_contour 
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -75,7 +85,7 @@ options = sv.geometry.LoftNurbsOptions()
 
 ## Loft surface.
 #
-loft_surf = sv.geometry.loft_nurbs(polydata_list=contour_list, loft_options=options, num_divisions=12)
+loft_surf = sv.geometry.loft_nurbs(polydata_list=contour_list, loft_options=options, num_sections=12)
 print("Loft surface: ")
 print("  Number of points: " + str(loft_surf.GetNumberOfPoints()))
 print("  Number of cells: " + str(loft_surf.GetNumberOfCells()))
@@ -85,13 +95,12 @@ loft_capped = sv.vmtk.cap(surface=loft_surf, use_center=False)
 print("Capped loft surface: ")
 print("  Number of points: " + str(loft_capped.GetNumberOfPoints()))
 print("  Number of cells: " + str(loft_capped.GetNumberOfCells()))
-file_name = "capped-loft-surface.vtp"
+file_name = str(script_path / "capped-loft-surface.vtp")
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)
 writer.SetInputData(loft_capped)
 writer.Update()
 writer.Write()
-
 
 ## Remesh suface.
 #

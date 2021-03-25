@@ -6,18 +6,29 @@
    The geometry for each branch is written to a separate .vtp file.
 '''
 from collections import defaultdict 
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
 renderer, renderer_window = gr.init_graphics(win_width, win_height)
 
 # Read centerlines geometry.
-file_name = 'centerlines-result.vtp'
+file_name = str(script_path / 'centerlines-result.vtp')
 reader = vtk.vtkXMLPolyDataReader()
 reader.SetFileName(file_name)
 reader.Update()
@@ -60,9 +71,9 @@ for bid in range(min_id,max_id+1):
     gr.add_geometry(renderer, geometry, color=color, line_width=4)
 
     # Write branch geometry.
-    file_name = "branch_" + str(bid) + '.vtp'
+    file_name = script_path / str('branch_' + str(bid) + '.vtp')
     writer = vtk.vtkXMLPolyDataWriter()
-    writer.SetFileName(file_name)
+    writer.SetFileName(str(file_name))
     writer.SetInputData(geometry)
     writer.Update()
     writer.Write()

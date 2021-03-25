@@ -23,12 +23,22 @@
  target_decimation = 0.10 
 
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Initialize graphics.
 #
@@ -44,11 +54,10 @@ print("\n\n")
 #
 
 ## Read in a model.
-mdir = '../data/geometry/'
-file_name = "demo-no-blend.vtp" 
-file_name = "two-cyls.vtp" 
+file_name = str(data_path / 'geometry' / 'two-cyls.vtp')
+#file_name = str(data_path / 'geometry' / 'demo-no-blend.vtp')
 reader = vtk.vtkXMLPolyDataReader()
-reader.SetFileName(mdir+file_name) 
+reader.SetFileName(file_name) 
 reader.Update()
 model = reader.GetOutput()
 
@@ -56,9 +65,9 @@ model = reader.GetOutput()
 blend_radius = 1.0
 print("Blend radius: {0:f}".format(blend_radius))
 
-if file_name == "two-cyls.vtp":
+if "two-cyls.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
-elif file_name == "demo-no-blend.vtp":
+elif "demo-no-blend.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
 
 ## Perform the blend operation.
@@ -76,7 +85,7 @@ for i,entry in enumerate(target_decimation_list):
     gr.add_geometry(renderer, blend, color=color, wire=True)
 
     ## Write the blended surface.
-    file_name = "blended-decimate-" + str(i) + ".vtp"
+    file_name = str(script_path / str("blended-decimate-" + str(i) + ".vtp"))
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(blend)

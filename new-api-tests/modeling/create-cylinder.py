@@ -1,10 +1,21 @@
 '''Test creating a cylinder.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 # Create a modeler.
 kernel = sv.modeling.Kernel.POLYDATA
@@ -28,7 +39,7 @@ cylinder_pd = cylinder.get_polydata()
 print("  Cylinder: num nodes: {0:d}".format(cylinder_pd.GetNumberOfPoints()))
 
 ## Write the model.
-file_name = "cylinder-model-write"
+file_name = str(script_path / "cylinder-model-write")
 file_format = "vtp"
 cylinder.write(file_name=file_name, format=file_format)
 
