@@ -1,16 +1,26 @@
 '''This scipt tests reading in an SV Model .mdl file.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Read an SV model group file. 
 #
 home = str(Path.home())
-file_name = "../data/DemoProject/Models/demo.mdl"
+file_name = str(data_path / 'DemoProject' / 'Models' / 'demo.mdl')
 print("Read SV mdl file: {0:s}".format(file_name))
 demo_models = sv.modeling.Series(file_name)
 num_models = demo_models.get_num_times()

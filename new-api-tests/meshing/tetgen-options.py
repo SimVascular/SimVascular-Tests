@@ -1,7 +1,15 @@
 '''Test TetGen options class.
 '''
+import os
+from pathlib import Path
 import sv
+import sys
 import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
 
 ## Set meshing options.
 #
@@ -58,7 +66,7 @@ print("Size of local_edge_size: {0:d} ".format(len(options.local_edge_size)))
 # Radius meshing centerlines 
 #----------------------------
 if False:
-    centerlines_file = "../data/meshing/demo-centerlines.vtp"
+    centerlines_file = str(data_path / 'meshing' / 'demo-centerlines.vtp')
     reader = vtk.vtkXMLPolyDataReader()
     reader.SetFileName(centerlines_file)
     reader.Update()

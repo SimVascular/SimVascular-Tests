@@ -2,14 +2,22 @@
 
    Write: 'MESH-test.msh'
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 
-mdir = "../data/"
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Demo project tests.
 if True:
@@ -27,13 +35,13 @@ else:
 
 ## Read an SV mesh group file. 
 #
-file_name = mdir + project_name + "/Meshes/" + mesh_name + ".msh"
+file_name = str(data_path / project_name / 'Meshes' / (mesh_name + ".msh"))
 print("Read SV msh file: {0:s}".format(file_name))
 mesh_group = sv.meshing.Series(file_name)
 num_meshes = mesh_group.get_num_times()
 print("Number of meshes: {0:d}".format(num_meshes))
 
 ## Write a mesh group.
-file_name = mesh_name + "-test.msh"
+file_name = str(script_path / (mesh_name + "-test.msh"))
 mesh_group.write(file_name)
 

@@ -1,12 +1,22 @@
 '''Test aligining two profiles.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
-import sv_contour 
+import sv_contour
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 radius = 0.05
 win_width = 500

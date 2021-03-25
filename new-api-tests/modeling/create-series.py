@@ -6,8 +6,6 @@ from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 
 ## Create the Series object. 
 #

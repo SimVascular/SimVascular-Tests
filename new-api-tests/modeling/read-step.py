@@ -1,10 +1,23 @@
 '''Test solid.Modeler read STEP file. 
+
+   * * * *  This does not work * * * *
 '''
+import os
+from pathlib import Path
 import sv
-import vtk
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 #
@@ -15,7 +28,7 @@ modeler = sv.modeling.Modeler(kernel)
 #
 print("Read modeling model file ...")
 
-file_name = "nist_ftc_10_asme1_rb.step"
+file_name = str(script_path / "nist_ftc_10_asme1_rb.step")
 model = modeler.read(file_name)
 print("Model type: " + str(type(model)))
 
@@ -29,7 +42,7 @@ print("Model face IDs: " + str(face_ids))
 
 ## Write the model.
 if False:
-    file_name = "model-written"
+    file_name = str(script_path / "model-written")
     file_format = "vtp"
     model.write(file_name=file_name, format=file_format)
 
@@ -44,7 +57,6 @@ gr.add_geometry(renderer, model_pd, color=[0.0, 1.0, 0.0], wire=True, edges=Fals
 
 face1_polydata = model.get_face_polydata(face_id=face_ids[0])
 gr.add_geometry(renderer, face1_polydata, color=[1.0, 0.0, 0.0], wire=False)
-
 
 # Display window.
 gr.display(renderer_window)

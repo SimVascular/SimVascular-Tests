@@ -2,12 +2,22 @@
  
    [TODO:DaveP] This is not yet implemented.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -24,8 +34,7 @@ def get_profile_contour(gr, renderer, contours, cid, npts):
 def read_contours():
     '''Read an SV contour group file.
     '''
-    mdir = "../data/"
-    file_name = mdir + "/DemoProject/Segmentations/aorta.ctgr"
+    file_name = str(data_path / 'DemoProject' / 'Segmentations' / 'aorta.ctgr')
     print("Read SV ctgr file: {0:s}".format(file_name))
     contour_group = sv.segmentation.Series(file_name)
     num_conts = contour_group.get_num_segmentations()

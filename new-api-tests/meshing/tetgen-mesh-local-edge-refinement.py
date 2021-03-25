@@ -4,12 +4,22 @@
 
    [TODO:DaveP] this is not working, can't set local_edge_size?
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a TetGen mesher.
 #
@@ -20,7 +30,7 @@ mesher = sv.meshing.create_mesher(sv.meshing.Kernel.TETGEN)
 #
 print("Read model ... ")
 model_name = "demo"
-file_name = "../data/DemoProject/Models/" + model_name + ".vtp"
+file_name = str(data_path / 'DemoProject' / 'Models' / str(model_name + ".vtp"))
 mesher.load_model(file_name)
 
 ## Set the face IDs for model walls.
@@ -69,7 +79,8 @@ print("  Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
 print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
 ## Write the mesh.
-mesher.write_mesh(file_name=model_name+'-local-edge-mesh.vtu')
+file_name = str(script_path / str(model_name+'-local-edge-mesh.vtu'))
+mesher.write_mesh(file_name)
 
 ## Show the mesh.
 #

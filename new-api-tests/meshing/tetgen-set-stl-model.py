@@ -4,11 +4,22 @@
 
    Note: Be careful with global_edge_size, must match model Remesh Size resolution.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create renderer and graphics window.
 win_width = 500
@@ -17,7 +28,7 @@ renderer, renderer_window = gr.init_graphics(win_width, win_height)
 
 ## Read in an STL model
 modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
-file_name = "../data/models/cylinder.stl"
+file_name = str(data_path / 'models' / 'cylinder.stl')
 model = modeler.read(file_name)
 print("Model type: " + str(type(model)))
 face_ids = model.compute_boundary_faces(angle=60.0)
@@ -73,7 +84,8 @@ if True:
     print("  Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
 
     ## Write the mesh.
-    mesher.write_mesh(file_name='cylinder-mesh.vtu')
+    file_name = str(script_path / 'cylinder-mesh.vtu')
+    mesher.write_mesh(file_name)
 
 ## Show the mesh.
 #

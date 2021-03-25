@@ -1,12 +1,21 @@
 '''This script tests reading in an SV Mesh from an .msh file.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Demo project tests.
 demo_project = True
@@ -20,7 +29,7 @@ if demo_project:
 
 ## Read an SV mesh .msh file. 
 #
-file_name = "../data/" + project_name + "/Meshes/" + mesh_name + ".msh"
+file_name = str(data_path / project_name / 'Meshes' / str( mesh_name + ".msh"))
 print("Read SV msh file: {0:s}".format(file_name))
 mesh_series = sv.meshing.Series(file_name)
 num_times = mesh_series.get_num_times()

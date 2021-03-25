@@ -1,11 +1,21 @@
 '''Test the sv.geometry.local_blend() function. 
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 def compute_junction_center(renderer, model):
     '''Compute center of union junction.
@@ -66,10 +76,9 @@ print("\n\nOptions values: ")
 print("\n\n")
 
 ## Read in a model used to visualize the blend radius.
-mdir = '../data/geometry/'
-file_name = "two-cyls-with-GlobalBoundaryPoints.vtp"
+file_name = str(data_path / 'geometry' / 'two-cyls-with-GlobalBoundaryPoints.vtp')
 reader = vtk.vtkXMLPolyDataReader()
-reader.SetFileName(mdir+file_name) 
+reader.SetFileName(file_name) 
 reader.Update()
 bnd_model = reader.GetOutput()
  
@@ -79,14 +88,14 @@ center = compute_junction_center(renderer, bnd_model)
 gr.add_sphere(renderer, center, blend_radius, color=[0.0, 1.0, 0.0], wire=True)
 
 ## Read model to blend.
-file_name = "two-cyls.vtp" 
+file_name = str(data_path / 'geometry' / 'two-cyls.vtp')
 reader = vtk.vtkXMLPolyDataReader()
-reader.SetFileName(mdir+file_name) 
+reader.SetFileName(file_name) 
 reader.Update()
 model = reader.GetOutput()
 
 ## Set faces to blend.
-if file_name == "two-cyls.vtp":
+if "two-cyls.vtp" in file_name:
     blend_faces = [ { 'radius': blend_radius, 'face1':1, 'face2':2 } ]
 
 ## Perform the blend operation.
@@ -94,7 +103,7 @@ blend = sv.geometry.local_blend(surface=model, faces=blend_faces, options=option
 gr.add_geometry(renderer, blend, wire=True)
 
 ## Write the blended surface.
-file_name = "blended-" + file_name;
+file_name = str(script_path / str("blended-" + file_name))
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)
 writer.SetInputData(blend)

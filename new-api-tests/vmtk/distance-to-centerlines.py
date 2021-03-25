@@ -1,10 +1,21 @@
 '''Test vmtk.distance_to_centerlines() method.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -16,9 +27,8 @@ modeler = sv.modeling.Modeler(kernel)
 
 # Read model geometry.
 print("Read surface model file ...")
-mdir = "../data/vmtk/"
-file_name = "aorta.vtp"
-model = modeler.read(mdir+file_name)
+model_file = str(data_path / 'vmtk' / 'aorta.vtp')
+model = modeler.read(model_file)
 model_polydata = model.get_polydata()
 print("Model: num nodes: {0:d}".format(model_polydata.GetNumberOfPoints()))
 gr.add_geometry(renderer, model_polydata, color=[0.0, 1.0, 0.0], wire=False)

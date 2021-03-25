@@ -2,11 +2,22 @@
 
    Writes: 'cylinder-surface-capped.vtp'
 '''
+import os
+from pathlib import Path
 import sv
-import vtk
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a graphics window.
 #
@@ -17,15 +28,14 @@ renderer, renderer_window = gr.init_graphics(win_width, win_height)
 ## Read cylinder geometry as a model.
 #
 print("Read surface model file ...")
-mdir = '../data/vmtk/'
-file_name = "cylinder-surface.vtp"
+file_name = str(data_path / 'vmtk' / 'cylinder-surface.vtp')
 modeler = sv.modeling.Modeler(sv.modeling.Kernel.POLYDATA)
-cylinder_model = modeler.read(mdir+file_name)
+cylinder_model = modeler.read(file_name)
 cylinder_polydata = cylinder_model.get_polydata()
 cylinder_polydata.GetCellData().RemoveArray('ModelFaceID')
 print("Cylinder model: num nodes: {0:d}".format(cylinder_polydata.GetNumberOfPoints()))
 print("Cylinder model: num cells: {0:d}".format(cylinder_polydata.GetNumberOfCells()))
-file_name = "cylinder_polydata.vtp"
+file_name = str(script_path / "cylinder_polydata.vtp")
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)
 writer.SetInputData(cylinder_polydata)
@@ -66,7 +76,7 @@ for i in range(num_arrays):
 ## Write the capped surface.
 #
 print("Write the capped surface.")
-file_name = "cylinder-surface-capped.vtp"
+file_name = str(script_path / "cylinder-surface-capped.vtp")
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)
 writer.SetInputData(capped_cylinder)

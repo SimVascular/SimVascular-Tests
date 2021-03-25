@@ -1,9 +1,21 @@
 ''' Test removing control points. 
 '''
-import sv 
+import os
+from pathlib import Path
+import sv
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Control points.
 cpt1 = [2.0, 0.0, 0.0] 

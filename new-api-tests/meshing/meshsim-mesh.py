@@ -1,21 +1,31 @@
 '''Test MeshSim interface.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a MeshSim mesher.
 #
-#mesher = sv.meshing.MeshSim()
-mesher = sv.meshing.create_mesher(sv.meshing.Kernel.MESHSIM)
+mesher = sv.meshing.MeshSim()
+#mesher = sv.meshing.create_mesher(sv.meshing.Kernel.MESHSIM)
 
 ## Load the aorta iliac model.
 #
-mdir = "../data/meshing/"
-mesher.load_model(mdir+"aorta-iliac.xmt_txt")
+file_name = str(data_path / 'meshing' / 'aorta-iliac.xmt_txt') 
+mesher.load_model(file_name)
 
 ## Mesh face info:  
 #

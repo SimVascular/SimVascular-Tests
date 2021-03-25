@@ -15,14 +15,24 @@
           compute_boundary_faces.py 
 
 '''
+import os
+from pathlib import Path
 import sv
-import vtk
 import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
-mdir = "../data/models/"
 modeler = None 
 if len(sys.argv) == 2:
     if sys.argv[1] == 'o':
@@ -40,7 +50,7 @@ if modeler == None:
     print("Create POLYDATA modeler")
 
 ## Read a model.
-file_name = mdir + file_name
+file_name = str(data_path / 'models' / file_name)
 print("Read modeling model file: " + file_name)
 model = modeler.read(file_name)
 print("Model type: " + str(type(model)))

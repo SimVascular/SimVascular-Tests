@@ -1,10 +1,21 @@
 '''Test creating an OpenCascade model.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Create a modeler.
 kernel = sv.modeling.Kernel.OPENCASCADE
@@ -19,7 +30,7 @@ length = 10.0
 cyl = modeler.cylinder(center, axis, radius, length)
 polydata = cyl.get_polydata() 
 
-cyl.write(file_name="cylinder-opencascade", format="brep") 
+cyl.write(file_name=str(script_path / "cylinder-opencascade"), format="brep") 
 
 ## Create renderer and graphics window.
 win_width = 500

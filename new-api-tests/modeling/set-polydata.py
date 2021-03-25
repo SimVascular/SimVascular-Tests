@@ -1,13 +1,26 @@
 '''Test setting a POLYDATA model using a PolyData object.
+
+   * * * * this does not work * * * *
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 ## Read PolyData.
-file_name = "../data/models/loft-test-interpolate.vtp"
+file_name = str(data_path / 'models' / 'loft-test-interpolate.vtp')
 reader = vtk.vtkXMLPolyDataReader()
 reader.SetFileName(file_name) 
 reader.Update()
@@ -27,7 +40,7 @@ capped_polydata = sv.vmtk.cap_with_ids(surface=polydata, fill_id=1, increment_id
 
 ## Write the model.
 if True:
-    file_name = "loft-model-written"
+    file_name = str(script_path / "loft-model-written")
     file_format = "vtp"
     model.write(file_name=file_name, format=file_format)
 

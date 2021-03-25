@@ -1,9 +1,6 @@
 '''Test setting a list of control points. 
 '''
 import sv 
-import sys
-sys.path.insert(1, '../graphics/')
-import graphics as gr
 
 ## Control points.
 points = [ [2.0, 0.2, 2.2], 

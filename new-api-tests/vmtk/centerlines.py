@@ -2,11 +2,22 @@
 
    The centerlines geometry is written to 'centerlines-result.vtp'.
 '''
+import os
+from pathlib import Path
 import sv
 import sys
 import vtk
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -17,10 +28,8 @@ kernel = sv.modeling.Kernel.POLYDATA
 modeler = sv.modeling.Modeler(kernel)
 
 # Read model geometry.
-mdir = '../data/vmtk/'
-print("Read surface model file ...")
-file_name = "aorta.vtp"
-model = modeler.read(mdir+file_name)
+model_file = str(data_path / 'vmtk' / 'aorta.vtp')
+model = modeler.read(model_file)
 
 model_polydata = model.get_polydata()
 print("Model: num nodes: {0:d}".format(model_polydata.GetNumberOfPoints()))
@@ -69,7 +78,7 @@ centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids
 #centerlines_polydata = sv.vmtk.centerlines(model_polydata, inlet_ids, outlet_ids, split=False, use_face_ids=True)
 
 ## Write the capped surface.
-file_name = "centerlines-result.vtp"
+file_name = str(script_path / 'centerlines-result.vtp')
 writer = vtk.vtkXMLPolyDataWriter()
 writer.SetFileName(file_name)
 writer.SetInputData(centerlines_polydata)

@@ -2,10 +2,16 @@
 
    This is tested using the Demo Project.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
 
 ## Read a mesh. 
 #

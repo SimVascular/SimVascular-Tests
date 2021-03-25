@@ -1,12 +1,22 @@
 '''Test the geometry.interpolate_closed_curve() function.
 '''
+import os
 from pathlib import Path
 import sv
 import sys
 import vtk
 import sv_contour 
-sys.path.insert(1, '../graphics/')
-import graphics as gr
+
+## Set some directory paths. 
+script_path = Path(os.path.realpath(__file__)).parent
+parent_path = Path(os.path.realpath(__file__)).parent.parent
+data_path = parent_path / 'data'
+
+try:
+    sys.path.insert(1, str(parent_path / 'graphics'))
+    import graphics as gr
+except:
+    print("Can't find the new-api-tests/graphics package.")
 
 win_width = 500
 win_height = 500
@@ -24,7 +34,6 @@ print("contour_polydata type: " + str(type(contour_polydata)))
 int_polydata = sv.geometry.interpolate_closed_curve(polydata=contour_polydata, number_of_points=4)
 print("int_polydata type: " + str(type(int_polydata)))
 gr.add_geometry(renderer, int_polydata, color=[0.5, 0.0, 0.0])
-
 
 ## Show geometry.
 #
