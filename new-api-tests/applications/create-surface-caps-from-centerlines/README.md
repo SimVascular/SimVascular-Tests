@@ -5,3 +5,6 @@ Example:
 
     simvascluar --python -- create_surface_caps.py demo-surface.vtp  demo-surface_clsp.vtp
 
+
+The compute_centerlines.py script is used to compute centerlines by picking points on a model.
+
