@@ -66,7 +66,6 @@ gr.add_geometry(renderer, model_pd, color=[0.0, 1.0, 0.0], wire=True, edges=Fals
 face1_polydata = model.get_face_polydata(face_id=face_ids[0])
 gr.add_geometry(renderer, face1_polydata, color=[1.0, 0.0, 0.0], wire=False)
 
-
 # Display window.
 gr.display(renderer_window)
 

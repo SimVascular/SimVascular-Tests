@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 '''This script computes centerlines for a surface.
+
+   Centerline source and target points are selected interactively. The first point selected is the source,
+   the remaining points are the targets.
 '''
 import sys
 import sv
 import os
+import vtk
 from surface import Surface
 
 sys.path.insert(1, '../../graphics/')

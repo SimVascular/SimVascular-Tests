@@ -8,6 +8,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         #self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("KeyPressEvent", self.onKeyPressEvent)
         self.AddObserver("CharEvent", self.onCharEvent)
+        self.renderer = None
         self.surface = surface 
         self.event_table = event_table
         self.selected_points = []
@@ -15,7 +16,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.picked_actor = None
         self.last_picked_actor = None
 
-    def select_event(self, obj, event):
+    def select_event(self, renderer, obj, event):
         '''Process a select event. 
         '''
         clickPos = self.GetInteractor().GetEventPosition()
@@ -39,7 +40,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
         min_i = -1
         min_d = 1e5
-        min_p = []
+        min_p = 3*[0.0]
         surface = self.surface
         points = surface.GetPoints()
 
@@ -52,11 +53,36 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             d = sqrt(dx*dx + dy*dy + dz*dz)
             if d < min_d:
                 min_d = d
-                min_p = p
+                min_p[0] = p[0]
+                min_p[1] = p[1]
+                min_p[2] = p[2]
                 min_i = i  
 
         print("Picked node: {0:d} {1:g} {2:g} {3:g} ".format(min_i, min_p[0], min_p[1], min_p[2]))
         self.selected_node_ids.append(min_i)
+
+        ## Show picked point.
+        points = vtk.vtkPoints()
+        points.SetNumberOfPoints(1)
+        points.SetPoint(0, position[0], position[1], position[2])
+        geom = vtk.vtkPolyData()
+        geom.SetPoints(points)
+        glyphFilter = vtk.vtkVertexGlyphFilter()
+        glyphFilter.SetInputData(geom)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(glyphFilter.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.GetProperty().SetColor(1.0, 1.0, 1.0)
+        actor.GetProperty().SetPointSize(5)
+        actor.SetMapper(mapper)
+        self.renderer.AddActor(actor)
+
+        # Get picked face ID.
+        data_name = "ModelFaceID" 
+        cell_data = surface.GetCellData().GetArray(data_name)
+        if cell_data != None:
+            face_id = cell_data.GetValue(cell_id)
+            print("Picked face: {0:d} ".format(face_id))
 
     def onKeyPressEvent(self, renderer, event):
         '''Process a key press event.
@@ -64,9 +90,12 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         key = self.GetInteractor().GetKeySym()
 
         if (key == 's'):
-            self.select_event(None, event)
+            self.select_event(renderer, None, event)
 
-        elif (key in self.event_table):
+        if self.event_table == None:
+            return
+
+        if (key in self.event_table):
             self.event_table[key](self.surface, self.selected_node_ids)
 
     def onCharEvent(self, renderer, event):
@@ -350,10 +379,17 @@ def display(renderer_win):
     renderer_win.SetWindowName("SV Python API")
     interactor.Start()
 
-def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], line_width=1, wire=False, edges=False):
+def add_geometry(renderer, polydata, color=[1.0, 1.0, 1.0], line_width=1, wire=False, edges=False, array_name=None, scalar_range=None):
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputData(polydata)
-    mapper.SetScalarVisibility(False)
+    if array_name == None:
+        mapper.SetScalarVisibility(False)
+    else:  
+        mapper.SetArrayName(array_name)
+        mapper.SelectColorArray(array_name)
+        mapper.SetScalarVisibility(True)
+        mapper.SetScalarModeToUseCellFieldData()
+        mapper.SetScalarRange(scalar_range)
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
     actor.GetProperty().SetColor(color[0], color[1], color[2])
@@ -419,14 +455,28 @@ def init_graphics(win_width, win_height):
     renderer_win.SetSize(win_width, win_height)
     #renderer_win.Render()
     #renderer_win.SetWindowName("SV Python API")
+    print("Create renderer and graphics window.")
+    print("---------- Alphanumeric Keys ----------")
+    print("q - Quit")
+    print("s - Select a face.")
     return renderer, renderer_win 
 
-def init_picking(window, renderer, surface, event_table):
+def init_picking(window, renderer, surface, event_table=None):
 
     # Create a trackball interacter to transoform the geometry using the mouse.
     interactor = vtk.vtkRenderWindowInteractor()
     interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
     interactor.SetRenderWindow(window)
+
+    face_ids = surface.GetCellData().GetArray("ModelFaceID")
+    if face_ids == None:
+        print("No ModelFaceID data.")
+    else:
+        face_ids_range = 2*[0]
+        face_ids.GetRange(face_ids_range, 0)
+        min_id = int(face_ids_range[0])
+        max_id = int(face_ids_range[1])
+        print("Face IDs range: {0:d} {1:d}".format(min_id, max_id))
 
     # Add the custom style.
     style = MouseInteractorStyle(surface, event_table)

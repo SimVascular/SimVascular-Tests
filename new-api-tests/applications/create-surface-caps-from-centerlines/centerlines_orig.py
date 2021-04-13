@@ -16,8 +16,7 @@ class Centerlines(object):
         self.geometry = None
         self.surface = None
         self.sections = None
-        self.cids_array_name = "BranchIdTmp"
-        #self.cids_array_name = "CenterlineIds"
+        self.cids_array_name = "CenterlineIds"
         self.max_radius_array_name = "MaximumInscribedSphereRadius"
         self.length_scale = 1.0
         self.section_pids = None 
@@ -50,8 +49,7 @@ class Centerlines(object):
         '''Extract centerline start/end IDs for each branch.
         '''
         print("========== extract_data ==========")
-        cids = self.geometry.GetPointData().GetArray(self.cids_array_name)
-        #cids = self.geometry.GetCellData().GetArray(self.cids_array_name)
+        cids = self.geometry.GetCellData().GetArray(self.cids_array_name)
         if cids == None:
             raise Exception("No '" + self.cids_array_name + "' data array defined in centerlines geometry.")
         vrange = cids.GetRange()

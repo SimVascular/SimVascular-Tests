@@ -2,3 +2,4 @@
 *.msh
 *.log
 *.vtu
+*.vtk
