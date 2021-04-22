@@ -16,7 +16,8 @@ class Centerlines(object):
         self.geometry = None
         self.surface = None
         self.sections = None
-        self.cids_array_name = "CenterlineIds"
+        self.cids_array_name = "BranchIdTmp"
+        #self.cids_array_name = "CenterlineIds"
         self.max_radius_array_name = "MaximumInscribedSphereRadius"
         self.length_scale = 1.0
         self.section_pids = None 
