@@ -1,4 +1,6 @@
 '''Test settng the image origin. 
+
+   The image with the new origin is written to 'test-set-origin-image.vti'.
 '''
 import os
 import sv
@@ -30,4 +32,7 @@ image.set_origin([0.0, 0.0, 0.0])
 origin = image.get_origin()
 print("New image origin: {0:g} {1:g} {2:g}".format(origin[0], origin[1], origin[2]))
 
+# Write image data. 
+write_file_name = 'test-set-origin-image.vti'
+image.write(write_file_name)
 
