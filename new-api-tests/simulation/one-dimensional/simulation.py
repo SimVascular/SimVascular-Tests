@@ -16,7 +16,7 @@ parent_path = Path(os.path.realpath(__file__)).parent.parent
 data_path = parent_path / 'data'
 
 ## Create a 1D simulation.
-input_dir = str(script_path / 'input')
+input_dir = str(script_path / 'input') + os.sep
 oned_simulation = sv.simulation.OneDimensional() 
 
 ## Create 1D simulation parameters.
