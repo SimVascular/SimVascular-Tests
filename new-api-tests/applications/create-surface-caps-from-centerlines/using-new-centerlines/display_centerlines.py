@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This script displays centerlines. 
+"""This script protoypes code to extract centerlines branches. 
 """
 import argparse
 from collections import defaultdict

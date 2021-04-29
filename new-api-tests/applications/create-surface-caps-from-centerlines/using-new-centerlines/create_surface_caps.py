@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-""" 
-This script caps a surface based on centerlines. 
-
+"""This script caps a surface based on the new centerlines file format. 
 """
 import argparse
 import sys
@@ -38,11 +35,14 @@ if __name__ == '__main__':
     centerlines.renderer = renderer
     centerlines.surface = surface.geometry
     centerlines.read(centerlines_file_name)
-    gr.add_geometry(renderer, centerlines.geometry, color=[0.0, 0.8, 0.0], line_width=3)
+    #gr.add_geometry(renderer, centerlines.geometry, color=[0.0, 0.8, 0.0], line_width=3)
+
+    ## Show the branches extracted from the centerlines. 
+    centerlines.show_branches()
 
     ## Clip the surfce ends. 
-    #clipped_surface = centerlines.remove_surface_ends()
-    #centerlines.write_clipped_surface(clipped_surface, "clipped_surface.vtp")
+    clipped_surface = centerlines.remove_surface_ends()
+    centerlines.write_clipped_surface(clipped_surface, "clipped_surface.vtp")
 
     ## Display window.
     gr.display(renderer_window)
