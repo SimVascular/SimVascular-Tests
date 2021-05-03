@@ -57,6 +57,12 @@ class Branch(object):
             print("[Branch.remove_surface_end] end_pid: {0:d}".format(end_pid))
             start_pt = points.GetPoint(start_pid)
 
+            start_radius = max_radius_data.GetValue(start_pid)
+            end_radius = max_radius_data.GetValue(end_pid)
+            avg_radius = (start_radius + end_radius) / 2.0
+            print("[Branch.remove_surface_end] start_radius: {0:g}".format(start_radius))
+            print("[Branch.remove_surface_end] end_radius: {0:g}".format(end_radius))
+
             if self.renderer:
                 radius = self.length_scale 
                 self.graphics.add_sphere(self.renderer, start_pt, radius, color=[0.5, 0.5, 0.5], wire=True)
@@ -66,12 +72,12 @@ class Branch(object):
             vtk.vtkMath.Normalize(pt_normal)
 
             normal = [normal_data.GetComponent(start_pid,i) for i in range(3)]
-            d = 0.25
+            dist_factor = 0.15
             dp = sum([pt_normal[i]*normal[i] for i in range(3)])
             print("[Branch.remove_surface_end] dp: {0:g}".format(dp))
             if dp < 0.0:
                 normal = [-x for x in normal]
-            plane_pt = [(start_pt[i] + d*length*normal[i]) for i in range(3)]
+            plane_pt = [(start_pt[i] + dist_factor*start_radius*normal[i]) for i in range(3)]
 
             print("[Branch.remove_surface_end] plane_pt: {0:s}".format(str(plane_pt)))
             slice_plane = vtk.vtkPlane()

@@ -14,11 +14,13 @@ class Surface(object):
         reader.SetFileName(file_name)
         reader.Update()
         geometry = reader.GetOutput()
+        self.geometry = geometry 
 
-        cleaner = vtk.vtkCleanPolyData()
-        cleaner.SetInputData(geometry);
-        cleaner.Update();
-
-        self.geometry = cleaner.GetOutput()
+        #cleaner = vtk.vtkCleanPolyData()
+        #cleaner.SetInputData(geometry);
+        #cleaner.PieceInvariantOn();
+        #cleaner.Update();
+        #self.geometry = cleaner.GetOutput()
+        #self.geometry.BuildLinks()
 
 
