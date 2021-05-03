@@ -96,7 +96,14 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             return
 
         if (key in self.event_table):
-            self.event_table[key](self.surface, self.selected_node_ids)
+            value = self.event_table[key]
+            if type(value) == tuple:
+                method = value[0]
+                data = value[1]
+            else:
+                method = value
+                data = None
+            method(self.surface, self.selected_node_ids, data)
 
     def onCharEvent(self, renderer, event):
         '''Process an on char event.
