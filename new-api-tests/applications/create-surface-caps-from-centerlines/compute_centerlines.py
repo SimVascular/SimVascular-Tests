@@ -14,21 +14,22 @@ from surface import Surface
 sys.path.insert(1, '../../graphics/')
 import graphics as gr
 
-def compute_centerlines(surface, node_ids):
+def compute_centerlines(surface, node_ids, file_prefix):
     print('----- compute_centerlines -----')
     print('selected_node_ids: ' + str(node_ids)) 
     inlet_ids = node_ids[0:1]
     outlet_ids = node_ids[1:] 
     centerlines_polydata = sv.vmtk.centerlines(surface, inlet_ids, outlet_ids)
-    file_name = "centerlines-result.vtp"
+    file_name = file_prefix+"-centerlines.vtp"
     writer = vtk.vtkXMLPolyDataWriter()
     writer.SetFileName(file_name)
     writer.SetInputData(centerlines_polydata)
     writer.Update()
     writer.Write()
 
-if __name__ == '__main__':
-    surface_file_name = sys.argv[1]
+def main():
+    file_name = sys.argv[1]
+    file_prefix, file_extension = os.path.splitext(file_name)
 
     ## Create renderer and graphics window.
     win_width = 500
@@ -37,11 +38,16 @@ if __name__ == '__main__':
 
     ## Read in surface.
     surface = Surface()
-    surface.read(surface_file_name)
-    gr_geom = gr.add_geometry(renderer, surface.geometry, color=[0.8, 0.8, 8.0])
+    surface.read(file_name)
+    model_polydata = surface.geometry
+    gr_geom = gr.add_geometry(renderer, model_polydata, color=[0.8, 0.8, 8.0])
+    print("Num nodes: {0:d}".format(model_polydata.GetNumberOfPoints()))
+    print("Num faces: {0:d}".format(model_polydata.GetNumberOfCells()))
 
     ## Display window.
-    interactor = gr.init_picking(renderer_window, renderer, surface.geometry, {'c':compute_centerlines})
+    interactor = gr.init_picking(renderer_window, renderer, surface.geometry, {'c': (compute_centerlines,file_prefix)})
     interactor.Start()
 
+if __name__ == '__main__':
+    main()
 

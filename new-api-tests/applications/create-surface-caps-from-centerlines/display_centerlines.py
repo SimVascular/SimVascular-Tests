@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This script displays centerlines. 
+"""This script protoypes code to extract centerlines branches. 
 """
 import argparse
 from collections import defaultdict
@@ -61,7 +61,7 @@ def extract_data(renderer, lut, centerlines):
             max_num_lines = section.GetNumberOfLines()
             longest_cid = cid
 
-    print("Longest cid: {0:d}".format(longest_cid))
+    print("Longest cid: {0:d}  number of lines: {1:d}".format(longest_cid, max_num_lines))
     cell_cids = defaultdict(list)
 
     for cid in cid_list:
@@ -109,9 +109,16 @@ def extract_data(renderer, lut, centerlines):
 
     end_point_ids = get_end_points(renderer, lut, centerlines)
 
+    #for cid in [0]:
     #for cid in [longest_cid]:
     for cid in cid_list:
-        create_branch(renderer, lut, centerlines, cid, branch_cells, radius, end_point_ids)
+        color = [0.0, 0.0, 0.0]
+        lut.GetColor(cid, color)
+        branch_geom = create_branch(renderer, lut, centerlines, cid, branch_cells, radius, end_point_ids)
+        if cid == longest_cid:
+            gr.add_geometry(renderer, branch_geom, color=[1,1,1], line_width=4)
+        else:
+            gr.add_geometry(renderer, branch_geom, color=color, line_width=2)
 
     '''
     for i in range(num_lines):
@@ -125,9 +132,67 @@ def create_branch(renderer, lut, centerlines, cid, branch_cells, radius, end_poi
     print("\n---------- create_branch cid {0:d} ----------".format(cid))
     points = centerlines.GetPoints()
     num_lines = centerlines.GetNumberOfLines()
-    point_ids = set()
+
+    ## Find ends of line.
+    #
+    branch_end_point_ids = []
+    branch_end_cell_ids = []
+
+    for cell_id in branch_cells[cid]:
+        cell = centerlines.GetCell(cell_id)
+        cell_pids = cell.GetPointIds()
+        num_ids = cell_pids.GetNumberOfIds()
+        pid1 = cell_pids.GetId(0)
+        pid2 = cell_pids.GetId(1)
+        if pid1 in end_point_ids:
+            start_cell = cell_id
+            branch_end_point_ids.append(pid1)
+            branch_end_cell_ids.append(cell_id)
+        elif pid2 in end_point_ids:
+            branch_end_point_ids.append(pid2)
+            branch_end_cell_ids.append(cell_id)
+
+    print("[create_branch] End point IDs: {0:s}".format(str(branch_end_point_ids)))
+    print("[create_branch] End cell IDs: {0:s}".format(str(branch_end_cell_ids)))
+
+    for pid in branch_end_point_ids:
+        pt = points.GetPoint(pid)
+        color = [0.0, 0.0, 0.0]
+        lut.GetColor(cid, color)
+        gr.add_sphere(renderer, pt, radius, color=color, wire=True)
+
+    ## Create branch geometry.
+    #
+    branch_geom = vtk.vtkPolyData()
+    branch_geom.SetPoints(points)
+    branch_lines = vtk.vtkCellArray()
+
+    for cell_id in branch_cells[cid]:
+        cell = centerlines.GetCell(cell_id)
+        cell_pids = cell.GetPointIds()
+        num_ids = cell_pids.GetNumberOfIds()
+        pid1 = cell_pids.GetId(0)
+        pid2 = cell_pids.GetId(1)
+
+        line = vtk.vtkLine()
+        line.GetPointIds().SetId(0, pid1) 
+        line.GetPointIds().SetId(1, pid2) 
+        branch_lines.InsertNextCell(line)
+
+    branch_geom.SetLines(branch_lines)
+
+    return branch_geom
+
+def create_branch_old(renderer, lut, centerlines, cid, branch_cells, radius, end_point_ids):
+    print("\n---------- create_branch cid {0:d} ----------".format(cid))
+    points = centerlines.GetPoints()
+    num_lines = centerlines.GetNumberOfLines()
     start_cell = None
     start_ids = []
+    point_map = defaultdict(int)
+    cell_map = defaultdict(list)
+    num_branch_points = 0
+    branch_point_ids = []
 
     for i,cell_id in enumerate(branch_cells[cid]):
         #print("[create_branch] cell_id: {0:d}".format(cell_id))
@@ -137,8 +202,7 @@ def create_branch(renderer, lut, centerlines, cid, branch_cells, radius, end_poi
         num_ids = cell_pids.GetNumberOfIds()
         pid1 = cell_pids.GetId(0)
         pid2 = cell_pids.GetId(1)
-        point_ids.add(pid1)
-        point_ids.add(pid2)
+        print("[create_branch]    cell: {0:d}  {1:d}".format(pid1 ,pid2))
         if pid1 in end_point_ids:
             start_cell = cell_id
             start_ids.append(pid1)
@@ -152,23 +216,89 @@ def create_branch(renderer, lut, centerlines, cid, branch_cells, radius, end_poi
             #print("[create_branch] cell_id: {0:d}".format(cell_id))
             #print("[create_branch]    2) pid1: {0:d}  pid2: {1:d}".format(pid1 ,pid2))
 
-    num_points = len(point_ids)
-    print("[create_branch] Number of point IDs: {0:d}".format(num_points))
+        cell_map[pid1].append(pid2)
+
+        if pid1 not in point_map: 
+            point_map[pid1] = num_branch_points
+            branch_point_ids.append(pid1)
+            num_branch_points += 1
+        if pid2 not in point_map: 
+            point_map[pid2] = num_branch_points
+            branch_point_ids.append(pid2)
+            num_branch_points += 1
+
+    print("[create_branch] Number of branch points: {0:d}".format(num_branch_points))
+    print("[create_branch] cell_map[] size: {0:d}".format(len(cell_map)))
     print("[create_branch] Start cell: {0:d}".format(start_cell))
     print("[create_branch] Start point IDs: {0:s}".format(str(start_ids)))
 
     if len(start_ids) == 2:
-        if start_ids[0] < start_ids[1]:
+        max_radius_data = centerlines.GetPointData().GetArray('MaximumInscribedSphereRadius')
+        if max_radius_data.GetValue(start_ids[0]) > max_radius_data.GetValue(start_ids[1]):  
             start_id = start_ids[0]
         else:
             start_id = start_ids[1]
     else:
         start_id = start_ids[0]
 
+    print("[create_branch] Start point ID: {0:d}".format(start_id))
+
     start_pt = points.GetPoint(start_id)
     color = [0.0, 0.0, 0.0]
     lut.GetColor(cid, color)
     gr.add_sphere(renderer, start_pt, radius, color=color, wire=True)
+
+    pt = points.GetPoint(146)
+    gr.add_sphere(renderer, pt, 1.5*radius, color=[1,0,0], wire=True)
+
+
+    ## Create branch geometry starting from start_pt.
+    #
+    branch_geom = vtk.vtkPolyData()
+
+    branch_points = vtk.vtkPoints()
+    pt = 3*[0.0]
+    for pid in branch_point_ids:
+        points.GetPoint(pid, pt)
+        branch_points.InsertNextPoint(pt);
+    branch_geom.SetPoints(points)
+    #branch_geom.SetPoints(branch_points)
+
+    branch_lines = vtk.vtkCellArray()
+    pid1 = start_id
+    pid2 = cell_map[pid1][0]
+    num_branch_lines = 0
+
+    while (pid2 != start_id):
+        #print("cell {0:d} {1:d}".format(pid1, pid2))
+        bpid1 = point_map[pid1]
+        bpid2 = point_map[pid2]
+        line = vtk.vtkLine()
+        line.GetPointIds().SetId(0, bpid1) 
+        line.GetPointIds().SetId(1, bpid2) 
+
+        #line.GetPointIds().SetId(0, pid1) 
+        #line.GetPointIds().SetId(1, pid2) 
+
+        branch_lines.InsertNextCell(line)
+
+        if pid2 not in cell_map:
+            print("cell {0:d} {1:d}".format(pid1, pid2))
+            print("**** pid2 {0:d} not in map".format(pid2))
+            print("     len(cell_map[pid1]) {0:d} ".format(len(cell_map[pid1])))
+            if len(cell_map[pid1]) == 1:
+                break
+            pid1 = cell_map[pid1][1]
+            print("     pid1 {0:d}".format(pid1))
+        else:
+            pid1 = pid2
+        pid2 = cell_map[pid1][0]
+        num_branch_lines += 1
+
+    print("num_branch_lines: {0:d}".format(num_branch_lines))
+    branch_geom.SetLines(branch_lines)
+
+    return branch_geom
 
 def show_branch(renderer, lut, centerlines, cid, branch_cells, radius):
     num_lines = centerlines.GetNumberOfLines()

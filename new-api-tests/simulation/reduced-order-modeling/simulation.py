@@ -1,6 +1,6 @@
-'''Test the 1D simulation class. 
+'''Test the ROM simulation class. 
 
-   Generate a 1D simulation input file.
+   Generate a reduced-order modeling (ROM) simulation input file.
 
    Use the centerlines and faces from the Demo project.
 '''
@@ -15,12 +15,12 @@ script_path = Path(os.path.realpath(__file__)).parent
 parent_path = Path(os.path.realpath(__file__)).parent.parent
 data_path = parent_path / 'data'
 
-## Create a 1D simulation.
+## Create a ROM simulation.
 input_dir = str(script_path / 'input') + os.sep
-oned_simulation = sv.simulation.OneDimensional() 
+rom_simulation = sv.simulation.ROM() 
 
-## Create 1D simulation parameters.
-params = sv.simulation.OneDimensionalParameters()
+## Create ROM simulation parameters.
+params = sv.simulation.ROMParameters()
 
 ## Mesh parameters.
 mesh_params = params.MeshParameters()
@@ -58,7 +58,7 @@ solution_params.num_time_steps = 1000
 ## Write a 1D solver input file.
 #
 output_dir = str(script_path / 'output')
-oned_simulation.write_input_file(model=model_params, mesh=mesh_params, fluid=fluid_props, 
+rom_simulation.write_input_file(model_order=1, model=model_params, mesh=mesh_params, fluid=fluid_props, 
   material=material, boundary_conditions=bcs, solution=solution_params, directory=output_dir)
 
 ## Run a simulation.
