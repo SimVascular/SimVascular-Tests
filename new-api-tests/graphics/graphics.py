@@ -4,15 +4,17 @@ from math import sqrt
 
 class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
-    def __init__(self, surface=None, event_table=None):
+    def __init__(self, surface=None, picking_keys=None, event_table=None):
         #self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("KeyPressEvent", self.onKeyPressEvent)
         self.AddObserver("CharEvent", self.onCharEvent)
+        self.window = None
         self.renderer = None
         self.surface = surface 
         self.event_table = event_table
         self.selected_points = []
         self.selected_node_ids = []
+        self.picking_keys = picking_keys 
         self.picked_actor = None
         self.last_picked_actor = None
 
@@ -84,12 +86,14 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             face_id = cell_data.GetValue(cell_id)
             print("Picked face: {0:d} ".format(face_id))
 
+        self.window.Render()
+
     def onKeyPressEvent(self, renderer, event):
         '''Process a key press event.
         '''
         key = self.GetInteractor().GetKeySym()
 
-        if (key == 's'):
+        if (key in self.picking_keys):
             self.select_event(renderer, None, event)
 
         if self.event_table == None:
@@ -103,7 +107,9 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             else:
                 method = value
                 data = None
-            method(self.surface, self.selected_node_ids, data)
+
+            method(surface=self.surface, node_ids=self.selected_node_ids, data=data)
+            self.selected_node_ids.clear()
 
     def onCharEvent(self, renderer, event):
         '''Process an on char event.
@@ -463,12 +469,12 @@ def init_graphics(win_width, win_height):
     #renderer_win.Render()
     #renderer_win.SetWindowName("SV Python API")
     print("Create renderer and graphics window.")
-    print("---------- Alphanumeric Keys ----------")
+    #print("---------- Alphanumeric Keys ----------")
     print("q - Quit")
-    print("s - Select a face.")
+    #print("s - Select a face.")
     return renderer, renderer_win 
 
-def init_picking(window, renderer, surface, event_table=None):
+def init_picking(window, renderer, surface, picking_keys, event_table=None):
 
     # Create a trackball interacter to transoform the geometry using the mouse.
     interactor = vtk.vtkRenderWindowInteractor()
@@ -486,7 +492,8 @@ def init_picking(window, renderer, surface, event_table=None):
         print("Face IDs range: {0:d} {1:d}".format(min_id, max_id))
 
     # Add the custom style.
-    style = MouseInteractorStyle(surface, event_table)
+    style = MouseInteractorStyle(surface, picking_keys, event_table)
+    style.window = window
     style.renderer = renderer
     interactor.SetInteractorStyle(style)
     style.SetCurrentRenderer(renderer)

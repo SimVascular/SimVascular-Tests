@@ -1,29 +1,36 @@
 #!/usr/bin/env python
 
+from branch import Branch
 from collections import defaultdict
 from math import sqrt
 from math import pi
 from math import acos
 from os import path
+import sv
 import vtk
 
 class Centerlines(object):
     '''The Centerlines class defines methods for operations based on centerlines geometry.
+
+        Attributes:
+          surface: The Surface object from which the centerlines where computed.
     '''
     def __init__(self):
+        self.cids_array_name = "CenterlineId"
+        self.max_radius_array_name = "MaximumInscribedSphereRadius"
+        self.normal_array_name = "CenterlineSectionNormal"
         self.graphics = None
         self.renderer = None
         self.geometry = None
         self.surface = None
-        self.sections = None
-        self.cids_array_name = "CenterlineIds"
-        self.max_radius_array_name = "MaximumInscribedSphereRadius"
+        self.ends_node_ids = None    # The centerlines ends node IDs.
+        self.branches = None         # The branches extracted from the centerlines.
+        self.cid_list = None 
+        self.longest_cid = None
+        self.lut = None       
         self.length_scale = 1.0
-        self.section_pids = None 
-        self.start_pids = None 
-        self.end_pids = None
-        #self.end_offset = -0.9
         self.end_offset = 0.0
+        self.clipped_surface = None
 
     def read(self, file_name):
         '''Read a centerlines geometry file created using SV.
@@ -34,513 +41,267 @@ class Centerlines(object):
         reader.Update()
         self.geometry = reader.GetOutput()
         self.compute_length_scale()
-        self.extract_data()
+        self.get_end_points()
+        self.extract_branches()
 
-    def write_clipped_surface(self, surface, file_name):
+    def get_end_points(self):
+        '''Get the node IDs for the ends of the centerlines.
+        '''
+        num_lines = self.geometry.GetNumberOfLines()
+        id_hash = defaultdict(int)
+        for i in range(num_lines):
+            cell = self.geometry.GetCell(i)
+            cell_pids = cell.GetPointIds()
+            num_ids = cell_pids.GetNumberOfIds()
+            pid1 = cell_pids.GetId(0)
+            pid2 = cell_pids.GetId(1)
+            id_hash[pid1] += 1
+            id_hash[pid2] += 1
+
+        points = self.geometry.GetPoints()
+        end_ids = []
+
+        for pid in id_hash:
+            if id_hash[pid] == 1:
+                #print("get_end_points] End point: {0:d}".format(pid))
+                end_ids.append(pid)
+                #pt = points.GetPoint(pid)
+                #gr.add_sphere(renderer, pt, 0.5, color=[1,1,1], wire=True)
+
+        print("[centerlines] Number of centerline ends: {0:d}".format(len(end_ids)))
+        self.ends_node_ids = end_ids
+
+    def write_clipped_surface(self):
         '''Write a clipped surface to a .vtp file.
         '''
+        file_name = self.surface.file_prefix + "-clipped.vtp"
         writer = vtk.vtkXMLPolyDataWriter()
         writer.SetFileName(file_name)
-        writer.SetInputData(surface)
+        writer.SetInputData(self.clipped_surface)
         writer.Update()
         writer.Write()
+        print("[centerlines] Clipped geometry has been written to '{0:s}'".format(file_name))
 
-    def extract_data(self):
-        '''Extract centerline start/end IDs for each branch.
+    def extract_branches(self):
+        '''Extract branches from the centerlines based on CenterlinesIds.
         '''
-        print("========== extract_data ==========")
-        cids = self.geometry.GetPointData().GetArray(self.cids_array_name)
-        #cids = self.geometry.GetCellData().GetArray(self.cids_array_name)
-        if cids == None:
-            raise Exception("No '" + self.cids_array_name + "' data array defined in centerlines geometry.")
-        vrange = cids.GetRange()
-        min_id = int(vrange[0])
-        max_id = int(vrange[1])
-        print("Max centerline id: " + str(max_id))
-        print("Min centerline id: " + str(min_id))
-        self.sections = []
-        for cid in range(min_id, max_id+1):
-            section = self.extract_sections(self.geometry, cids, cid)
-            self.sections.append(section)
+        print("========== extract_branches ==========")
+        data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
+        num_centerlines = self.get_centerline_info()
+        min_id = 0
+        max_id = num_centerlines-1
+        cid_list = list(range(min_id,max_id+1))
+        print("[extract_branches] Centerline IDs: {0:s}".format(str(cid_list)))
+        self.cid_list = cid_list 
+
+        # Create a color lookup table for branch geometry.
+        self.lut = vtk.vtkLookupTable()
+        self.lut.SetTableRange(min_id, max_id+1)
+        self.lut.SetHueRange(0, 1)
+        self.lut.SetSaturationRange(1, 1)
+        self.lut.SetValueRange(1, 1)
+        self.lut.Build()
 
         max_radius_data = self.geometry.GetPointData().GetArray(self.max_radius_array_name)
         num_lines = self.geometry.GetNumberOfLines()
+        num_points = self.geometry.GetNumberOfPoints()
         points = self.geometry.GetPoints()
         print("Number of centerline lines: {0:d}".format(num_lines))
+        print("Number of centerline points: {0:d}".format(num_points))
 
-        start_pids = []
-        end_pids = []
-        section_pids = defaultdict(list)
+        # Find the longest branch.
+        max_num_lines = 0
+        longest_cid = None
+        for cid in range(min_id,max_id+1):
+            branch_geom = self.extract_branch_geom(cid)
+            if branch_geom.GetNumberOfLines() > max_num_lines:
+                max_num_lines = branch_geom.GetNumberOfLines()
+                longest_cid = cid
+        print("\nLongest branch cid: {0:d}  Number of lines: {1:d}".format(longest_cid, max_num_lines))
+        self.longest_cid = longest_cid 
 
-        for cid in range(min_id, max_id+1):
-            print("----- cid {0:d} -----".format(cid))
-            start_pid = None
+        # Create cell_id -> centerline id map.
+        cell_cids = defaultdict(list)
+        for cid in cid_list:
+            #print("\n---------- cid {0:d} ----------".format(cid))
             for i in range(num_lines):
-                line_cid = cids.GetValue(i)
-                if line_cid != cid: 
-                    continue 
                 cell = self.geometry.GetCell(i)
                 cell_pids = cell.GetPointIds()
                 num_ids = cell_pids.GetNumberOfIds()
+                pid1 = cell_pids.GetId(0)
+                pid2 = cell_pids.GetId(1)
+                value1 = int(data_array.GetComponent(pid1, cid))
+                value2 = int(data_array.GetComponent(pid2, cid))
+                if (value1 == 1) or (value2 == 1):
+                    cell_cids[i].append(cid)
+                #_for j in range(num_ids)
+            #_for i in range(num_lines)
+        #_for cid in range(min_id,max_id+1)
 
-                for j in range(num_ids):
-                    pid = cell_pids.GetId(j)
-                    section_pids[cid].append(pid)
-        
-                if start_pid == None:
-                    start_pid = cell_pids.GetId(0)
-                last_pid = cell_pids.GetId(num_ids-1)
+        # Determine branch cells.
+        branch_cells = defaultdict(list)
+        for cid in cid_list:
+            for i in range(num_lines):
+                cids = cell_cids[i]
+                if longest_cid in cids:
+                    if i not in branch_cells[longest_cid]:
+                        branch_cells[longest_cid].append(i)
+                else:
+                    if (len(cids) == 1) and (cids[0] == cid):
+                        branch_cells[cid].append(i)
+                    if cid in cell_cids[i]:
+                        cell_cids[i].remove(cid)
+                #_for j in range(num_ids)
+        #_for cid in cid_list
 
-            print("  start_pid {0:d}".format(start_pid))
-            print("  last_pid {0:d}".format(last_pid))
-            start_pt = points.GetPoint(start_pid)
-            start_radius = max_radius_data.GetValue(start_pid) 
-            start_pids.append(start_pid)
-            gr_geom = self.graphics.add_sphere(self.renderer, start_pt, start_radius, color=[0.0, 1.0, 0.0])
-            gr_geom.GetProperty().SetRepresentationToWireframe()
+        # Create branch geomerty.
+        self.branches = []
+        end_point_ids = self.ends_node_ids
+        for cid in cid_list:
+            self.branches.append( self.create_branch(cid, branch_cells, end_point_ids) )
 
-            last_pt = points.GetPoint(last_pid)
-            last_radius = max_radius_data.GetValue(last_pid) 
-            end_pids.append(last_pid)
-            gr_geom = self.graphics.add_sphere(self.renderer, last_pt, last_radius, color=[1.0, 0.0, 0.0])
-            gr_geom.GetProperty().SetRepresentationToWireframe()
-        #_for cid in range(min_id, max_id+1)
+    def show_branches(self):
+        radius = self.length_scale
+        for branch in self.branches:
+            color = [0.0, 0.0, 0.0]
+            if branch.cid == self.longest_cid:
+                color = [1.0, 1.0, 1.0]
+                line_width = 4
+            else:
+                self.lut.GetColor(branch.cid, color)
+                line_width = 2
+            branch.show(self.renderer, self.graphics, color, line_width, radius)
 
-        self.section_pids = section_pids
-        self.start_pids = start_pids
-        self.end_pids = end_pids
-
-    def remove_surface_ends(self): 
-        '''Remove the ends of the surface.
+    def create_branch(self, cid, branch_cells, end_point_ids):
+        '''Create a branch from the centerlines.
         '''
-        print("========== remove_surface_ends ==========")
-        section_pids = self.section_pids 
-        start_pids = self.start_pids
-        end_pids = self.end_pids
-        self.start_pids = start_pids
-        self.end_pids = end_pids
         points = self.geometry.GetPoints()
-        max_radius_data = self.geometry.GetPointData().GetArray(self.max_radius_array_name)
-        start_cid = min(section_pids.keys())
-        start_pids = section_pids[start_cid]
-        start_pid = start_pids[0] 
-        start_pt = points.GetPoint(start_pid)
-        start_radius = max_radius_data.GetValue(start_pid) 
-        print("start_cid: {0:d}".format(start_cid))
-        print("start_pid: {0:d}".format(start_pid))
-        print("start_radius: {0:g}".format(start_radius))
+        num_lines = self.geometry.GetNumberOfLines()
 
-        #for cid in section_pids:
-        #    print("### " + str(section_pids[cid]))
+        ## Find ends of line.
+        #
+        branch_end_point_ids = []
+        branch_end_cell_ids = []
 
-        ## Remove the surface at the start of the centerlines.
-        surface = self.surface
-        clipped_surface = self.remove_surface_start_using_offset(surface, start_pt, start_radius, start_pids)
-        #clipped_surface = self.remove_surface_start(surface, start_pt, start_radius, start_pids)
+        for cell_id in branch_cells[cid]:
+            cell = self.geometry.GetCell(cell_id)
+            cell_pids = cell.GetPointIds()
+            num_ids = cell_pids.GetNumberOfIds()
+            pid1 = cell_pids.GetId(0)
+            pid2 = cell_pids.GetId(1)
+            if pid1 in end_point_ids:
+                start_cell = cell_id
+                branch_end_point_ids.append(pid1)
+                branch_end_cell_ids.append(cell_id)
+            elif pid2 in end_point_ids:
+                branch_end_point_ids.append(pid2)
+                branch_end_cell_ids.append(cell_id)
 
-        ## Slice off the surface at the ends of the centerlines.
-        print("[create_caps] Create end caps ...")
-        for cid in section_pids:
-            print("Cid: {0:d}".format(cid))
-            pids = section_pids[cid]
-            print("   Number of pids: {0:d}".format(len(pids)))
-            end_pid = pids[-1] 
-            end_radius = max_radius_data.GetValue(end_pid) 
-            print("   End pid: {0:d}".format(end_pid))
-            print("   End radius: {0:g}".format(end_radius))
-            clipped_surface = self.remove_surface_end_using_offset(clipped_surface, end_pid, end_radius, pids)
-            #clipped_surface = self.remove_surface_end(clipped_surface, end_pid, end_radius, pids)
+        ## Create branch geometry.
+        #
+        branch_geom = vtk.vtkPolyData()
+        branch_geom.SetPoints(points)
+        branch_lines = vtk.vtkCellArray()
+        #
+        for cell_id in branch_cells[cid]:
+            cell = self.geometry.GetCell(cell_id)
+            cell_pids = cell.GetPointIds()
+            num_ids = cell_pids.GetNumberOfIds()
+            pid1 = cell_pids.GetId(0)
+            pid2 = cell_pids.GetId(1)
+            line = vtk.vtkLine()
+            line.GetPointIds().SetId(0, pid1)
+            line.GetPointIds().SetId(1, pid2)
+            branch_lines.InsertNextCell(line)
+        #
+        branch_geom.SetLines(branch_lines)
 
-        gr_geom = self.graphics.add_geometry(self.renderer, clipped_surface, color=[1.0, 1.0, 0.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-        return clipped_surface 
+        return Branch(cid, branch_geom, branch_end_point_ids, branch_end_cell_ids)
 
-    def remove_surface_end(self, surface, end_pid, end_radius, pids):
-        '''Remove the portion of the surface at the end of the centerlines.
-        '''
-        print("   ---- remove_surface_end ----")
-        points = self.geometry.GetPoints()
-        end_pt = points.GetPoint(end_pid) 
-        for i in reversed(range(len(pids))):
-            pid = pids[i]
-            #print("   i: {0:d}".format(i))
-            #print("   pid: {0:d}".format(pid))
-            pt = points.GetPoint(pid)
-            d = sqrt(sum([(pt[j]-end_pt[j])**2 for j in range(3)]))
-            #print("  d: {0:g}".format(d), end = '')
-            if d >= end_radius + self.end_offset:
-                plane_pt = pt
-                plane_pid = pid
-                plane_pid_index = i
-                break
-
-        print("   plane_pid_index: {0:d}".format(plane_pid_index))
-        print("   plane_pid: {0:d}".format(plane_pid))
-        print("   plane_pt: {0:s}".format(str(plane_pt)))
-        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 0.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-
-        pt1 = points.GetPoint(pids[plane_pid_index-1])
-        pt2 = points.GetPoint(plane_pid)
-        normal = [(pt2[i]-pt1[i]) for i in range(3)]
-        vtk.vtkMath.Normalize(normal)
-        slice_plane = vtk.vtkPlane()
-        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
-        slice_plane.SetNormal(normal[0], normal[1], normal[2])
-        self.show_plane(plane_pt, normal, color=[1,0,0])
-
-        sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(plane_pt)
-        sphere.SetRadius(end_radius)
-        sphere.Update()
-        bounds = 6*[0.0]
-        sphere.GetOutput().GetBounds(bounds)
-        slice_planes = vtk.vtkPlanes()
-        slice_planes.SetBounds(bounds)
-        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
-
-        ## Clip the surface.
-        box_func = self.compute_box_func(normal, plane_pt, end_radius)
-        clipped_surface = self.clip_surface(surface, box_func)
-        return clipped_surface
-
-    def remove_surface_end_using_offset(self, surface, end_pid, end_radius, pids):
-        '''Remove the portion of the surface at the end of the centerlines.
-        '''
-        print("   ---- remove_surface_end ----")
-        points = self.geometry.GetPoints()
-        end_pt = points.GetPoint(end_pid) 
-        num_pids = len(pids)
-        v1 = 3*[0.0]
-        v2 = 3*[0.0]
-
-        for i in reversed(range(num_pids)):
-            if i == end_pid:
-               continue
-            pid2 = pids[i]
-            pt2 = points.GetPoint(pid2)
-            pid3 = pids[i-1]
-            pt3 = points.GetPoint(pid3)
-            vtk.vtkMath.Subtract(pt2, end_pt, v1)
-            vtk.vtkMath.Normalize(v1)
-            vtk.vtkMath.Normalize(v2)
-            dot = vtk.vtkMath.Dot(v1, v2)
-            angle = acos(dot)
-            if angle >= 10.0*pi/180.0:
-                plane_pt = pt3
-                plane_pid = pid3
-                plane_pid_index = i-1
-                break
-        '''
-        for i in reversed(range(len(pids))):
-            pid = pids[i]
-            #print("   i: {0:d}".format(i))
-            #print("   pid: {0:d}".format(pid))
-            pt = points.GetPoint(pid)
-            d = sqrt(sum([(pt[j]-end_pt[j])**2 for j in range(3)]))
-            #print("  d: {0:g}".format(d), end = '')
-            if d >= end_radius + self.end_offset:
-                plane_pt = pt
-                plane_pid = pid
-                plane_pid_index = i
-                break
-        '''
-
-        print("   plane_pid_index: {0:d}".format(plane_pid_index))
-        print("   plane_pid: {0:d}".format(plane_pid))
-        print("   plane_pt: {0:s}".format(str(plane_pt)))
-        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 0.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-
-        #pt1 = points.GetPoint(pids[plane_pid_index-1])
-        #pt2 = points.GetPoint(plane_pid)
-
-        pt2 = points.GetPoint(plane_pid)
-        pt1 = points.GetPoint(pids[plane_pid_index-1])
-        normal = [(pt2[i]-pt1[i]) for i in range(3)]
-        vtk.vtkMath.Normalize(normal)
-
-        odist = 0.40 * end_radius
-        plane_pt = [plane_pt[i] + normal[i]*odist for i in range(3)]
-
-        slice_plane = vtk.vtkPlane()
-        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
-        slice_plane.SetNormal(normal[0], normal[1], normal[2])
-        self.show_plane(plane_pt, normal, color=[1,0,0])
-
-        sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(plane_pt)
-        sphere.SetRadius(end_radius)
-        sphere.Update()
-        bounds = 6*[0.0]
-        sphere.GetOutput().GetBounds(bounds)
-        slice_planes = vtk.vtkPlanes()
-        slice_planes.SetBounds(bounds)
-        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
-
-        ## Clip the surface.
-        box_func = self.compute_box_func(normal, plane_pt, end_radius)
-        clipped_surface = self.clip_surface(surface, box_func)
-        return clipped_surface
-
-    def remove_surface_start(self, surface, start_pt, start_radius, start_pids):
-        '''Remove the portion of the surface at the start of the centerlines.
-        '''
-        ## Find point to place start slice plane.
-        points = self.geometry.GetPoints()
-        print("Find point to place start slice plane ... ")
-        for i,pid in enumerate(start_pids):
-            #print("  pid: {0:d}".format(pid), end = '')
-            pt = points.GetPoint(pid)
-            d = sqrt(sum([(pt[j]-start_pt[j])**2 for j in range(3)]))
-            #print("  d: {0:g}".format(d), end = '')
-            if d >= start_radius + self.end_offset:
-                plane_pt = pt
-                plane_pid = pid
-                plane_pid_index = i
-                break 
-        #_for i,pid in enumerate(start_pids)
-
-        print("plane_pid_index: {0:d}".format(plane_pid_index))
-        print("plane_pid: {0:d}".format(plane_pid))
-        print("plane_pt: {0:s}".format(str(plane_pt)))
-        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 0.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-
-        if plane_pid_index == 0:
-            plane_pid_index += 1
-        pt1 = points.GetPoint(start_pids[plane_pid_index-1])
-        pt2 = points.GetPoint(plane_pid)
-        normal = [(pt1[i]-pt2[i]) for i in range(3)]
-        #normal = [(pt2[i]-pt1[i]) for i in range(3)]
-        vtk.vtkMath.Normalize(normal)
-        slice_plane = vtk.vtkPlane()
-        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
-        slice_plane.SetNormal(normal[0], normal[1], normal[2])
-        self.show_plane(plane_pt, normal, color=[0,1,0])
-
-        '''
-        sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(plane_pt)
-        sphere.SetRadius(start_radius)
-        sphere.Update()
-        bounds = 6*[0.0]
-        sphere.GetOutput().GetBounds(bounds)
-        slice_planes = vtk.vtkPlanes()
-        slice_planes_pts = vtk.vtkPoints()
-        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
-        for i in range(slice_planes.GetNumberOfPlanes()):
-            plane = slice_planes.GetPlane(i)
-            self.show_plane(plane.GetOrigin(), plane.GetNormal(), color=[1,0,1])
-        '''
-
-  
-        ## Extract slice from the suraface.
-        cutter = vtk.vtkCutter()
-        cutter.SetCutFunction(slice_plane)
-        cutter.SetInputData(surface)
-        cutter.Update()
-        sliced_surface = cutter.GetOutput()
-        self.graphics.add_geometry(self.renderer, sliced_surface, color=[1.0, 1.0, 0.0])
-
-        ## Clip the surface.
-        box_func = self.compute_box_func(normal, plane_pt, start_radius)
-        clipped_surface = self.clip_surface(surface, box_func)
-        return clipped_surface 
-
-    def remove_surface_start_using_offset(self, surface, start_pt, start_radius, start_pids):
-        '''Remove the portion of the surface at the start of the centerlines using an offset.
-        '''
-        print("========== remove_surface_start_using_offset ==========")
-        print("start_radius: " + str(start_radius))
-        ## Find point to place start slice plane.
-        points = self.geometry.GetPoints()
-        print("Find point to place start slice plane ... ")
-        pt1 = points.GetPoint(start_pids[0])
-        v1 = 3*[0.0]
-        v2 = 3*[0.0]
-
-        for i in range(1,len(start_pids)):
-            print("i: " + str(i))
-            pid2 = start_pids[i]
-            pt2 = points.GetPoint(pid2)
-            pid3 = start_pids[i+1]
-            pt3 = points.GetPoint(pid3)
-            vtk.vtkMath.Subtract(pt2, pt1, v1)
-            vtk.vtkMath.Normalize(v1)
-            vtk.vtkMath.Normalize(v2)
-            dot = vtk.vtkMath.Dot(v1, v2)
-            angle = acos(dot)
-            if angle >= 10.0*pi/180.0:
-                plane_pt = pt3
-                plane_pid = pid3
-                plane_pid_index = i+1
-                break 
-        #_for i,pid in enumerate(start_pids)
-
-        '''
-        for i,pid in enumerate(start_pids):
-            #print("  pid: {0:d}".format(pid), end = '')
-            pt = points.GetPoint(pid)
-            d = sqrt(sum([(pt[j]-start_pt[j])**2 for j in range(3)]))
-            #print("  d: {0:g}".format(d), end = '')
-            if i >= 2: 
-            #if d >= start_radius + self.end_offset:
-                plane_pt = pt
-                plane_pid = pid
-                plane_pid_index = i
-                break 
-        #_for i,pid in enumerate(start_pids)
-        '''
-
-        print("plane_pid_index: {0:d}".format(plane_pid_index))
-        print("plane_pid: {0:d}".format(plane_pid))
-        print("plane_pt: {0:s}".format(str(plane_pt)))
-        gr_geom = self.graphics.add_sphere(self.renderer, plane_pt, 0.1, color=[1.0, 1.0, 1.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-
-        if plane_pid_index == 0:
-            plane_pid_index += 1
-        pt1 = points.GetPoint(start_pids[plane_pid_index-1])
-        pt2 = points.GetPoint(plane_pid)
-        normal = [(pt1[i]-pt2[i]) for i in range(3)]
-        #normal = [(pt2[i]-pt1[i]) for i in range(3)]
-        vtk.vtkMath.Normalize(normal)
-
-        odist = 0.80 * start_radius
-        plane_pt = [plane_pt[i] + normal[i]*odist for i in range(3)]
-
-        slice_plane = vtk.vtkPlane()
-        slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
-        slice_plane.SetNormal(normal[0], normal[1], normal[2])
-        self.show_plane(plane_pt, normal, color=[0,1,0])
-
-        '''
-        sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(plane_pt)
-        sphere.SetRadius(start_radius)
-        sphere.Update()
-        bounds = 6*[0.0]
-        sphere.GetOutput().GetBounds(bounds)
-        slice_planes = vtk.vtkPlanes()
-        slice_planes_pts = vtk.vtkPoints()
-        print("   Number of planes: {0:d}".format(slice_planes.GetNumberOfPlanes()))
-        for i in range(slice_planes.GetNumberOfPlanes()):
-            plane = slice_planes.GetPlane(i)
-            self.show_plane(plane.GetOrigin(), plane.GetNormal(), color=[1,0,1])
-        '''
-
-  
-        ## Extract slice from the suraface.
-        cutter = vtk.vtkCutter()
-        cutter.SetCutFunction(slice_plane)
-        cutter.SetInputData(surface)
-        cutter.Update()
-        sliced_surface = cutter.GetOutput()
-        self.graphics.add_geometry(self.renderer, sliced_surface, color=[1.0, 1.0, 0.0])
-
-        ## Clip the surface.
-        box_func = self.compute_box_func(normal, plane_pt, start_radius)
-        clipped_surface = self.clip_surface(surface, box_func)
-        return clipped_surface 
-
-
-    def compute_box_func(self, normal, plane_pt, radius):
-        '''Compute a implicit function for a bounding box. 
-        '''
-        v = 3*[0.0]
-        v[0] = vtk.vtkMath.Random(-10,10)
-        v[1] = vtk.vtkMath.Random(-10,10)
-        v[2] = vtk.vtkMath.Random(-10,10)
-        v1 = 3*[0.0]
-        vtk.vtkMath.Cross(normal, v, v1);
-        vtk.vtkMath.Normalize(v1);
-        v2 = 3*[0.0]
-        vtk.vtkMath.Cross(normal, v1, v2);
-
-        matrix = vtk.vtkMatrix4x4()
-        matrix.Identity()
-        for i in range(3):
-            matrix.SetElement(i, 0, normal[i])
-            matrix.SetElement(i, 1, v1[i])
-            matrix.SetElement(i, 2, v2[i])
-
-        sphere = vtk.vtkSphereSource()
-        rscale = 2.0
-        sphere_center = [plane_pt[i]+rscale*radius*normal[i] for i in range(3)]
-        sphere.SetCenter(sphere_center)
-        sphere.SetRadius(rscale*radius)
-        sphere.Update()
-        bounds = 6*[0.0]
-        sphere.GetOutput().GetBounds(bounds)
-
-        box_func = vtk.vtkBox()
-        box_func.SetBounds(bounds)
-
-        transform = vtk.vtkTransform()
-        transform.Translate(sphere_center)
-        #transform.Translate(plane_pt[0], plane_pt[1], plane_pt[2])
-        transform.Concatenate(matrix)
-        transform.Scale(1.0, 1.0, 1.0)
-        transform.Translate(-sphere_center[0], -sphere_center[1], -sphere_center[2])
-        #transform.Translate(-plane_pt[0], -plane_pt[1], -plane_pt[2])
-        transform.Update()
-        inverse_transform = transform.GetInverse()
-
-        #ipt = transform.TransformPoint(plane_pt)
-        ipt = inverse_transform.TransformPoint(plane_pt)
-
-        box_func.SetBounds(bounds)
-        #box.SetTransform(transform)
-        box_func.SetTransform(inverse_transform)
-
-        cube = vtk.vtkCubeSource()
-        cube.SetBounds(bounds)
-        cube.Update()
-        cube_pd = cube.GetOutput()
-        transform_pd = vtk.vtkTransformPolyDataFilter()
-        #transform = vtk.vtkTransform()
-        #transform.Translate(plane_pt[0], plane_pt[1], plane_pt[2])
-        #transform.Scale(1.0, 1.0, 1.0)
-        #transform_pd.SetTransform(inverse_transform);
-        transform_pd.SetTransform(transform);
-        transform_pd.SetInputData(cube_pd)
-        transform_pd.Update()
-        gr_geom = self.graphics.add_geometry(self.renderer, transform_pd.GetOutput(), color=[1.0, 0.0, 1.0])
-        gr_geom.GetProperty().SetRepresentationToWireframe()
-        return box_func
-
-    def clip_surface(self, surface, slice_plane):
-        '''Clip a surface.
-        '''
-        clip_filter = vtk.vtkClipPolyData()
-        clip_filter.SetInputData(surface)
-        clip_filter.GenerateClippedOutputOn()
-        clip_filter.SetClipFunction(slice_plane)
-        clip_filter.Update()
-        return clip_filter.GetOutput()
-
-    def show_plane(self, origin, normal, color):
-        plane = vtk.vtkPlaneSource()
-        plane.SetCenter(origin)
-        plane.SetNormal(normal)
-        plane.Update()
-        plane_pd = plane.GetOutput()
-        self.graphics.add_geometry(self.renderer, plane_pd, color)
-
-    def extract_sections(self, centerlines, ids, cid):
-        '''Extract a section of the centerlines geometry for the given ID.
-        '''
+    def extract_branch_geom(self, cid):
+        data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
         thresh = vtk.vtkThreshold()
-        thresh.SetInputData(centerlines)
-        thresh.ThresholdBetween(cid, cid)
-        thresh.SetInputArrayToProcess(0, 0, 0, "vtkDataObject::FIELD_ASSOCIATION_CELLS", self.cids_array_name)
+        thresh.SetInputData(self.geometry)
+        thresh.ThresholdBetween(1.0, 1.0)
+        thresh.SetComponentModeToUseSelected()
+        thresh.SetSelectedComponent(cid)
+        #thresh.SetPassThroughCellIds(cell_ids)
+        thresh.SetInputArrayToProcess(0, 0, 0, "vtkDataObject::FIELD_ASSOCIATION_POINTS", self.cids_array_name)
         thresh.Update()
 
         surfacefilter = vtk.vtkDataSetSurfaceFilter()
         surfacefilter.SetInputData(thresh.GetOutput())
         surfacefilter.Update()
         return surfacefilter.GetOutput()
+
+    def get_centerline_info(self):
+        data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
+        num_comp = data_array.GetNumberOfComponents()
+        return num_comp
+
+    def create_model(self, **kwargs): 
+        '''Create a model by clipping the ends of a surface using centerlines data.
+
+           A Surface object is passed in 'data'. This should have centerlines computed for it.
+        '''
+        print("[centerlines] ========== create_model ==========")
+        surface_obj = kwargs['data']
+        if surface_obj.centerlines == None:
+            raise Exception("Centerlines have not been computed.")
+
+        self.geometry = surface_obj.centerlines 
+        self.file_prefix = surface_obj.file_prefix 
+
+        # Compute the average polygons size for the surface.
+        self.compute_length_scale()
+
+        # Compute the centerines end points.
+        self.get_end_points()
+
+        # Extract branches from the centerlines.
+        self.extract_branches()
+
+        # Clip the ends of the surface.
+        self.clipped_surface = self.remove_surface_ends() 
+        self.write_clipped_surface()
+
+        # Create a model from the clipped surface.
+        self.create_capped_surface()
+
+    def create_capped_surface(self):
+        '''Create a capped surface from the clipped surface.
+        '''
+        print("[centerlines] ========== create_capped_surface ==========")
+        clipped_surface = self.clipped_surface
+        capped_surface = sv.vmtk.cap(surface=clipped_surface, use_center=True)
+        self.graphics.add_geometry(self.renderer, capped_surface, color=[0.0, 1.0, 1.0])
+
+        file_name = self.surface.file_prefix + "-capped.vtp"
+        writer = vtk.vtkXMLPolyDataWriter()
+        writer.SetFileName(file_name)
+        writer.SetInputData(capped_surface)
+        writer.Update()
+        writer.Write()
+        print("[centerlines] Capped geometry has been written to '{0:s}'".format(file_name))
+
+    def remove_surface_ends(self): 
+        '''Remove the ends of the surface.
+        '''
+        print("[centerlines] ========== remove_surface_ends ==========")
+        points = self.geometry.GetPoints()
+        max_radius_data = self.geometry.GetPointData().GetArray(self.max_radius_array_name)
+        normal_data = self.geometry.GetPointData().GetArray(self.normal_array_name)
+        clipped_surface = self.surface.geometry
+
+        for branch in self.branches:
+            branch.renderer = self.renderer 
+            branch.graphics = self.graphics 
+            branch.length_scale = self.length_scale 
+            clipped_surface = branch.remove_surface_end(self.geometry, clipped_surface, max_radius_data, normal_data)
+
+        gr_geom = self.graphics.add_geometry(self.renderer, clipped_surface, color=[1.0, 1.0, 0.0])
+        gr_geom.GetProperty().SetRepresentationToWireframe()
+        return clipped_surface
 
     def compute_length_scale(self):
         pt1 = 3*[0.0]
@@ -557,6 +318,4 @@ class Centerlines(object):
             d = sqrt(dx*dx + dy*dy + dz*dz)
             avg_d += d
         self.length_scale = avg_d / num_pts
-
-
 
