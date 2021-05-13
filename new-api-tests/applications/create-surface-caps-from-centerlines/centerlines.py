@@ -12,8 +12,8 @@ import vtk
 class Centerlines(object):
     '''The Centerlines class defines methods for operations based on centerlines geometry.
 
-        Attributes:
-          surface: The Surface object from which the centerlines where computed.
+       Attributes:
+         surface: The Surface object from which the centerlines where computed.
     '''
     def __init__(self):
         self.cids_array_name = "CenterlineId"
@@ -30,6 +30,7 @@ class Centerlines(object):
         self.lut = None       
         self.length_scale = 1.0
         self.end_offset = 0.0
+        self.clip_distance = 0.0
         self.clipped_surface = None
 
     def read(self, file_name):
@@ -85,7 +86,7 @@ class Centerlines(object):
     def extract_branches(self):
         '''Extract branches from the centerlines based on CenterlinesIds.
         '''
-        print("========== extract_branches ==========")
+        print("[centerlines] ========== extract_branches ==========")
         data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
         num_centerlines = self.get_centerline_info()
         min_id = 0
@@ -106,8 +107,8 @@ class Centerlines(object):
         num_lines = self.geometry.GetNumberOfLines()
         num_points = self.geometry.GetNumberOfPoints()
         points = self.geometry.GetPoints()
-        print("Number of centerline lines: {0:d}".format(num_lines))
-        print("Number of centerline points: {0:d}".format(num_points))
+        print("[centerlines] Number of centerline lines: {0:d}".format(num_lines))
+        print("[centerlines] Number of centerline points: {0:d}".format(num_points))
 
         # Find the longest branch.
         max_num_lines = 0
@@ -117,7 +118,7 @@ class Centerlines(object):
             if branch_geom.GetNumberOfLines() > max_num_lines:
                 max_num_lines = branch_geom.GetNumberOfLines()
                 longest_cid = cid
-        print("\nLongest branch cid: {0:d}  Number of lines: {1:d}".format(longest_cid, max_num_lines))
+        print("\n[centerlines] Longest branch cid: {0:d}  Number of lines: {1:d}".format(longest_cid, max_num_lines))
         self.longest_cid = longest_cid 
 
         # Create cell_id -> centerline id map.
@@ -216,7 +217,16 @@ class Centerlines(object):
         #
         branch_geom.SetLines(branch_lines)
 
-        return Branch(cid, branch_geom, branch_end_point_ids, branch_end_cell_ids)
+        branch_end_normals = []
+        for pid in branch_end_point_ids:
+            pt = points.GetPoint(pid)
+            normal = self.surface.get_point_normal(pt)
+            branch_end_normals.append(normal)
+
+        #print("[centerlines] branch cid: {0:d}".format(cid))
+        #print("[centerlines]   branch_end_point_ids: {0:s}".format(str(branch_end_point_ids)))
+        #print("[centerlines]   branch_end_cell_ids: {0:s}".format(str(branch_end_cell_ids)))
+        return Branch(cid, branch_geom, branch_end_point_ids, branch_end_cell_ids, branch_end_normals, self.clip_distance)
 
     def extract_branch_geom(self, cid):
         data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
@@ -248,7 +258,7 @@ class Centerlines(object):
         surface_obj = kwargs['data']
         if surface_obj.centerlines == None:
             raise Exception("Centerlines have not been computed.")
-
+        
         self.geometry = surface_obj.centerlines 
         self.file_prefix = surface_obj.file_prefix 
 
@@ -267,6 +277,12 @@ class Centerlines(object):
 
         # Create a model from the clipped surface.
         self.create_capped_surface()
+
+        #surface_obj.vtk_actor.GetProperty().SetOpacity(0.5)
+        #surface_obj.vtk_actor.GetProperty().BackfaceCullingOff()
+        #surface_obj.vtk_actor.GetProperty().SetRepresentationToPoints()
+        surface_obj.vtk_actor.GetProperty().SetRepresentationToWireframe()
+
 
     def create_capped_surface(self):
         '''Create a capped surface from the clipped surface.

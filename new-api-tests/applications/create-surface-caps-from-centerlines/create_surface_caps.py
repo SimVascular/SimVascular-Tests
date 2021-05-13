@@ -17,6 +17,8 @@ def parse_args():
     '''
     parser = argparse.ArgumentParser()
     parser.add_argument("--surface-file",  required=True, help="Input surface (.vtp or .vtk) file.")
+    parser.add_argument("--clip-distance", type=float, default=0.0, 
+        help="The distance from the end of a centerline branch to clip a surface.")
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
@@ -39,8 +41,9 @@ def main():
     surface_file_name = args.surface_file 
     surface = Surface(gr, renderer_window, renderer)
     surface.read(surface_file_name)
-    gr_geom = gr.add_geometry(renderer, surface.geometry, color=[0.8, 0.8, 8.0])
-    gr_geom.GetProperty().SetOpacity(0.5)
+    gr_geom = gr.add_geometry(renderer, surface.geometry, color=[0.8, 0.8, 1.0])
+    surface.vtk_actor = gr_geom 
+    #gr_geom.GetProperty().SetOpacity(0.5)
 
     ## Create a Centerlines object used to clip the surface.
     centerlines = Centerlines()
@@ -48,8 +51,11 @@ def main():
     centerlines.surface = surface
     centerlines.window = renderer_window 
     centerlines.renderer = renderer
+    centerlines.clip_distance = args.clip_distance
+    #surface.centerlines = centerlines 
 
     print("---------- Alphanumeric Keys ----------")
+    print("a - Compute model automatically.")
     print("c - Compute centerlines.")
     print("m - Create a model from the surface and centerlines.")
     print("q - Quit")
@@ -59,7 +65,8 @@ def main():
     ## Create a mouse interactor for selecting centerline points.
     picking_keys = ['s', 't']
     event_table = {
-        'c': surface.compute_centerlines,
+        'a': (surface.create_model_automatically, centerlines),
+        'c': (surface.compute_centerlines, surface),
         'm': (centerlines.create_model, surface),
         's': surface.add_centerlines_source_node,
         't': surface.add_centerlines_target_node
