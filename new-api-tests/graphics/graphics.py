@@ -14,11 +14,13 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.event_table = event_table
         self.selected_points = []
         self.selected_node_ids = []
+        self.selected_node_id = None
+        self.selected_cell_id = None
         self.picking_keys = picking_keys 
         self.picked_actor = None
         self.last_picked_actor = None
 
-    def select_event(self, renderer, obj, event):
+    def select_event(self, renderer, key, obj, event):
         '''Process a select event. 
         '''
         clickPos = self.GetInteractor().GetEventPosition()
@@ -62,6 +64,8 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
         print("Picked node: {0:d} {1:g} {2:g} {3:g} ".format(min_i, min_p[0], min_p[1], min_p[2]))
         self.selected_node_ids.append(min_i)
+        self.selected_node_id = min_i
+        self.selected_cell_id = cell_id
 
         ## Show picked point.
         points = vtk.vtkPoints()
@@ -74,8 +78,13 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(glyphFilter.GetOutputPort())
         actor = vtk.vtkActor()
-        actor.GetProperty().SetColor(1.0, 1.0, 1.0)
-        actor.GetProperty().SetPointSize(5)
+        if key == 's':
+            actor.GetProperty().SetColor(0.0, 1.0, 0.0)
+        elif key == 't':
+            actor.GetProperty().SetColor(1.0, 0.0, 0.0)
+        else:
+            actor.GetProperty().SetColor(1.0, 1.0, 1.0)
+        actor.GetProperty().SetPointSize(10)
         actor.SetMapper(mapper)
         self.renderer.AddActor(actor)
 
@@ -86,7 +95,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             face_id = cell_data.GetValue(cell_id)
             print("Picked face: {0:d} ".format(face_id))
 
-        self.window.Render()
+        #self.window.Render()
 
     def onKeyPressEvent(self, renderer, event):
         '''Process a key press event.
@@ -94,7 +103,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         key = self.GetInteractor().GetKeySym()
 
         if (key in self.picking_keys):
-            self.select_event(renderer, None, event)
+            self.select_event(renderer, key, None, event)
 
         if self.event_table == None:
             return
@@ -108,8 +117,9 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
                 method = value
                 data = None
 
-            method(surface=self.surface, node_ids=self.selected_node_ids, data=data)
-            self.selected_node_ids.clear()
+            method(surface=self.surface, node_id=self.selected_node_id, cell_id=self.selected_cell_id, data=data)
+
+        self.window.Render()
 
     def onCharEvent(self, renderer, event):
         '''Process an on char event.
@@ -429,6 +439,19 @@ def add_plane(renderer, center, normal, color=[1.0, 1.0, 1.0], wire=False):
     planeSource.Update()
     plane_pd = planeSource.GetOutput()
     add_geometry(renderer, plane_pd, color, wire)
+
+def add_glyph_points(renderer, points, color=[1.0, 1.0, 1.0], size=2):
+    geom = vtk.vtkPolyData()
+    geom.SetPoints(points)
+    glyphFilter = vtk.vtkVertexGlyphFilter()
+    glyphFilter.SetInputData(geom)
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(glyphFilter.GetOutputPort())
+    actor = vtk.vtkActor()
+    actor.GetProperty().SetColor(color)
+    actor.GetProperty().SetPointSize(size)
+    actor.SetMapper(mapper)
+    renderer.AddActor(actor)
 
 def add_points(renderer, points, color=[1.0, 1.0, 1.0], size=3):
     geom_points = vtk.vtkPoints()

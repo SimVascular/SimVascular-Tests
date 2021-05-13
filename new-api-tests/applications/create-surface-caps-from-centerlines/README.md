@@ -6,6 +6,7 @@ The surface is typically ontained from a 3D segmenatation of medical imaging dat
 The create_surface_caps.py uses interactive graphics to disaplay geometry for surfaces, centerlines, etc. 
 All operations (e.g. extracting centerlines) are initiated using keyboard keys defined as
 
+    a - Compute model automatically.
     c - Compute centerlines.
     m - Create a model from the surface and centerlines.
     q - Quit
@@ -18,6 +19,11 @@ The order of operations is
    2) Select a centerline target points
    3) Compute centerlines
    4) Create a model from the surface and centerlines
+
+Selecting the 'a' key performs all of these operations automatically without the need for selecting source 
+and target points for the centerlines computation. It assumes a surface that has just three flat regions 
+defining an inlet and two outlet vessles. The source and target points are determined as the centers of 
+the three flat regions. This may not work for all surfaces!
 
 Example:
 

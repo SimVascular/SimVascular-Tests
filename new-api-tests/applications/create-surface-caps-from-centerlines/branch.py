@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
-from math import sqrt
-from math import pi
-from math import acos
-from os import path
 import vtk
 
 class Branch(object):
-    """The Branch class stores data for a centerline branch.
-    """
-    def __init__(self, cid, geometry, end_point_ids, end_cell_ids):
+    '''The Branch class stores data for a centerlines branch used to clip the ends of a surface.
+    
+       A branch defines a unique path within centerlines geometry.
+    '''
+    def __init__(self, cid, geometry, end_point_ids, end_cell_ids, end_normals, clip_distance):
         self.cid = cid                    
         self.geometry = geometry 
         self.end_point_ids = end_point_ids
         self.end_cell_ids = end_cell_ids
+        self.end_normals = end_normals
+        self.clip_distance = clip_distance
         self.renderer = None
         self.graphics = None
         self.length_scale = None
 
     def show(self, renderer, graphics, color, line_width, radius):
+        '''Show branch end points.
+        '''
         graphics.add_geometry(renderer, self.geometry, color=color, line_width=line_width)
         for pid in self.end_point_ids:
             pt = self.geometry.GetPoints().GetPoint(pid)
@@ -28,40 +30,47 @@ class Branch(object):
     def remove_surface_end(self, centerlines, surface, max_radius_data, normal_data):
         '''Remove the portion of the surface at the end of the centerlines.
         '''
-        print("\n========== Branch.remove_surface_end ==========")
-        print("[Branch.remove_surface_end] end_point_ids: {0:s}".format(str(self.end_point_ids)))
-        print("[Branch.remove_surface_end] end_cell_ids: {0:s}".format(str(self.end_cell_ids)))
+        print("\n[branch] ========== remove_surface_end ==========")
+        print("[branch] cid: {0:d}".format(self.cid))
+        print("[branch] end_point_ids: {0:s}".format(str(self.end_point_ids)))
+        print("[branch] end_cell_ids: {0:s}".format(str(self.end_cell_ids)))
         points = self.geometry.GetPoints()
+        normals = surface.GetCellData().GetArray('Normals')
+
         #end_pt = points.GetPoint(end_pid)
         #pt = self.geometry.GetPoints().GetPoint(pid)
         #radius = max_radius_data.GetValue(pid) 
         clipped_surface = surface
-        for end_pid in self.end_point_ids:
+        for end_pid,end_normal in zip(self.end_point_ids, self.end_normals):
             end_pt = points.GetPoint(end_pid)
             start_pid = None
+            start_cid = None
      
             for cell_id in self.end_cell_ids:
-                print("[Branch.remove_surface_end] ----- cell_id {0:d} -----".format(cell_id))
+                #print("[Branch.remove_surface_end] ----- cell_id {0:d} -----".format(cell_id))
                 cell = centerlines.GetCell(cell_id)
                 cell_pids = cell.GetPointIds()
                 pid1 = cell_pids.GetId(0)
                 pid2 = cell_pids.GetId(1)
-                print("[Branch.remove_surface_end] cell_pids: {0:d}  {1:d}".format(pid1, pid2))
+                #print("[Branch.remove_surface_end] cell_pids: {0:d}  {1:d}".format(pid1, pid2))
                 if pid1 == end_pid:
                     start_pid = pid2
+                    start_cid = cell_id
                     break
                 elif pid2 == end_pid:
                     start_pid = pid1
+                    start_cid = cell_id
                     break
-            print("[Branch.remove_surface_end] start_pid: {0:d}".format(start_pid))
-            print("[Branch.remove_surface_end] end_pid: {0:d}".format(end_pid))
+            #print("[Branch.remove_surface_end] start_pid: {0:d}".format(start_pid))
+            #print("[Branch.remove_surface_end] end_pid: {0:d}".format(end_pid))
             start_pt = points.GetPoint(start_pid)
+            #start_normal = [ normals.GetComponent(start_cid,i) for i in range(3)]
 
             start_radius = max_radius_data.GetValue(start_pid)
             end_radius = max_radius_data.GetValue(end_pid)
             avg_radius = (start_radius + end_radius) / 2.0
-            print("[Branch.remove_surface_end] start_radius: {0:g}".format(start_radius))
-            print("[Branch.remove_surface_end] end_radius: {0:g}".format(end_radius))
+            #print("[Branch.remove_surface_end] start_radius: {0:g}".format(start_radius))
+            #print("[Branch.remove_surface_end] end_radius: {0:g}".format(end_radius))
 
             if self.renderer:
                 radius = self.length_scale 
@@ -72,14 +81,20 @@ class Branch(object):
             vtk.vtkMath.Normalize(pt_normal)
 
             normal = [normal_data.GetComponent(start_pid,i) for i in range(3)]
+            normal = end_normal
             dist_factor = 0.15
             dp = sum([pt_normal[i]*normal[i] for i in range(3)])
-            print("[Branch.remove_surface_end] dp: {0:g}".format(dp))
+            #print("[Branch.remove_surface_end] dp: {0:g}".format(dp))
             if dp < 0.0:
                 normal = [-x for x in normal]
-            plane_pt = [(start_pt[i] + dist_factor*start_radius*normal[i]) for i in range(3)]
 
-            print("[Branch.remove_surface_end] plane_pt: {0:s}".format(str(plane_pt)))
+            if self.clip_distance == 0.0:
+                dist = dist_factor*start_radius
+                plane_pt = [(start_pt[i] + dist*normal[i]) for i in range(3)]
+            else:
+                plane_pt = [(start_pt[i] + (length-self.clip_distance)*normal[i]) for i in range(3)]
+
+            #print("[Branch.remove_surface_end] plane_pt: {0:s}".format(str(plane_pt)))
             slice_plane = vtk.vtkPlane()
             slice_plane.SetOrigin(plane_pt[0], plane_pt[1], plane_pt[2])
             slice_plane.SetNormal(normal[0], normal[1], normal[2])
