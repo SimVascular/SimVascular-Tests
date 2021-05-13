@@ -19,6 +19,8 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.picking_keys = picking_keys 
         self.picked_actor = None
         self.last_picked_actor = None
+        self.method_queue = []
+        self.pick_glyph_actor_queue = []
 
     def select_event(self, renderer, key, obj, event):
         '''Process a select event. 
@@ -87,6 +89,7 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         actor.GetProperty().SetPointSize(10)
         actor.SetMapper(mapper)
         self.renderer.AddActor(actor)
+        self.pick_glyph_actor_queue.append(actor)
 
         # Get picked face ID.
         data_name = "ModelFaceID" 
@@ -101,6 +104,12 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         '''Process a key press event.
         '''
         key = self.GetInteractor().GetKeySym()
+
+        if key == 'u' and len(self.method_queue) != 0:
+            last_method = self.method_queue.pop()
+            last_method(undo=True) 
+            last_actor = self.pick_glyph_actor_queue.pop()
+            last_actor.SetVisibility(False)
 
         if (key in self.picking_keys):
             self.select_event(renderer, key, None, event)
@@ -117,7 +126,11 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
                 method = value
                 data = None
 
+            # Call the method with selected node/cell and any data.
             method(surface=self.surface, node_id=self.selected_node_id, cell_id=self.selected_cell_id, data=data)
+
+            # Store the last method so we can use it for an undo operation.
+            self.method_queue.append(method)
 
         self.window.Render()
 

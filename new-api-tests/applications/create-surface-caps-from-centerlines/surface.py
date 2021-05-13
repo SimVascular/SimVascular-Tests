@@ -164,6 +164,15 @@ class Surface(object):
     def add_centerlines_source_node(self, **kwargs):
         '''Add a source node ID used for exctracting centerlines.
         '''
+        if 'undo' in kwargs:
+            print('[surface] undo source node')
+            try:
+                self.centerlines_source_nodes.pop()
+                self.centerlines_source_cells.pop()
+            except:
+                pass 
+            return
+
         node_id = kwargs['node_id']
         cell_id = kwargs['cell_id']
         self.centerlines_source_nodes.append(node_id)
@@ -172,6 +181,15 @@ class Surface(object):
     def add_centerlines_target_node(self, **kwargs):
         '''Add a target node ID used for exctracting centerlines.
         '''
+        if 'undo' in kwargs:
+            try:
+                self.centerlines_target_nodes.pop()
+                self.centerlines_target_cells.pop()
+            except:
+                pass 
+            return
+
+        node_id = kwargs['node_id']
         node_id = kwargs['node_id']
         cell_id = kwargs['cell_id']
         self.centerlines_target_nodes.append(node_id)

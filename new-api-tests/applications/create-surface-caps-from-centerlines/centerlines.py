@@ -31,6 +31,7 @@ class Centerlines(object):
         self.length_scale = 1.0
         self.end_offset = 0.0
         self.clip_distance = 0.0
+        self.clip_width_scale = 1.0
         self.clipped_surface = None
 
     def read(self, file_name):
@@ -226,7 +227,8 @@ class Centerlines(object):
         #print("[centerlines] branch cid: {0:d}".format(cid))
         #print("[centerlines]   branch_end_point_ids: {0:s}".format(str(branch_end_point_ids)))
         #print("[centerlines]   branch_end_cell_ids: {0:s}".format(str(branch_end_cell_ids)))
-        return Branch(cid, branch_geom, branch_end_point_ids, branch_end_cell_ids, branch_end_normals, self.clip_distance)
+        return Branch(cid, branch_geom, branch_end_point_ids, branch_end_cell_ids, branch_end_normals, 
+                      self.clip_distance, self.clip_width_scale)
 
     def extract_branch_geom(self, cid):
         data_array = self.geometry.GetPointData().GetArray(self.cids_array_name)
