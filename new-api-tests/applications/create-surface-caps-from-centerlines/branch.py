@@ -8,13 +8,14 @@ class Branch(object):
     
        A branch defines a unique path within centerlines geometry.
     '''
-    def __init__(self, cid, geometry, end_point_ids, end_cell_ids, end_normals, clip_distance):
+    def __init__(self, cid, geometry, end_point_ids, end_cell_ids, end_normals, clip_distance, clip_width_scale=1.0):
         self.cid = cid                    
         self.geometry = geometry 
         self.end_point_ids = end_point_ids
         self.end_cell_ids = end_cell_ids
         self.end_normals = end_normals
         self.clip_distance = clip_distance
+        self.clip_width_scale = clip_width_scale 
         self.renderer = None
         self.graphics = None
         self.length_scale = None
@@ -68,7 +69,6 @@ class Branch(object):
 
             start_radius = max_radius_data.GetValue(start_pid)
             end_radius = max_radius_data.GetValue(end_pid)
-            avg_radius = (start_radius + end_radius) / 2.0
             #print("[Branch.remove_surface_end] start_radius: {0:g}".format(start_radius))
             #print("[Branch.remove_surface_end] end_radius: {0:g}".format(end_radius))
 
@@ -76,23 +76,27 @@ class Branch(object):
                 radius = self.length_scale 
                 self.graphics.add_sphere(self.renderer, start_pt, radius, color=[0.5, 0.5, 0.5], wire=True)
 
+            ## Compute the orientation of the plane used to clip the surface. 
+            #
             pt_normal = [(end_pt[i]-start_pt[i]) for i in range(3)]
             length = vtk.vtkMath.Norm(pt_normal)
             vtk.vtkMath.Normalize(pt_normal)
-
-            normal = [normal_data.GetComponent(start_pid,i) for i in range(3)]
+            #normal = [normal_data.GetComponent(start_pid,i) for i in range(3)]
             normal = end_normal
-            dist_factor = 0.15
             dp = sum([pt_normal[i]*normal[i] for i in range(3)])
             #print("[Branch.remove_surface_end] dp: {0:g}".format(dp))
             if dp < 0.0:
                 normal = [-x for x in normal]
 
+            # If the self.clip_distance parameter is not set then
+            # use the end sphere radius.
             if self.clip_distance == 0.0:
-                dist = dist_factor*start_radius
-                plane_pt = [(start_pt[i] + dist*normal[i]) for i in range(3)]
+                dist_factor = 0.15
+                clip_distance = end_radius
             else:
-                plane_pt = [(start_pt[i] + (length-self.clip_distance)*normal[i]) for i in range(3)]
+                clip_distance = self.clip_distance
+
+            plane_pt = [(start_pt[i] + (length-clip_distance)*normal[i]) for i in range(3)]
 
             #print("[Branch.remove_surface_end] plane_pt: {0:s}".format(str(plane_pt)))
             slice_plane = vtk.vtkPlane()
@@ -103,17 +107,22 @@ class Branch(object):
             # Set the dimensions of the clipping box.
             start_radius = max_radius_data.GetValue(start_pid) 
             end_radius = max_radius_data.GetValue(end_pid) 
+            clip_radius = end_radius * self.clip_width_scale
+            #print("[Branch.remove_surface_end] end_radius: {0:g}".format(end_radius))
+            #print("[Branch.remove_surface_end] self.clip_width_scale: {0:g}".format(self.clip_width_scale))
+            #print("[Branch.remove_surface_end] clip_radius: {0:g}".format(clip_radius))
             sphere = vtk.vtkSphereSource()
             sphere.SetCenter(plane_pt)
-            sphere.SetRadius(end_radius)
+            sphere.SetRadius(clip_radius)
             sphere.Update()
             bounds = 6*[0.0]
             sphere.GetOutput().GetBounds(bounds)
             slice_planes = vtk.vtkPlanes()
             slice_planes.SetBounds(bounds)
+            print("[Branch.remove_surface_end] bbounds: {0:s}".format(str(bounds)))
 
             # Clip the surface.
-            box_func = self.compute_box_func(normal, plane_pt, end_radius)
+            box_func = self.compute_box_func(normal, plane_pt, clip_radius)
             clipped_surface = self.clip_surface(clipped_surface, box_func)
         #_for end_pid in self.end_point_ids
         return clipped_surface 

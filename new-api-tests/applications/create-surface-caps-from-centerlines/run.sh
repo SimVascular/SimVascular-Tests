@@ -14,7 +14,5 @@ file=H-019_J0__11_surfacemesh.vtk
 
 file=H-053_J0__06_surfacemesh.vtk 
 
-file=H-009_M6__28_surfacemesh.vtk 
-
-$svp create_surface_caps.py --surface-file=./data/${file} --clip-distance=0.2
+$svp create_surface_caps.py --surface-file=./data/${file} --clip-distance=0.2  --clip-width-scale=1.1
 

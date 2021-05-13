@@ -19,6 +19,8 @@ def parse_args():
     parser.add_argument("--surface-file",  required=True, help="Input surface (.vtp or .vtk) file.")
     parser.add_argument("--clip-distance", type=float, default=0.0, 
         help="The distance from the end of a centerline branch to clip a surface.")
+    parser.add_argument("--clip-width-scale", type=float, default=1.0, 
+        help="The width multiplied by the centerline branch end radius to define the width of the box used to clip a surface.")
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
@@ -52,15 +54,17 @@ def main():
     centerlines.window = renderer_window 
     centerlines.renderer = renderer
     centerlines.clip_distance = args.clip_distance
+    centerlines.clip_width_scale = args.clip_width_scale
     #surface.centerlines = centerlines 
 
     print("---------- Alphanumeric Keys ----------")
-    print("a - Compute model automatically.")
+    print("a - Compute model automatically for a three vessel surface with flat ends.")
     print("c - Compute centerlines.")
     print("m - Create a model from the surface and centerlines.")
     print("q - Quit")
     print("s - Select a centerline source point.")
     print("t - Select a centerline target point.")
+    print("u - Undo the selection of a centerline source or target point.")
 
     ## Create a mouse interactor for selecting centerline points.
     picking_keys = ['s', 't']
