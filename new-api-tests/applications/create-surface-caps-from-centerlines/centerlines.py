@@ -33,6 +33,7 @@ class Centerlines(object):
         self.clip_distance = 0.0
         self.clip_width_scale = 1.0
         self.clipped_surface = None
+        self.capped_surface = None
 
     def read(self, file_name):
         '''Read a centerlines geometry file created using SV.
@@ -285,22 +286,67 @@ class Centerlines(object):
         #surface_obj.vtk_actor.GetProperty().SetRepresentationToPoints()
         surface_obj.vtk_actor.GetProperty().SetRepresentationToWireframe()
 
-
     def create_capped_surface(self):
         '''Create a capped surface from the clipped surface.
         '''
         print("[centerlines] ========== create_capped_surface ==========")
         clipped_surface = self.clipped_surface
         capped_surface = sv.vmtk.cap(surface=clipped_surface, use_center=True)
-        self.graphics.add_geometry(self.renderer, capped_surface, color=[0.0, 1.0, 1.0])
+        #self.graphics.add_geometry(self.renderer, capped_surface, color=[0.0, 1.0, 1.0])
 
+        # Remesh the surface because capping creates a poor triangulation.
+        remesh_h = 2.0 * self.surface.length_scale 
+        remeshed_capped_surface = sv.mesh_utils.remesh(capped_surface, hmin=remesh_h, hmax=remesh_h)
+        self.capped_surface = remeshed_capped_surface
+        self.graphics.add_geometry(self.renderer, remeshed_capped_surface, color=[0.0, 1.0, 1.0])
+
+        # Write the capped surface.
         file_name = self.surface.file_prefix + "-capped.vtp"
         writer = vtk.vtkXMLPolyDataWriter()
         writer.SetFileName(file_name)
-        writer.SetInputData(capped_surface)
+        writer.SetInputData(remeshed_capped_surface)
+        #writer.SetInputData(capped_surface)
         writer.Update()
         writer.Write()
         print("[centerlines] Capped geometry has been written to '{0:s}'".format(file_name))
+
+        # Generate a volume mesh for the capped surface.
+        self.mesh_capped_surface()
+
+    def mesh_capped_surface(self):
+        '''Generate a volume mesh for the capped surface.
+        '''
+        print("[centerlines] ========== mesh_capped_surface ==========")
+        # Create a model from the capped surface..
+        model = sv.modeling.PolyData()
+        model.set_surface(surface=self.capped_surface)
+
+        # Create a TetGen mesher.
+        mesher = sv.meshing.TetGen()
+        mesher.set_model(model)
+
+        # Set the face IDs for model walls.
+        face_ids = [1]
+        mesher.set_walls(face_ids)
+
+        # Compute model boundary faces.
+        face_ids = mesher.get_model_face_ids()
+        print("[centerlines] Mesh face ids: " + str(face_ids))
+
+        # Set meshing options.
+        edge_size = self.surface.length_scale
+        options = sv.meshing.TetGenOptions(global_edge_size=edge_size, surface_mesh_flag=True, volume_mesh_flag=True)
+
+        # Generate the mesh. 
+        mesher.generate_mesh(options)
+        mesh = mesher.get_mesh()
+        print("[centerlines] Mesh:");
+        print("[centerlines]   Number of nodes: {0:d}".format(mesh.GetNumberOfPoints()))
+        print("[centerlines]   Number of elements: {0:d}".format(mesh.GetNumberOfCells()))
+
+        # Write the mesh. 
+        file_name = self.surface.file_prefix + "-mesh.vtu"
+        mesher.write_mesh(file_name)
 
     def remove_surface_ends(self): 
         '''Remove the ends of the surface.

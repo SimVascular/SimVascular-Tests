@@ -120,7 +120,8 @@ class Surface(object):
                 max_area = area
         #_for i in range(num_cells)
 
-        self.length_scale = sqrt(max_area / 2.0)
+        avg_area /= num_cells 
+        self.length_scale = sqrt(2.0 * max_area)
         print('[surface] Length scale: {0:g}'.format(self.length_scale))
 
     def get_cell_normal(self, cell_id):
