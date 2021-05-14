@@ -8,7 +8,7 @@ All operations (e.g. extracting centerlines) are initiated using keyboard keys
 
     a - Compute model automatically.
     c - Compute centerlines.
-    m - Create a model from the surface and centerlines.
+    m - Create a model from the surface and centerlines, remesh the surface and generate an FE volume mesh.
     q - Quit
     s - Select a centerline source point.
     t - Select a centerline target point.
