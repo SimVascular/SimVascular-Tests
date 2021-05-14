@@ -16,11 +16,21 @@ def parse_args():
     '''Parse command-line arguments.
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("--surface-file",  required=True, help="Input surface (.vtp or .vtk) file.")
+
     parser.add_argument("--clip-distance", type=float, default=0.0, 
         help="The distance from the end of a centerline branch to clip a surface.")
+
     parser.add_argument("--clip-width-scale", type=float, default=1.0, 
         help="The width multiplied by the centerline branch end radius to define the width of the box used to clip a surface.")
+
+    parser.add_argument("--surface-file",  required=True, help="Input surface (.vtp or .vtk) file.")
+
+    parser.add_argument("--mesh-scale", type=float, default=1.0, 
+        help="The factor used to scale the fe volume meshing edge size. A larger scale creates a coarser mesh. The initial edge size is determined from the largest surface triangle.")
+
+    parser.add_argument("--remesh-scale", type=float, default=1.0, 
+        help="The factor used to scale the surface remeshing edge size. A larger scale creates a coarser suface mesh. The initial edge size is determined from the largest surface triangle.")
+
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
@@ -55,7 +65,8 @@ def main():
     centerlines.renderer = renderer
     centerlines.clip_distance = args.clip_distance
     centerlines.clip_width_scale = args.clip_width_scale
-    #surface.centerlines = centerlines 
+    centerlines.remesh_scale = args.remesh_scale
+    centerlines.mesh_scale = args.mesh_scale
 
     print("---------- Alphanumeric Keys ----------")
     print("a - Compute model automatically for a three vessel surface with flat ends.")

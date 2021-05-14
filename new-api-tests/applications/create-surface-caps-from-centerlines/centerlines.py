@@ -34,6 +34,8 @@ class Centerlines(object):
         self.clip_width_scale = 1.0
         self.clipped_surface = None
         self.capped_surface = None
+        self.remesh_scale = 1.0
+        self.mesh_scale = 1.0
 
     def read(self, file_name):
         '''Read a centerlines geometry file created using SV.
@@ -295,7 +297,7 @@ class Centerlines(object):
         #self.graphics.add_geometry(self.renderer, capped_surface, color=[0.0, 1.0, 1.0])
 
         # Remesh the surface because capping creates a poor triangulation.
-        remesh_h = 2.0 * self.surface.length_scale 
+        remesh_h = 2.0 * self.surface.length_scale * self.remesh_scale
         remeshed_capped_surface = sv.mesh_utils.remesh(capped_surface, hmin=remesh_h, hmax=remesh_h)
         self.capped_surface = remeshed_capped_surface
         self.graphics.add_geometry(self.renderer, remeshed_capped_surface, color=[0.0, 1.0, 1.0])
@@ -334,7 +336,7 @@ class Centerlines(object):
         print("[centerlines] Mesh face ids: " + str(face_ids))
 
         # Set meshing options.
-        edge_size = self.surface.length_scale
+        edge_size = self.surface.length_scale * self.mesh_scale
         options = sv.meshing.TetGenOptions(global_edge_size=edge_size, surface_mesh_flag=True, volume_mesh_flag=True)
 
         # Generate the mesh. 
