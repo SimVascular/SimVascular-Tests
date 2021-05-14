@@ -24,12 +24,16 @@ The order of operations is
 
    4) Create a model from the surface and centerlines
 
+   5) Remesh the model surface (needed to regularize the capped surface mesh)
+
+   6) Generate an FE volume mesh 
+
 Selecting the 'a' key performs all of these operations automatically without the need for selecting source 
 and target points for the centerlines computation. It assumes a surface that has just three flat regions 
 defining a vessel with an inlet and two outlets. The source and target points are determined as the centers of 
 the three flat regions. This may not work for all surfaces!
 
-Geometry from all operations is written to a .vtp file with the NAME of the input surface file prefixed
+Geometry from all operations are written to a .vtp or .vtu files with the NAME of the input surface file prefixed
 
    NAME-centerlines.vtp - Centerlines 
 
@@ -37,8 +41,10 @@ Geometry from all operations is written to a .vtp file with the NAME of the inpu
 
    NAME-capped.vtp - The capped clipped surface
 
+   NAME-mesh.vtu - The FE volume mesh 
 
-The create_surface_caps.py script accepts three argumnents 
+
+The create_surface_caps.py script accepts several argumnents 
 
    --surface-file (required) 
 
@@ -53,6 +59,17 @@ The create_surface_caps.py script accepts three argumnents
 
      The width multiplied by the centerline branch end maximum inscribed sphere radius to define the width
      of the box used to clip a surface.
+
+   --mesh-scale (optional, default=1.0)
+
+     The factor used to scale the fe volume meshing edge size. A larger scale creates a coarser mesh. 
+     The initial edge size is determined from the largest surface triangle.
+
+   --remesh-scale (optional, default=1.0)
+
+     The factor used to scale the surface remeshing edge size. A larger scale creates a coarser suface mesh. 
+     The initial edge size is determined from the largest surface triangle.
+
 
 Example:
 
