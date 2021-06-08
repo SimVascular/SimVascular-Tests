@@ -25,6 +25,7 @@ file_name = str(data_path / 'DemoProject' / 'Paths' / (path_name + ".pth"))
 paths = sv.pathplanning.Series(file_name)
 print("Paths:")
 print("  Number of time steps: {0:d}".format(paths.get_num_times()))
+print("  Name: {0:s}".format(paths.get_name()))
 
 print(" ")
 print("Path at time 0:")

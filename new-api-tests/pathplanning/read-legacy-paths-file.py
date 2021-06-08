@@ -21,6 +21,7 @@ except:
 #
 home = str(Path.home())
 path_name = "aorta-legacy"
+#path_name = "aorta-legacy-multiple-paths"
 file_name = str(data_path / 'DemoProject' / 'Paths' / (path_name + ".paths"))
 
 # Read file from constructor.
