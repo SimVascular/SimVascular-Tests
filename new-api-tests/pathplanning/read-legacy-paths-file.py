@@ -1,4 +1,4 @@
-''' This scripts tests reading a path planning .pth file.
+'''This script tests reading a legacy path planning .path file.
 '''
 import os
 from pathlib import Path
@@ -20,12 +20,22 @@ except:
 ## Create a Paths object from an SV file.
 #
 home = str(Path.home())
-path_name = "aorta"
-file_name = str(data_path / 'DemoProject' / 'Paths' / (path_name + ".pth"))
-paths = sv.pathplanning.Series(file_name)
+path_name = "aorta-legacy"
+#path_name = "aorta-legacy-multiple-paths"
+file_name = str(data_path / 'DemoProject' / 'Paths' / (path_name + ".paths"))
+
+# Read file from constructor.
+#paths = sv.pathplanning.Series(file_name, legacy=True)
+
+# Read file from object. 
+paths = sv.pathplanning.Series()
+paths.read(file_name, legacy=True)
+
+# Write the path series to a file.
+paths.write(str(script_path / "test-aorta-legacy.pth"))
+
 print("Paths:")
 print("  Number of time steps: {0:d}".format(paths.get_num_times()))
-print("  Name: {0:s}".format(paths.get_name()))
 
 print(" ")
 print("Path at time 0:")
