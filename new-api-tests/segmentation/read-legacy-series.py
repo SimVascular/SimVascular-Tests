@@ -31,9 +31,6 @@ else:
     seg_series = sv.segmentation.Series()
     seg_series.read(file_name, legacy=True)
 
-file_name = str(data_path / 'segmentation' / '0110_0001_groups-cm' / 'aorta')
-seg_series.read(file_name, legacy=True)
-
 num_times = seg_series.get_num_times()
 print("Number of time points: {0:d}".format(num_times))
 
