@@ -17,16 +17,28 @@ try:
 except:
     print("Can't find the new-api-tests/graphics package.")
 
-## Read an SV segmentation group file. 
-#
 file_name = str(data_path / 'segmentation' / '0110_0001_groups-cm' / 'aorta')
+# Bad file name to test error handling.
 #file_name = str(data_path / 'segmentation' / '0110_0001_groups-cm' / 'aorta1')
 print("Read SV legacy files: {0:s}".format(file_name))
-seg_series = sv.segmentation.Series(file_name, legacy=True)
-#seg_series = sv.segmentation.Series()
+
+# Read an SV segmentation group file from the contructor. 
+if False:
+    seg_series = sv.segmentation.Series(file_name, legacy=True)
+
+# Read an SV segmentation group file using the 'read()' method.
+else:
+    seg_series = sv.segmentation.Series()
+    seg_series.read(file_name, legacy=True)
+
+file_name = str(data_path / 'segmentation' / '0110_0001_groups-cm' / 'aorta')
+seg_series.read(file_name, legacy=True)
 
 num_times = seg_series.get_num_times()
 print("Number of time points: {0:d}".format(num_times))
+
+# Write the segmentation series to a file.
+seg_series.write(str(script_path / "test-aorta-legacy.ctgr"))
 
 ## Create renderer and graphics window.
 win_width = 500
