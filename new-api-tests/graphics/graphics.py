@@ -127,7 +127,8 @@ class MouseInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
                 data = None
 
             # Call the method with selected node/cell and any data.
-            method(surface=self.surface, node_id=self.selected_node_id, cell_id=self.selected_cell_id, data=data)
+            print("###### self.selected_node_id: " + str(self.selected_node_id))
+            method(surface=self.surface, node_id=self.selected_node_id, cell_id=self.selected_cell_id, data=data, renderer=self.renderer)
 
             # Store the last method so we can use it for an undo operation.
             self.method_queue.append(method)
