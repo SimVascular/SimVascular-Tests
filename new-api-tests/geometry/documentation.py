@@ -8,7 +8,9 @@ import sv
 
 #help(sv.geometry.LoftOptions)
 
-help(sv.geometry.LoftNurbsOptions)
+#help(sv.geometry.LoftNurbsOptions)
 
 #help(sv.geometry.LoftNurbsOptions)
+
+help(sv.geometry.local_sphere_smooth)
 
