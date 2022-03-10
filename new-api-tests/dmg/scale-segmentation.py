@@ -1,17 +1,17 @@
 '''Test scaling segmentations and adding them to the SV Data Manager.
 
-   This is tested using the Demo Project. A new Segmenation group 
-   named 'new_aorta' is created.
+   This is tested using the Demo Project 'aorta' segmentation. 
+   A new Segmentation group named 'new_aorta' is created.
 '''
 from pathlib import Path
 import sv
 
 def scale_points(points, center, scale, normal):
-    '''Scale a list of 3D points.
+    '''Scale a list of 3D points around the given center.
        
-       Control points must lie in a plane so also project the scaled points onto
-       the plane 'normal*center = dist'. The SV plane tolerance is probably too 
-       small (1e-6).
+       Control points must lie in a plane so project the scaled points onto
+       the plane 'normal*center = dist'. The SV plane tolerance is 1e-6 
+       (probably too small) so some points may fail this check.
     '''
     scaled_points = []
     dist = sum([normal[i] * center[i] for i in range(3)])
@@ -22,26 +22,22 @@ def scale_points(points, center, scale, normal):
         scaled_points.append(scaled_pt)
     return scaled_points
 
-# Read an SV segmentation .ctgr file. 
-#
-home = str(Path.home())
-file_name = home + "/SimVascular/DemoProject/Segmentations/aorta.ctgr"
-print("Read SV ctgr file: {0:s}".format(file_name))
-seg_series = sv.segmentation.Series(file_name)
-num_times = seg_series.get_num_times()
-print("Number of times: {0:d}".format(num_times))
+# Get the segmentations for 'aorta'.
+segmentation_name = 'aorta'
+path_name = 'aorta'
+segmentations = sv.dmg.get_segmentations(segmentation_name)
 
 # Scale the segmentations.
 #
-time = 0
-num_segs = seg_series.get_num_segmentations(time)
-segmentations = []
+scaled_segmentations = []
 scale = 0.5
 
-for sid in range(num_segs):
-    seg = seg_series.get_segmentation(sid, time)
+for seg in segmentations:
+    sid = seg.get_id()
     ctype = seg.get_type()
-    print('Segmentation type: {0:s}'.format(ctype))
+    #print('    ')
+    #print('id: {0:d}'.format(sid))
+    #print('type: {0:s}'.format(ctype))
 
     if ctype == "Contour":
         control_points = seg.get_points()
@@ -57,10 +53,10 @@ for sid in range(num_segs):
     else:
         seg.set_control_points(scaled_control_points)
 
-    segmentations.append(seg)
+    scaled_segmentations.append(seg)
 
-## Add the Python segmentation objects under the SV Data Manager 'Segmentations' nodes
-#  as a new  node named 'new_aorta'.
+## Add the new scaled segmentation group named 'new_aorta' 
+#  under the SV Data Manager 'Segmentations' node.
 #
-sv.dmg.add_segmentation(name="new_aorta", path="aorta", segmentations=segmentations)
+sv.dmg.add_segmentation(name="new_aorta", path=path_name, segmentations=scaled_segmentations)
 
