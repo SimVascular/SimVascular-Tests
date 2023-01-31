@@ -28,7 +28,6 @@ print("Mesh generation kernel names: {0:s}".format(str(sv.meshing.Kernel.names))
 ## Create a TetGen mesher.
 #
 mesher = sv.meshing.create_mesher(sv.meshing.Kernel.TETGEN)
-print("Mesher: " + str(mesher))
 
 ## Load solid model into the mesher.
 #  Note: must load solid before setting certain options!
@@ -48,17 +47,11 @@ face_ids = mesher.get_model_face_ids()
 print("Mesh face info: " + str(face_ids))
 
 # Read centerlines. 
-if True:
-#if False:
-    centerlines_file = str(data_path / 'meshing' / 'demo-centerlines.vtp')
-    reader = vtk.vtkXMLPolyDataReader()
-    reader.SetFileName(centerlines_file) 
-    reader.Update()
-    centerlines = reader.GetOutput()
-
-# Compute centerlines.
-else:
-  centerlines = mesher.compute_centerlines()
+centerlines_file = str(data_path / 'meshing' / 'demo-centerlines.vtp')
+reader = vtk.vtkXMLPolyDataReader()
+reader.SetFileName(centerlines_file) 
+reader.Update()
+centerlines = reader.GetOutput()
 
 ## Set general meshing options.
 options = sv.meshing.TetGenOptions(global_edge_size=0.4, surface_mesh_flag=True, volume_mesh_flag=True)
